@@ -1,5 +1,4 @@
 // Compact showcase — All 50 chart types on 6 pages (dark theme)
-// Package users: #import "@preview/primaviz:0.1.1": *
 #import "../src/lib.typ": *
 
 #set page(margin: (x: 0.6cm, y: 0.6cm), paper: "a4", fill: rgb("#1a1a2e"))
