@@ -6,9 +6,9 @@
 #let lt = themes.default
 #let dk = themes.dark
 #let W = 250pt
-#let H = 170pt
+#let H = 280pt
 
-#page-grid(cols: 2, rows: 2, (
+#page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   area-chart(
     (labels: ("5.0", "5.5", "5.10", "5.15", "6.0", "6.5", "6.9"),
      values: (26.1, 27.8, 29.2, 30.5, 31.4, 33.1, 35.2)),

@@ -6,9 +6,9 @@
 #let lt = themes.default
 #let dk = themes.dark
 #let W = 250pt
-#let H = 170pt
+#let H = 280pt
 
-#page-grid(cols: 2, rows: 2, (
+#page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   slope-chart(
     (labels: ("Company A", "Company B", "Company C", "Company D"),
      start-values: (85, 70, 60, 45),
@@ -30,13 +30,13 @@
      values: (35, 58, 42, 71, 29, 53)),
     width: W, height: H, title: "lollipop-chart", theme: lt,
   ),
-  [
-    #text(size: 9pt, weight: "bold", fill: rgb("#e0e0e0"))[bullet-chart]
+  box(fill: rgb("#1a1a2e"), inset: 8pt, radius: 4pt)[
+    #text(size: 9pt, weight: "bold", fill: rgb("#e0e0e0"))[bullet-chart (dark)]
     #v(6pt)
-    #bullet-chart(275, 250, (150, 225, 300), width: 230pt, height: 28pt, title: "Revenue", theme: dk)
+    #bullet-chart(275, 250, (150, 225, 300), width: 210pt, height: 28pt, title: "Revenue", theme: dk)
     #v(6pt)
-    #bullet-chart(82, 90, (60, 80, 100), width: 230pt, height: 28pt, title: "Satisfaction", theme: dk)
+    #bullet-chart(82, 90, (60, 80, 100), width: 210pt, height: 28pt, title: "Satisfaction", theme: dk)
     #v(6pt)
-    #bullet-chart(45, 50, (25, 40, 60), width: 230pt, height: 28pt, title: "Customers", theme: dk)
+    #bullet-chart(45, 50, (25, 40, 60), width: 210pt, height: 28pt, title: "Customers", theme: dk)
   ],
 ))

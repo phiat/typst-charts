@@ -6,16 +6,16 @@
 #let lt = themes.default
 #let dk = themes.dark
 #let W = 250pt
-#let H = 170pt
+#let H = 280pt
 
-#page-grid(cols: 2, rows: 2, (
+#page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   ring-progress(
     (
       (name: "Move", value: 420, max: 500),
       (name: "Exercise", value: 28, max: 30),
       (name: "Stand", value: 10, max: 12),
     ),
-    size: 130pt, ring-width: 12pt, title: "ring-progress (light)", theme: lt,
+    size: 180pt, ring-width: 16pt, title: "ring-progress (light)", theme: lt,
   ),
   ring-progress(
     (
@@ -23,7 +23,7 @@
       (name: "Exercise", value: 28, max: 30),
       (name: "Stand", value: 10, max: 12),
     ),
-    size: 130pt, ring-width: 12pt, title: "ring-progress (dark)", theme: dk,
+    size: 180pt, ring-width: 16pt, title: "ring-progress (dark)", theme: dk,
   ),
   treemap(
     (labels: ("Rent", "Food", "Transport", "Fun", "Savings", "Health"),

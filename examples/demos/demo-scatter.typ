@@ -6,9 +6,9 @@
 #let lt = themes.default
 #let dk = themes.dark
 #let W = 250pt
-#let H = 170pt
+#let H = 280pt
 
-#page-grid(cols: 2, rows: 2, (
+#page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   scatter-plot(
     (x: (12, 28, 45, 8, 35, 18, 52),
      y: (3, 12, 22, 2, 18, 8, 28)),

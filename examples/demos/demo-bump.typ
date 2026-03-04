@@ -6,9 +6,9 @@
 #let lt = themes.default
 #let dk = themes.dark
 #let W = 250pt
-#let H = 170pt
+#let H = 280pt
 
-#page-grid(cols: 2, rows: 2, (
+#page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   bump-chart(
     (labels: ("Jan", "Feb", "Mar", "Apr", "May"),
      series: (

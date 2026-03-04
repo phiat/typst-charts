@@ -6,9 +6,9 @@
 #let lt = themes.default
 #let dk = themes.dark
 #let W = 250pt
-#let H = 170pt
+#let H = 280pt
 
-#page-grid(cols: 2, rows: 2, (
+#page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   line-chart(
     (labels: ("5.15", "5.19", "6.1", "6.3", "6.5", "6.7", "6.9"),
      values: (11.2, 11.8, 12.1, 12.5, 12.9, 13.2, 13.6)),

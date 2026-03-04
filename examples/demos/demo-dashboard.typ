@@ -7,7 +7,7 @@
 #let dk = themes.dark
 #let W = 250pt
 
-#page-grid(cols: 2, rows: 2, (
+#page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   [
     #text(size: 9pt, weight: "bold")[metric-row]
     #v(4pt)
@@ -35,7 +35,7 @@
        (text: "Reports", weight: 2),
        (text: "Insights", weight: 2),
      )),
-    width: W, height: 170pt, title: "word-cloud (dark)", theme: dk,
+    width: W, height: 300pt, title: "word-cloud (dark)", theme: dk,
   ),
   [
     #text(size: 9pt, weight: "bold")[sparkline / sparkbar / sparkdot]

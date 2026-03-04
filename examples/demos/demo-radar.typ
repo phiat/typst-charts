@@ -19,17 +19,17 @@
     (name: "Barbarian", values: (20, 14, 18, 6, 10, 8)),
   ))
 
-#page-grid(cols: 2, rows: 2, (
+#page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   radar-chart(data2,
-    size: 160pt, title: "radar-chart (light)", fill-opacity: 25%, theme: lt,
+    size: 220pt, title: "radar-chart (light)", fill-opacity: 25%, theme: lt,
   ),
   radar-chart(data2,
-    size: 160pt, title: "radar-chart (dark)", fill-opacity: 25%, theme: dk,
+    size: 220pt, title: "radar-chart (dark)", fill-opacity: 25%, theme: dk,
   ),
   radar-chart(data3,
-    size: 160pt, title: "radar-chart (3-series)", fill-opacity: 25%, theme: lt,
+    size: 220pt, title: "radar-chart (3-series)", fill-opacity: 25%, theme: lt,
   ),
   radar-chart(data3,
-    size: 160pt, title: "radar-chart (accessible)", fill-opacity: 25%, theme: themes.accessible,
+    size: 220pt, title: "radar-chart (accessible)", fill-opacity: 25%, theme: themes.accessible,
   ),
 ))

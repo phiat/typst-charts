@@ -6,9 +6,9 @@
 #let lt = themes.default
 #let dk = themes.dark
 #let W = 250pt
-#let H = 170pt
+#let H = 280pt
 
-#page-grid(cols: 2, rows: 2, (
+#page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   sankey-chart(
     (nodes: ("Budget", "Salary", "Invest", "Rent", "Food", "Save", "Stocks", "Bonds"),
      flows: (
@@ -22,8 +22,8 @@
      )),
     width: W, height: H, title: "sankey-chart", show-labels: true, theme: lt,
   ),
-  [
-    #text(size: 9pt, weight: "bold", fill: rgb("#e0e0e0"))[gantt-chart]
+  box(fill: rgb("#1a1a2e"), inset: 8pt, radius: 4pt)[
+    #text(size: 9pt, weight: "bold", fill: rgb("#e0e0e0"))[gantt-chart (dark)]
     #v(4pt)
     #gantt-chart(
       (tasks: (
@@ -35,7 +35,7 @@
         (name: "Launch", start: 12, end: 13, group: "Ship"),
        ),
        time-labels: ("W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12", "W13")),
-      width: 230pt, bar-height: 14pt, gap: 3pt, today: 7, title: none, theme: dk,
+      width: 214pt, bar-height: 14pt, gap: 3pt, today: 7, title: none, theme: dk,
     )
   ],
   timeline-chart(
@@ -56,6 +56,6 @@
        (8, 5, 15, 0, 10),
        (3, 10, 5, 8, 0),
      )),
-    size: 150pt, arc-width: 10pt, title: "chord-diagram", theme: dk,
+    size: 220pt, arc-width: 12pt, title: "chord-diagram", theme: dk,
   ),
 ))
