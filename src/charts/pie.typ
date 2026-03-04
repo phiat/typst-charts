@@ -4,6 +4,7 @@
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/legend.typ": draw-legend-vertical
+#import "../primitives/polar.typ": pie-slice-points, place-donut-hole, separator-stroke
 
 /// Renders a pie or donut chart from label-value data.
 ///
@@ -54,36 +55,30 @@
         #let center-y = radius
         #let current-angle = 0deg
 
-        #for (i, val) in values.enumerate() {
-          let slice-angle = (val / total) * 360deg
-          let segments = calc.max(int(slice-angle.deg() / 3), 3)
+        #let current-deg = 0
 
-          let pts = ((center-x, center-y),)
-          for j in array.range(segments + 1) {
-            let angle = current-angle + (j / segments) * slice-angle
-            let x = center-x + radius * calc.cos(angle)
-            let y = center-y + radius * calc.sin(angle)
-            pts.push((x, y))
-          }
+        #for (i, val) in values.enumerate() {
+          let slice-deg = (val / total) * 360
+
+          let pts = pie-slice-points(center-x, center-y, radius, current-deg, current-deg + slice-deg)
 
           place(
             left + top,
             polygon(
               fill: get-color(t, i),
-              stroke: (if t.background != none { t.background } else { white }) + 1pt,
-              ..pts.map(p => (p.at(0), p.at(1)))
+              stroke: separator-stroke(t, thickness: 1pt),
+              ..pts,
             )
           )
 
           // Percentage label
           if show-percentages {
-            let mid-angle = current-angle + slice-angle / 2
+            let mid-deg = current-deg + slice-deg / 2
             let pct = calc.round((val / total) * 100, digits: 1)
-            // Only show percentage if slice is big enough
             if pct >= 5 {
               let label-dist = radius * (if donut { 0.75 } else { 0.6 })
-              let lx = center-x + label-dist * calc.cos(mid-angle)
-              let ly = center-y + label-dist * calc.sin(mid-angle)
+              let lx = center-x + label-dist * calc.cos(mid-deg * 1deg)
+              let ly = center-y + label-dist * calc.sin(mid-deg * 1deg)
               place(
                 left + top,
                 dx: lx,
@@ -94,17 +89,12 @@
             }
           }
 
-          current-angle = current-angle + slice-angle
+          current-deg = current-deg + slice-deg
         }
 
         // Donut hole
         #if donut {
-          place(
-            left + top,
-            dx: center-x - radius * donut-ratio,
-            dy: center-y - radius * donut-ratio,
-            circle(radius: radius * donut-ratio, fill: if t.background != none { t.background } else { white }, stroke: none)
-          )
+          place-donut-hole(center-x, center-y, radius * donut-ratio, t)
         }
       ],
 

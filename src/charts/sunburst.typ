@@ -2,6 +2,7 @@
 #import "../theme.typ": resolve-theme, get-color
 #import "../validate.typ": validate-sunburst-data
 #import "../primitives/container.typ": chart-container
+#import "../primitives/polar.typ": annular-wedge-points, separator-stroke
 
 /// Computes the maximum depth of a hierarchical node tree.
 ///
@@ -114,27 +115,7 @@
         let angle-span = seg.end-angle - seg.start-angle
         if angle-span < 0.1 { continue }  // skip tiny segments
 
-        // Number of line segments to approximate arcs
-        let arc-segments = calc.max(int(angle-span / 5), 4)
-
-        // Build polygon: outer arc forward, then inner arc backward
-        let pts = ()
-
-        // Outer arc (start -> end)
-        for j in array.range(arc-segments + 1) {
-          let angle = seg.start-angle + (j / arc-segments) * angle-span
-          let x = cx + r-outer * calc.cos(angle * 1deg)
-          let y = cy + r-outer * calc.sin(angle * 1deg)
-          pts.push((x, y))
-        }
-
-        // Inner arc (end -> start)
-        for j in array.range(arc-segments + 1) {
-          let angle = seg.end-angle - (j / arc-segments) * angle-span
-          let x = cx + r-inner * calc.cos(angle * 1deg)
-          let y = cy + r-inner * calc.sin(angle * 1deg)
-          pts.push((x, y))
-        }
+        let pts = annular-wedge-points(cx, cy, r-inner, r-outer, seg.start-angle, seg.end-angle)
 
         // Color: base color from palette, lighten for deeper levels
         let base-color = get-color(t, seg.color-index)
@@ -152,8 +133,8 @@
           left + top,
           polygon(
             fill: seg-color,
-            stroke: (if t.background != none { t.background } else { white }) + 0.75pt,
-            ..pts.map(p => (p.at(0), p.at(1)))
+            stroke: separator-stroke(t, thickness: 0.75pt),
+            ..pts,
           )
         )
 

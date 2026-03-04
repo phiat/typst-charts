@@ -3,6 +3,7 @@
 #import "../util.typ": normalize-data
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
+#import "../primitives/polar.typ": annular-wedge-points, place-polar-label, place-donut-hole, separator-stroke
 
 /// Renders a radial bar chart where each category occupies an equal angular
 /// slice of a circle and bar length (radius) is proportional to value.
@@ -71,34 +72,14 @@
         // Outer radius proportional to value
         let r-outer = r-inner + (radius - r-inner) * (val / max-val)
 
-        // Build polygon points: inner arc -> outer arc -> close
-        // Number of segments for this arc
-        let seg-count = calc.max(int(sweep-deg / 360 * samples-per-circle), 2)
-
-        let pts = ()
-
-        // Inner arc (start to end)
-        for j in array.range(seg-count + 1) {
-          let angle = start-deg + (j / seg-count) * sweep-deg
-          let x = cx + r-inner * calc.cos(angle * 1deg)
-          let y = cy + r-inner * calc.sin(angle * 1deg)
-          pts.push((x, y))
-        }
-
-        // Outer arc (end back to start)
-        for j in array.range(seg-count + 1) {
-          let angle = end-deg - (j / seg-count) * sweep-deg
-          let x = cx + r-outer * calc.cos(angle * 1deg)
-          let y = cy + r-outer * calc.sin(angle * 1deg)
-          pts.push((x, y))
-        }
+        let pts = annular-wedge-points(cx, cy, r-inner, r-outer, start-deg, end-deg)
 
         place(
           left + top,
           polygon(
             fill: bar-color,
-            stroke: (if t.background != none { t.background } else { white }) + 0.5pt,
-            ..pts.map(p => (p.at(0), p.at(1)))
+            stroke: separator-stroke(t),
+            ..pts,
           )
         )
 
@@ -106,58 +87,22 @@
         if show-values {
           let mid-angle-deg = (start-deg + end-deg) / 2
           let mid-r = (r-inner + r-outer) / 2
-          let lx = cx + mid-r * calc.cos(mid-angle-deg * 1deg)
-          let ly = cy + mid-r * calc.sin(mid-angle-deg * 1deg)
-          place(
-            left + top,
-            dx: lx,
-            dy: ly,
-            move(dx: -1em, dy: -0.5em,
-              text(size: t.value-label-size, fill: t.text-color-inverse, weight: "bold")[#calc.round(val, digits: 1)])
-          )
+          place-polar-label(cx, cy, mid-angle-deg, mid-r,
+            text(size: t.value-label-size, fill: t.text-color-inverse, weight: "bold")[#calc.round(val, digits: 1)])
         }
       }
 
       // ── Inner circle (aesthetic hole) ─────────────────────────────
       #if inner-radius > 0 {
-        let hole-fill = if t.background != none { t.background } else { white }
-        place(
-          left + top,
-          dx: cx - r-inner,
-          dy: cy - r-inner,
-          circle(radius: r-inner, fill: hole-fill, stroke: none)
-        )
+        place-donut-hole(cx, cy, r-inner, t)
       }
 
       // ── Labels around the perimeter ───────────────────────────────
       #if show-labels {
         for (i, lbl) in labels.enumerate() {
           let mid-angle-deg = i * slice-deg + slice-deg / 2 - 90
-          let label-r = radius + 8pt
-          let lx = cx + label-r * calc.cos(mid-angle-deg * 1deg)
-          let ly = cy + label-r * calc.sin(mid-angle-deg * 1deg)
-
-          // Adjust text anchor based on angular position
-          // Left-side: box ends at lx; Right-side: box starts at lx
-          let label-w = 4em
-          let dx-adj = if cos-val < -0.1 { -label-w }
-                       else if cos-val > 0.1 { 0em }
-                       else { -label-w / 2 }
-          let h-align = if cos-val < -0.1 { right }
-                        else if cos-val > 0.1 { left }
-                        else { center }
-          let v-shift = if sin-val < -0.1 { 0em }
-                        else if sin-val > 0.1 { -1em }
-                        else { -0.5em }
-
-          place(
-            left + top,
-            dx: lx,
-            dy: ly,
-            move(dx: dx-adj, dy: v-shift,
-              box(width: label-w,
-                align(h-align, text(size: t.legend-size, fill: t.text-color)[#lbl])))
-          )
+          place-polar-label(cx, cy, mid-angle-deg, radius + 8pt,
+            text(size: t.legend-size, fill: t.text-color)[#lbl])
         }
       }
     ]

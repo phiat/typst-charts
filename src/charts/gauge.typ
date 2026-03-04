@@ -2,6 +2,7 @@
 #import "../theme.typ": resolve-theme, get-color
 #import "../validate.typ": validate-number, validate-simple-data
 #import "../primitives/container.typ": chart-container
+#import "../primitives/polar.typ": pie-slice-points, place-donut-hole
 
 /// Renders a semicircular gauge/dial chart with a needle indicator.
 ///
@@ -54,41 +55,20 @@
 
           let start-norm = (prev-threshold - min-val) / val-range
           let end-norm = (threshold - min-val) / val-range
+          let start-deg = -180 + start-norm * 180
+          let end-deg = -180 + end-norm * 180
 
-          let start-angle = -180deg + start-norm * 180deg
-          let end-angle = -180deg + end-norm * 180deg
-          let seg-angle = end-angle - start-angle
-
-          let n-pts = calc.max(int(seg-angle.deg() / 5), 3)
-
-          // Build arc segment
-          let pts = ((cx, cy),)
-          for j in array.range(n-pts + 1) {
-            let angle = start-angle + (j / n-pts) * seg-angle
-            pts.push((
-              cx + radius * calc.cos(angle),
-              cy + radius * calc.sin(angle)
-            ))
-          }
-
-          place(
-            left + top,
-            polygon(
-              fill: seg-color,
-              stroke: white + 0.5pt,
-              ..pts.map(p => (p.at(0), p.at(1)))
-            )
-          )
+          let pts = pie-slice-points(cx, cy, radius, start-deg, end-deg)
+          place(left + top, polygon(fill: seg-color, stroke: white + 0.5pt, ..pts))
 
           prev-threshold = threshold
         }
       } else {
-        // Default gradient arc
+        // Default gradient arc (36 slices with color gradient)
         for i in array.range(36) {
-          let start-angle = -180deg + (i / 36) * 180deg
-          let end-angle = -180deg + ((i + 1) / 36) * 180deg
+          let start-deg = -180 + (i / 36) * 180
+          let end-deg = -180 + ((i + 1) / 36) * 180
 
-          // Color gradient from green to yellow to red
           let seg-progress = i / 36
           let seg-color = if seg-progress < 0.5 {
             color.mix((rgb("#59a14f"), 100% - seg-progress * 200%), (rgb("#edc948"), seg-progress * 200%))
@@ -96,24 +76,14 @@
             color.mix((rgb("#edc948"), 100% - (seg-progress - 0.5) * 200%), (rgb("#e15759"), (seg-progress - 0.5) * 200%))
           }
 
-          let pts = ((cx, cy),)
-          for j in array.range(4) {
-            let angle = start-angle + (j / 3) * (end-angle - start-angle)
-            pts.push((cx + radius * calc.cos(angle), cy + radius * calc.sin(angle)))
-          }
-
-          place(left + top, polygon(fill: seg-color, stroke: none, ..pts.map(p => (p.at(0), p.at(1)))))
+          let pts = pie-slice-points(cx, cy, radius, start-deg, end-deg)
+          place(left + top, polygon(fill: seg-color, stroke: none, ..pts))
         }
       }
 
-      // Inner white circle (donut effect)
+      // Inner circle (donut effect)
       #let inner-radius = radius * 0.6
-      #place(
-        left + top,
-        dx: cx - inner-radius,
-        dy: cy - inner-radius,
-        circle(radius: inner-radius, fill: if t.background != none { t.background } else { white }, stroke: none)
-      )
+      #place-donut-hole(cx, cy, inner-radius, t)
 
       // Needle
       #let needle-len = radius * 0.85
