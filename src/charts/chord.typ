@@ -1,5 +1,5 @@
 // chord.typ - Chord diagrams showing flows between entities
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../validate.typ": validate-chord-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/polar.typ": arc-points as polar-arc-points, place-polar-label

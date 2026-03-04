@@ -1,5 +1,5 @@
 // bar.typ - Bar charts (simple, horizontal, grouped, stacked, grouped-stacked)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": normalize-data, nonzero, nice-ceil
 #import "../validate.typ": validate-simple-data, validate-series-data, validate-grouped-stacked-data
 #import "../primitives/container.typ": chart-container

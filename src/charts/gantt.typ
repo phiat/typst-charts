@@ -1,5 +1,5 @@
 // gantt.typ - Gantt chart (timeline bar chart for project scheduling)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../validate.typ": validate-gantt-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/layout.typ": density-skip, font-for-space

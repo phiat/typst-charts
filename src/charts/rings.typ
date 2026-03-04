@@ -1,5 +1,5 @@
 // rings.typ - Donut progress / fitness rings chart (Apple Watch style)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../validate.typ": validate-ring-data
 #import "../primitives/container.typ": chart-container
 

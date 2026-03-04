@@ -1,5 +1,5 @@
 // dual-axis.typ - Dual Y-axis line chart
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../validate.typ": validate-dual-axis-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-grid, draw-axis-titles, draw-x-even-labels, draw-y-ticks

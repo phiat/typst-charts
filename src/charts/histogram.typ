@@ -1,5 +1,5 @@
 // histogram.typ - Histogram chart (frequency distribution of numeric data)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero, nice-ceil
 #import "../validate.typ": validate-histogram-data
 #import "../primitives/container.typ": chart-container

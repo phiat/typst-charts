@@ -1,5 +1,5 @@
 // radar.typ - Radar/spider charts
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../validate.typ": validate-series-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/legend.typ": draw-legend-vertical

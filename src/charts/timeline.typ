@@ -1,5 +1,5 @@
 // timeline.typ - Vertical event timeline chart
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../validate.typ": validate-timeline-data
 #import "../primitives/container.typ": chart-container
 

@@ -1,5 +1,5 @@
 // radial-bar.typ - Radial bar chart (bars radiating outward from center in a circle)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": normalize-data, nonzero
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container

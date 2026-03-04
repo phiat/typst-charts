@@ -1,5 +1,5 @@
 // treemap.typ - Treemap chart (squarified layout)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": normalize-data, nonzero
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container

@@ -1,5 +1,5 @@
 // slope.typ - Slope chart (two-period comparison)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero
 #import "../validate.typ": validate-slope-data
 #import "../primitives/container.typ": chart-container

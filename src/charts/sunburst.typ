@@ -1,5 +1,5 @@
 // sunburst.typ - Multi-level pie/donut chart for hierarchical data
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../validate.typ": validate-sunburst-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/polar.typ": annular-wedge-points, separator-stroke

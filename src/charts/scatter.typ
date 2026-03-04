@@ -1,5 +1,5 @@
 // scatter.typ - Scatter plot and bubble chart
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero, clamp, nice-ceil, nice-floor, numeric-range
 #import "../primitives/layout.typ": label-fits-inside, place-cartesian-label
 #import "../validate.typ": validate-scatter-data, validate-multi-scatter-data, validate-bubble-data, validate-multi-bubble-data
@@ -66,9 +66,7 @@
 
     #box(width: width, height: height)[
       // Grid lines
-      #if t.show-grid {
-        draw-grid(origin-x, pad-top, chart-width, chart-height, t)
-      }
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
@@ -160,9 +158,7 @@
 
     #box(width: width, height: height)[
       // Grid lines
-      #if t.show-grid {
-        draw-grid(origin-x, pad-top, chart-width, chart-height, t)
-      }
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
@@ -265,9 +261,7 @@
 
     #box(width: width, height: height)[
       // Grid lines
-      #if t.show-grid {
-        draw-grid(origin-x, pad-top, chart-width, chart-height, t)
-      }
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
@@ -406,9 +400,7 @@
 
     #box(width: width, height: height)[
       // Grid lines
-      #if t.show-grid {
-        draw-grid(origin-x, pad-top, chart-width, chart-height, t)
-      }
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)

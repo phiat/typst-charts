@@ -172,10 +172,6 @@
   (labels: data.labels, values: agg-values)
 }
 
-/// Converts values to percentages of total, returning a new data dictionary.
-///
-/// - data (dictionary): Dict with `labels` and `values` arrays
-/// -> dictionary
 /// Rounds a value up to the next "nice" number for axis scaling.
 /// Uses the standard nice-number algorithm (similar to D3/matplotlib).
 ///
@@ -249,6 +245,10 @@
   calc.rem(dow + 6, 7)
 }
 
+/// Converts values to percentages of total, returning a new data dictionary.
+///
+/// - data (dictionary): Dict with `labels` and `values` arrays
+/// -> dictionary
 #let percent-of-total(data) = {
   let total = data.values.sum()
   if total == 0 { return data }

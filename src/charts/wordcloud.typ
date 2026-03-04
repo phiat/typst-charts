@@ -1,5 +1,5 @@
 // wordcloud.typ - Word cloud chart (spiral placement with collision detection)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero
 #import "../validate.typ": validate-wordcloud-data
 #import "../primitives/container.typ": chart-container

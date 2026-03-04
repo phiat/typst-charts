@@ -1,5 +1,5 @@
 // metric.typ - Dashboard KPI tiles with big number, label, delta, and optional sparkline
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": format-number
 
 /// Renders a dashboard KPI tile with a prominent value, label, optional delta indicator,

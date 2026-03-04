@@ -1,5 +1,5 @@
 // diverging.typ - Diverging bar chart (bars extend left/right from center axis)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero
 #import "../validate.typ": validate-diverging-data
 #import "../primitives/container.typ": chart-container

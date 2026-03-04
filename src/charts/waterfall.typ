@@ -1,5 +1,5 @@
 // waterfall.typ - Waterfall chart (bridge chart)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": normalize-data, format-number, nonzero, nice-ceil
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
@@ -156,9 +156,10 @@
         if show-values {
           let val = values.at(i)
           let label-y = bar-top-px - 12pt
-          place(left + top, dx: x-pos + actual-bw / 2 - 10pt, dy: label-y,
-            text(size: t.value-label-size, fill: t.text-color)[#format-number(val, digits: 0, mode: t.number-format)]
-          )
+          place(left + top, dx: x-pos, dy: label-y,
+            box(width: actual-bw, align(center,
+              text(size: t.value-label-size, fill: t.text-color)[#format-number(val, digits: 0, mode: t.number-format)])))
+
         }
 
         // Connector line to next bar
@@ -183,9 +184,10 @@
         }
 
         // X-axis label
-        place(left + top, dx: x-pos + actual-bw / 2 - 15pt, dy: origin-y + 4pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#labels.at(i)]
-        )
+        place(left + top, dx: x-pos, dy: origin-y + 4pt,
+          box(width: actual-bw, align(center,
+            text(size: t.axis-label-size, fill: t.text-color)[#labels.at(i)])))
+
       }
 
       // Axis titles

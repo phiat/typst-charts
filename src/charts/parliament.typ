@@ -1,5 +1,5 @@
 // parliament.typ - Semicircular parliament/seat chart
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": normalize-data
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container

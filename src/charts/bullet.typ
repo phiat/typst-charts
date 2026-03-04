@@ -2,7 +2,7 @@
 // A compact gauge replacement showing a quantitative measure against a target
 // with qualitative ranges (poor/satisfactory/good).
 
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero
 #import "../validate.typ": validate-bullet-data, validate-bullet-charts-data
 #import "../primitives/container.typ": chart-container

@@ -1,5 +1,5 @@
 // violin.typ - Violin plot (distribution shape visualization)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero, nice-ceil
 #import "../validate.typ": validate-violin-data
 #import "../primitives/container.typ": chart-container
@@ -176,7 +176,7 @@
       #draw-x-category-labels(labels, origin-x, spacing, origin-y + 4pt, t)
 
       // Axis titles
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2 - 20pt, origin-y / 2, t)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
 
       // Helper: map data value to y-coordinate, clamped to chart bounds
       #let y-range = nonzero(y-max - y-min)

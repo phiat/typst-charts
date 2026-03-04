@@ -44,7 +44,7 @@ screenshots:
         base=$(basename "$f" .typ)
         typst compile --root . "$f" "screenshots/demo/${base}.png" || exit 1
     done
-    typst compile --root . examples/showcase.typ "screenshots/showcase/page-{0p}.png"
+    typst compile --root . examples/showcase.typ "screenshots/showcase/showcase-{0p}.png"
     optipng -o2 -quiet screenshots/demo/*.png screenshots/showcase/*.png || echo "optipng not found, skipping optimization"
     echo "Generated $(ls screenshots/demo/*.png screenshots/showcase/*.png | wc -l) screenshots"
 

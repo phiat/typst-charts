@@ -1,5 +1,5 @@
 // pie.typ - Pie and donut charts
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": normalize-data
 #import "../primitives/layout.typ": font-for-space
 #import "../validate.typ": validate-simple-data

@@ -1,5 +1,5 @@
 // boxplot.typ - Box-and-whisker plot
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero, nice-ceil
 #import "../validate.typ": validate-boxplot-data
 #import "../primitives/container.typ": chart-container
@@ -74,7 +74,7 @@
       #draw-x-category-labels(labels, origin-x, spacing, origin-y + 4pt, t, center-offset: spacing / 2 - 10pt)
 
       // Axis titles
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2 - 20pt, origin-y / 2, t)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
 
       // Draw each box
       #for (i, b) in boxes.enumerate() {

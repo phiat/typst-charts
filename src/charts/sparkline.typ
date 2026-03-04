@@ -1,5 +1,5 @@
 // sparkline.typ - Tiny inline charts for tables and running text
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 
 /// Renders a tiny inline line chart (sparkline) suitable for tables and running text.
 ///

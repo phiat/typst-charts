@@ -1,5 +1,5 @@
 // lollipop.typ - Lollipop charts (vertical and horizontal)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": normalize-data, nonzero, nice-ceil
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container

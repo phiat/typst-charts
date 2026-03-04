@@ -1,5 +1,5 @@
 // waffle.typ - Waffle chart (grid of squares showing proportions)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": normalize-data, nonzero
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container

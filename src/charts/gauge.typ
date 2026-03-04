@@ -1,5 +1,5 @@
 // gauge.typ - Gauge/dial and progress indicators
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero, clamp
 #import "../validate.typ": validate-number, validate-simple-data
 #import "../primitives/container.typ": chart-container
@@ -213,7 +213,7 @@
       // Value label — centered in bar
       #if show-value {
         place(center + horizon,
-          text(size: 10pt, weight: "bold", fill: if progress > 0.5 { t.text-color-inverse } else { t.text-color })[
+          text(size: t.value-label-size, weight: "bold", fill: if progress > 0.5 { t.text-color-inverse } else { t.text-color })[
             #calc.round(progress * 100, digits: 0)%
           ]
         )
@@ -318,7 +318,7 @@
       // Center value — centered in ring
       #if show-value {
         place(center + horizon,
-          text(size: 14pt, weight: "bold", fill: t.text-color)[#calc.round(progress * 100, digits: 0)%]
+          text(size: t.value-label-size, weight: "bold", fill: t.text-color)[#calc.round(progress * 100, digits: 0)%]
         )
       }
     ]

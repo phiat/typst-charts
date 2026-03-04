@@ -1,5 +1,5 @@
 // heatmap.typ - Heatmap/matrix charts
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": lerp-color, heat-color, nonzero, day-of-week
 #import "../validate.typ": validate-heatmap-data, validate-calendar-data, validate-correlation-data
 #import "../primitives/container.typ": chart-container

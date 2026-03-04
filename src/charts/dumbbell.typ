@@ -1,5 +1,5 @@
 // dumbbell.typ - Dumbbell chart (before/after or range comparison)
-#import "../theme.typ": resolve-theme, _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero, nice-floor, nice-ceil
 #import "../validate.typ": validate-dumbbell-data
 #import "../primitives/container.typ": chart-container
