@@ -18,6 +18,7 @@
      values: (4820, 3150, 8930, 2710, 2340, 1890)),
     width: 250pt, height: 100pt,
     title: "bar-chart",
+    y-label: "Commits",
     theme: dk,
   ),
 
@@ -26,6 +27,7 @@
      values: (312, 187, 145, 98, 67, 42)),
     width: 250pt, height: 100pt,
     title: "horizontal-bar-chart",
+    x-label: "Patches",
     theme: dk,
   ),
 
@@ -59,6 +61,7 @@
     width: 250pt, height: 95pt,
     title: "line-chart",
     show-points: true,
+    y-label: "M LoC",
     theme: dk,
   ),
 
@@ -80,6 +83,7 @@
     width: 250pt, height: 95pt,
     title: "area-chart",
     fill-opacity: 40%,
+    y-label: "M LoC",
     theme: dk,
   ),
 

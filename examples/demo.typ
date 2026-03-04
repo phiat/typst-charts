@@ -22,6 +22,7 @@
   width: 400pt,
   height: 180pt,
   title: "Enemy Kills by Character",
+  y-label: "Kills",
 )
 
 #v(20pt)
@@ -35,6 +36,7 @@
   width: 400pt,
   height: 200pt,
   title: "Gold by Character (Horizontal)",
+  x-label: "Gold",
 )
 
 #pagebreak()
@@ -52,6 +54,7 @@
   width: 400pt,
   height: 200pt,
   title: "Daily Attendance Breakdown",
+  y-label: "Attendees",
 )
 
 #v(20pt)

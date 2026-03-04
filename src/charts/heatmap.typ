@@ -203,6 +203,7 @@
             width: cell-size - 2pt,
             height: cell-size - 2pt,
             fill: cell-color,
+            stroke: if val == 0 { 0.5pt + luma(220) } else { none },
             radius: 2pt,
           )
         )
