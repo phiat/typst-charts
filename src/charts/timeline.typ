@@ -118,7 +118,7 @@
         place(
           left + top,
           dx: text-x,
-          dy: y-pos - 10pt,
+          dy: y-pos - 1em,
           box(width: text-area-width, height: auto)[
             #set align(text-align)
             #text(size: t.axis-label-size, fill: luma(120), weight: "medium")[#ev.date]
@@ -141,7 +141,7 @@
           place(
             left + top,
             dx: text-x,
-            dy: y-pos + 16pt,
+            dy: y-pos + 1.5em,
             box(width: text-area-width, height: auto)[
               #set align(text-align)
               #text(size: t.axis-label-size, fill: luma(100))[#ev.description]

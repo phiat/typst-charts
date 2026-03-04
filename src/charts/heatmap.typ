@@ -52,20 +52,22 @@
       #for (j, col) in cols.enumerate() {
         place(
           left + top,
-          dx: row-label-width + j * cell-size + cell-size / 2 - 5pt,
-          dy: 5pt,
+          dx: row-label-width + j * cell-size + cell-size / 2,
+          dy: col-label-height - 2pt,
           rotate(-45deg, origin: bottom + left, text(size: t.axis-label-size, fill: t.text-color)[#col])
         )
       }
 
       // Grid cells and row labels
       #for (i, row) in rows.enumerate() {
-        // Row label
+        // Row label — right-aligned into label area
         place(
           left + top,
-          dx: 5pt,
-          dy: col-label-height + i * cell-size + cell-size / 2 - 5pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#row]
+          dx: 0pt,
+          dy: col-label-height + i * cell-size + cell-size / 2,
+          box(width: row-label-width - 4pt, height: 0pt,
+            align(right, move(dy: -0.5em,
+              text(size: t.axis-label-size, fill: t.text-color)[#row])))
         )
 
         // Cells for this row
@@ -85,14 +87,16 @@
             )
           )
 
-          // Value label
+          // Value label — centered in cell
           if show-values {
             let text-color = if normalized > 0.5 { t.text-color-inverse } else { t.text-color }
             place(
               left + top,
-              dx: row-label-width + j * cell-size + cell-size / 2 - 8pt,
-              dy: col-label-height + i * cell-size + cell-size / 2 - 5pt,
-              text(size: t.axis-label-size, fill: text-color)[#calc.round(val, digits: 1)]
+              dx: row-label-width + j * cell-size,
+              dy: col-label-height + i * cell-size,
+              box(width: cell-size, height: cell-size,
+                align(center + horizon,
+                  text(size: t.axis-label-size, fill: text-color)[#calc.round(val, digits: 1)]))
             )
           }
         }
@@ -121,9 +125,11 @@
           )
         }
 
-        // Legend labels
-        place(left + top, dx: legend-x + 20pt, dy: legend-y - 5pt, text(size: t.axis-label-size, fill: t.text-color)[#calc.round(max-val, digits: 1)])
-        place(left + top, dx: legend-x + 20pt, dy: legend-y + legend-height - 5pt, text(size: t.axis-label-size, fill: t.text-color)[#calc.round(min-val, digits: 1)])
+        // Legend labels — vertically centered with em units
+        place(left + top, dx: legend-x + 20pt, dy: legend-y,
+          move(dy: -0.5em, text(size: t.axis-label-size, fill: t.text-color)[#calc.round(max-val, digits: 1)]))
+        place(left + top, dx: legend-x + 20pt, dy: legend-y + legend-height,
+          move(dy: -0.5em, text(size: t.axis-label-size, fill: t.text-color)[#calc.round(min-val, digits: 1)]))
       }
     ]
   ]
@@ -177,8 +183,8 @@
             place(
               left + top,
               dx: 0pt,
-              dy: month-label-height + i * cell-size + cell-size / 2 - 4pt,
-              text(size: 6pt, fill: t.text-color)[#day]
+              dy: month-label-height + i * cell-size + cell-size / 2,
+              move(dy: -0.5em, text(size: 6pt, fill: t.text-color)[#day])
             )
           }
         }
@@ -261,20 +267,22 @@
       #for (j, lbl) in labels.enumerate() {
         place(
           left + top,
-          dx: label-area + j * cell-size + cell-size / 2 - 10pt,
-          dy: 5pt,
+          dx: label-area + j * cell-size + cell-size / 2,
+          dy: label-area - 2pt,
           rotate(-45deg, origin: bottom + left, text(size: t.axis-label-size, fill: t.text-color)[#lbl])
         )
       }
 
       // Cells and row labels
       #for (i, row-lbl) in labels.enumerate() {
-        // Row label
+        // Row label — right-aligned into label area
         place(
           left + top,
-          dx: 5pt,
-          dy: label-area + i * cell-size + cell-size / 2 - 5pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#row-lbl]
+          dx: 0pt,
+          dy: label-area + i * cell-size + cell-size / 2,
+          box(width: label-area - 4pt, height: 0pt,
+            align(right, move(dy: -0.5em,
+              text(size: t.axis-label-size, fill: t.text-color)[#row-lbl])))
         )
 
         // Cells
@@ -297,9 +305,11 @@
             let text-color = if calc.abs(val) > 0.5 { t.text-color-inverse } else { t.text-color }
             place(
               left + top,
-              dx: label-area + j * cell-size + cell-size / 2 - 10pt,
-              dy: label-area + i * cell-size + cell-size / 2 - 5pt,
-              text(size: t.axis-label-size, fill: text-color)[#calc.round(val, digits: 2)]
+              dx: label-area + j * cell-size,
+              dy: label-area + i * cell-size,
+              box(width: cell-size, height: cell-size,
+                align(center + horizon,
+                  text(size: t.axis-label-size, fill: text-color)[#calc.round(val, digits: 2)]))
             )
           }
         }

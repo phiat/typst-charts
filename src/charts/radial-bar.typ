@@ -106,13 +106,14 @@
         if show-values {
           let mid-angle-deg = (start-deg + end-deg) / 2
           let mid-r = (r-inner + r-outer) / 2
-          let lx = cx + mid-r * calc.cos(mid-angle-deg * 1deg) - 10pt
-          let ly = cy + mid-r * calc.sin(mid-angle-deg * 1deg) - 5pt
+          let lx = cx + mid-r * calc.cos(mid-angle-deg * 1deg)
+          let ly = cy + mid-r * calc.sin(mid-angle-deg * 1deg)
           place(
             left + top,
             dx: lx,
             dy: ly,
-            text(size: t.value-label-size, fill: t.text-color-inverse, weight: "bold")[#calc.round(val, digits: 1)]
+            move(dx: -1em, dy: -0.5em,
+              text(size: t.value-label-size, fill: t.text-color-inverse, weight: "bold")[#calc.round(val, digits: 1)])
           )
         }
       }
@@ -136,15 +137,23 @@
           let lx = cx + label-r * calc.cos(mid-angle-deg * 1deg)
           let ly = cy + label-r * calc.sin(mid-angle-deg * 1deg)
 
-          // Adjust text anchor based on position
-          let dx-offset = -12pt
-          let dy-offset = -5pt
+          // Adjust text anchor based on angular position
+          let cos-val = calc.cos(mid-angle-deg * 1deg)
+          let sin-val = calc.sin(mid-angle-deg * 1deg)
+          let h-align = if cos-val < -0.1 { right }
+                        else if cos-val > 0.1 { left }
+                        else { center }
+          let v-shift = if sin-val < -0.1 { 0em }
+                        else if sin-val > 0.1 { -1em }
+                        else { -0.5em }
 
           place(
             left + top,
-            dx: lx + dx-offset,
-            dy: ly + dy-offset,
-            text(size: t.legend-size, fill: t.text-color)[#lbl]
+            dx: lx,
+            dy: ly,
+            move(dy: v-shift,
+              box(width: 4em,
+                align(h-align, text(size: t.legend-size, fill: t.text-color)[#lbl])))
           )
         }
       }

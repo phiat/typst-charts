@@ -56,16 +56,20 @@
     #let chart-height = height - 10pt
 
     #box(width: width, height: chart-height)[
-      // Column headers
+      // Column headers — centered over each axis
       #place(left + top,
-        dx: axis-x-left - 15pt,
+        dx: 0pt,
         dy: 2pt,
-        text(size: t.axis-title-size, weight: "bold", fill: t.text-color)[#start-label]
+        box(width: axis-x-left * 2, height: 1.5em,
+          align(center + top,
+            text(size: t.axis-title-size, weight: "bold", fill: t.text-color)[#start-label]))
       )
       #place(left + top,
-        dx: axis-x-right - 15pt,
+        dx: axis-x-right - label-margin,
         dy: 2pt,
-        text(size: t.axis-title-size, weight: "bold", fill: t.text-color)[#end-label]
+        box(width: label-margin * 2, height: 1.5em,
+          align(center + top,
+            text(size: t.axis-title-size, weight: "bold", fill: t.text-color)[#end-label]))
       )
 
       // Left axis line
@@ -119,7 +123,7 @@
           circle(radius: dot-size, fill: color, stroke: white + 0.5pt)
         )
 
-        // Left label + value
+        // Left label + value — right-aligned into label margin
         {
           let label-content = if show-values {
             [#text(size: t.axis-label-size, fill: t.text-color)[#lbl #sv]]
@@ -127,9 +131,10 @@
             [#text(size: t.axis-label-size, fill: t.text-color)[#lbl]]
           }
           place(left + top,
-            dx: 2pt,
-            dy: y-start - 5pt,
-            label-content,
+            dx: 0pt,
+            dy: y-start,
+            box(width: axis-x-left - dot-size - 4pt, height: 0pt,
+              align(right, move(dy: -0.5em, label-content))),
           )
         }
 
@@ -142,8 +147,8 @@
           }
           place(left + top,
             dx: axis-x-right + dot-size + 4pt,
-            dy: y-end - 5pt,
-            label-content,
+            dy: y-end,
+            move(dy: -0.5em, label-content),
           )
         }
       }

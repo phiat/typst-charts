@@ -95,23 +95,25 @@
           )
 
           // Label positioning - push labels outward based on angle
-          let label-dist = radius + 18pt
+          let label-dist = radius + 12pt
           let lx = cx + label-dist * calc.cos(angle)
           let ly = cx + label-dist * calc.sin(angle)
 
-          // Adjust text anchor based on position
-          let anchor-x = if calc.cos(angle) < -0.1 { -35pt }
-                         else if calc.cos(angle) > 0.1 { -5pt }
-                         else { -20pt }
-          let anchor-y = if calc.sin(angle) < -0.1 { -2pt }
-                         else if calc.sin(angle) > 0.1 { -10pt }
-                         else { -6pt }
+          // Adjust text anchor based on angular position using alignment
+          let h-align = if calc.cos(angle) < -0.1 { right }
+                        else if calc.cos(angle) > 0.1 { left }
+                        else { center }
+          let v-shift = if calc.sin(angle) < -0.1 { 0em }
+                        else if calc.sin(angle) > 0.1 { -1em }
+                        else { -0.5em }
 
           place(
             left + top,
-            dx: lx + anchor-x,
-            dy: ly + anchor-y,
-            text(size: t.value-label-size, fill: t.text-color, weight: "medium")[#lbl]
+            dx: lx,
+            dy: ly,
+            move(dy: v-shift,
+              box(width: 4em,
+                align(h-align, text(size: t.value-label-size, fill: t.text-color, weight: "medium")[#lbl])))
           )
         }
 
@@ -155,9 +157,10 @@
               let offset-y = 8pt * calc.sin(angle)
               place(
                 left + top,
-                dx: pt.at(0) + offset-x - 8pt,
-                dy: pt.at(1) + offset-y - 5pt,
-                text(size: t.axis-label-size, fill: color, weight: "bold")[#s.values.at(i)]
+                dx: pt.at(0) + offset-x,
+                dy: pt.at(1) + offset-y,
+                move(dx: -1em, dy: -0.5em,
+                  text(size: t.axis-label-size, fill: color, weight: "bold")[#s.values.at(i)])
               )
             }
           }

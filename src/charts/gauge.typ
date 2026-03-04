@@ -137,27 +137,34 @@
         circle(radius: 6pt, fill: needle-color, stroke: white + 1pt)
       )
 
-      // Min/max labels
-      #place(left + top, dx: cx - radius - 10pt, dy: cy + 5pt, text(size: t.axis-label-size, fill: t.text-color)[#min-val])
-      #place(left + top, dx: cx + radius - 5pt, dy: cy + 5pt, text(size: t.axis-label-size, fill: t.text-color)[#max-val])
+      // Min/max labels — right-align min under left edge, left-align max under right edge
+      #place(left + top, dx: 0pt, dy: cy + 0.5em,
+        box(width: cx - radius + 2pt, height: 0pt,
+          align(right, text(size: t.axis-label-size, fill: t.text-color)[#min-val])))
+      #place(left + top, dx: cx + radius - 2pt, dy: cy + 0.5em,
+        text(size: t.axis-label-size, fill: t.text-color)[#max-val])
 
-      // Value display
+      // Value display — centered at gauge center
       #if show-value {
         place(
           left + top,
-          dx: cx - 20pt,
-          dy: cy - 25pt,
-          text(size: 16pt, weight: "bold", fill: t.text-color)[#calc.round(value, digits: 1)]
+          dx: cx,
+          dy: cy,
+          move(dx: -2em, dy: -1.5em,
+            box(width: 4em, align(center,
+              text(size: 16pt, weight: "bold", fill: t.text-color)[#calc.round(value, digits: 1)])))
         )
       }
 
-      // Label below
+      // Label below — centered under gauge center
       #if label != none {
         place(
           left + top,
-          dx: cx - 30pt,
-          dy: cy + 15pt,
-          text(size: t.value-label-size, fill: t.text-color-light)[#label]
+          dx: cx,
+          dy: cy + 1em,
+          move(dx: -3em,
+            box(width: 6em, align(center,
+              text(size: t.value-label-size, fill: t.text-color-light)[#label])))
         )
       }
     ]
@@ -226,12 +233,9 @@
         )
       }
 
-      // Value label
+      // Value label — centered in bar
       #if show-value {
-        place(
-          left + top,
-          dx: width / 2 - 15pt,
-          dy: height / 2 - 6pt,
+        place(center + horizon,
           text(size: 10pt, weight: "bold", fill: if progress > 0.5 { t.text-color-inverse } else { t.text-color })[
             #calc.round(progress * 100, digits: 0)%
           ]
@@ -334,12 +338,9 @@
         )
       }
 
-      // Center value
+      // Center value — centered in ring
       #if show-value {
-        place(
-          left + top,
-          dx: cx - 18pt,
-          dy: cy - 10pt,
+        place(center + horizon,
           text(size: 14pt, weight: "bold", fill: t.text-color)[#calc.round(progress * 100, digits: 0)%]
         )
       }

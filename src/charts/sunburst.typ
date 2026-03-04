@@ -169,13 +169,14 @@
 
           place(
             left + top,
-            dx: lx - 18pt,
-            dy: ly - 5pt,
-            text(
-              size: calc.max(t.value-label-size - 1pt, 5pt),
-              fill: label-color,
-              weight: if seg.depth == 1 { "bold" } else { "regular" },
-            )[#seg.name]
+            dx: lx,
+            dy: ly,
+            move(dx: -1.5em, dy: -0.5em,
+              text(
+                size: calc.max(t.value-label-size - 1pt, 5pt),
+                fill: label-color,
+                weight: if seg.depth == 1 { "bold" } else { "regular" },
+              )[#seg.name])
           )
         }
       }

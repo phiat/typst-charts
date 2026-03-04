@@ -200,18 +200,19 @@
           if layer.at(i) == max-layer {
             // Right-side: label to the left of the node
             place(left + top,
-              dx: node-x.at(i) - 4pt,
-              dy: node-y.at(i) + node-h.at(i) / 2 - 6pt,
-              align(right,
-                text(size: 8pt, fill: t.text-color, str(lbl) + val-text),
-              ),
+              dx: 0pt,
+              dy: node-y.at(i) + node-h.at(i) / 2,
+              box(width: node-x.at(i) - 4pt, height: 0pt,
+                align(right, move(dy: -0.5em,
+                  text(size: 8pt, fill: t.text-color, str(lbl) + val-text)))),
             )
           } else {
             // Left/middle: label to the right of the node
             place(left + top,
               dx: node-x.at(i) + node-width + 4pt,
-              dy: node-y.at(i) + node-h.at(i) / 2 - 6pt,
-              text(size: 8pt, fill: t.text-color, str(lbl) + val-text),
+              dy: node-y.at(i) + node-h.at(i) / 2,
+              move(dy: -0.5em,
+                text(size: 8pt, fill: t.text-color, str(lbl) + val-text)),
             )
           }
         }
