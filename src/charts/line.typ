@@ -109,7 +109,7 @@
               left + top,
               dx: pt.at(0),
               dy: pt.at(1) - 1.5em,
-              move(dx: -1em, text(size: t.axis-label-size, fill: t.text-color)[#values.at(i)])
+              move(dx: -1em, dy: -0.5em, text(size: t.axis-label-size, fill: t.text-color)[#values.at(i)])
             )
           }
         }

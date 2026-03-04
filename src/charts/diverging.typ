@@ -110,13 +110,14 @@
           )
         )
 
-        // Left value label
+        // Left value label — right-aligned box before bar end
         if show-values {
           place(
             left + top,
-            dx: center-x - l-bar-w - 20pt,
+            dx: center-x - l-bar-w - 3em,
             dy: y-pos + actual-bar-h / 2,
-            move(dy: -0.5em, text(size: t.value-label-size, fill: t.text-color)[#l-val])
+            box(width: 3em, align(right,
+              move(dy: -0.5em, text(size: t.value-label-size, fill: t.text-color)[#l-val])))
           )
         }
 

@@ -137,11 +137,10 @@
         circle(radius: 6pt, fill: needle-color, stroke: white + 1pt)
       )
 
-      // Min/max labels — right-align min under left edge, left-align max under right edge
-      #place(left + top, dx: 0pt, dy: cy + 0.5em,
-        box(width: cx - radius + 2pt, height: 0pt,
-          align(right, text(size: t.axis-label-size, fill: t.text-color)[#min-val])))
-      #place(left + top, dx: cx + radius - 2pt, dy: cy + 0.5em,
+      // Min/max labels — right-align min under left arc edge, left-align max under right edge
+      #place(left + top, dx: cx - radius, dy: cy + 0.5em,
+        move(dx: -1em, text(size: t.axis-label-size, fill: t.text-color)[#min-val]))
+      #place(left + top, dx: cx + radius, dy: cy + 0.5em,
         text(size: t.axis-label-size, fill: t.text-color)[#max-val])
 
       // Value display — centered at gauge center

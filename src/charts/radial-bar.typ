@@ -138,8 +138,11 @@
           let ly = cy + label-r * calc.sin(mid-angle-deg * 1deg)
 
           // Adjust text anchor based on angular position
-          let cos-val = calc.cos(mid-angle-deg * 1deg)
-          let sin-val = calc.sin(mid-angle-deg * 1deg)
+          // Left-side: box ends at lx; Right-side: box starts at lx
+          let label-w = 4em
+          let dx-adj = if cos-val < -0.1 { -label-w }
+                       else if cos-val > 0.1 { 0em }
+                       else { -label-w / 2 }
           let h-align = if cos-val < -0.1 { right }
                         else if cos-val > 0.1 { left }
                         else { center }
@@ -151,8 +154,8 @@
             left + top,
             dx: lx,
             dy: ly,
-            move(dy: v-shift,
-              box(width: 4em,
+            move(dx: dx-adj, dy: v-shift,
+              box(width: label-w,
                 align(h-align, text(size: t.legend-size, fill: t.text-color)[#lbl])))
           )
         }

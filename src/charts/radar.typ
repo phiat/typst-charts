@@ -100,19 +100,28 @@
           let ly = cx + label-dist * calc.sin(angle)
 
           // Adjust text anchor based on angular position using alignment
-          let h-align = if calc.cos(angle) < -0.1 { right }
-                        else if calc.cos(angle) > 0.1 { left }
+          // Left-side labels: place box ending at lx (right-aligned)
+          // Right-side labels: place box starting at lx (left-aligned)
+          // Center labels: center the box on lx
+          let cos-a = calc.cos(angle)
+          let sin-a = calc.sin(angle)
+          let label-w = 4em
+          let dx-adj = if cos-a < -0.1 { -label-w }
+                       else if cos-a > 0.1 { 0em }
+                       else { -label-w / 2 }
+          let h-align = if cos-a < -0.1 { right }
+                        else if cos-a > 0.1 { left }
                         else { center }
-          let v-shift = if calc.sin(angle) < -0.1 { 0em }
-                        else if calc.sin(angle) > 0.1 { -1em }
+          let v-shift = if sin-a < -0.1 { 0em }
+                        else if sin-a > 0.1 { -1em }
                         else { -0.5em }
 
           place(
             left + top,
             dx: lx,
             dy: ly,
-            move(dy: v-shift,
-              box(width: 4em,
+            move(dx: dx-adj, dy: v-shift,
+              box(width: label-w,
                 align(h-align, text(size: t.value-label-size, fill: t.text-color, weight: "medium")[#lbl])))
           )
         }

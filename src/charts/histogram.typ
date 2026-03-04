@@ -138,10 +138,10 @@
       }
 
       // Y-axis ticks
-      #draw-y-ticks(0, y-max, chart-height, pad-top, 2pt, t, digits: if density { 3 } else { 1 })
+      #draw-y-ticks(0, y-max, chart-height, pad-top, pad-left, t, digits: if density { 3 } else { 1 })
 
       // X-axis ticks (numeric)
-      #draw-x-ticks(data-min, data-max, chart-width, pad-left, pad-top + chart-height + 5pt, t, digits: 1)
+      #draw-x-ticks(data-min, data-max, chart-width, pad-left, pad-top + chart-height + 4pt, t, digits: 1)
 
       // Axis titles
       #draw-axis-titles(x-label, y-label, pad-left + chart-width / 2, pad-top + chart-height / 2, t)
