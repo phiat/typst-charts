@@ -3,7 +3,7 @@
 #import "../util.typ": normalize-data
 #import "../validate.typ": validate-simple-data, validate-series-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/axes.typ": draw-grid, draw-axis-titles
+#import "../primitives/axes.typ": draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks
 #import "../primitives/legend.typ": draw-legend, draw-legend-vertical
 
 /// Renders a single-series area chart with a filled region below the line.
@@ -46,29 +46,37 @@
 
   let n = values.len()
 
-  chart-container(width, height, title, t, extra-height: 30pt)[
-    #let chart-height = height - 20pt
-    #let chart-width = width - 50pt
-    #let x-start = 45pt
+  let pad-left = t.axis-padding-left
+  let pad-bottom = t.axis-padding-bottom
+  let pad-top = t.axis-padding-top
+  let pad-right = t.axis-padding-right
 
-    #box(width: width, height: chart-height)[
-      // Grid (no-op by default)
-      #draw-grid(40pt, 0pt, chart-width, chart-height, t)
+  chart-container(width, height, title, t, extra-height: 30pt)[
+    #let chart-height = height - pad-top - pad-bottom
+    #let chart-width = width - pad-left - pad-right
+    #let origin-x = pad-left
+    #let origin-y = pad-top + chart-height
+
+    #box(width: width, height: height)[
+      // Grid
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
 
       // Axes
-      #place(left + top, line(start: (40pt, 0pt), end: (40pt, chart-height), stroke: t.axis-stroke))
-      #place(left + bottom, line(start: (40pt, 0pt), end: (width, 0pt), stroke: t.axis-stroke))
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
+
+      // Y-axis ticks
+      #draw-y-ticks(min-val, max-val, chart-height, pad-top, origin-x, t)
 
       // Calculate points
       #let points = ()
       #for (i, val) in values.enumerate() {
-        let x = if n == 1 { x-start + chart-width / 2 } else { x-start + (i / (n - 1)) * (chart-width - 10pt) }
-        let y = chart-height - ((val - min-val) / val-range) * (chart-height - 20pt) - 10pt
+        let x = if n == 1 { origin-x + chart-width / 2 } else { origin-x + (i / (n - 1)) * chart-width }
+        let y = pad-top + chart-height - ((val - min-val) / val-range) * chart-height
         points.push((x, y))
       }
 
       // Build polygon for filled area (include baseline)
-      #let baseline-y = chart-height - ((0 - min-val) / val-range) * (chart-height - 20pt) - 10pt
+      #let baseline-y = pad-top + chart-height - ((0 - min-val) / val-range) * chart-height
       #let area-pts = {
         let pts = ()
         pts.push((points.at(0).at(0), baseline-y))
@@ -117,32 +125,18 @@
         }
       }
 
-      // X-axis labels
+      // X-axis labels — spread evenly across chart width
+      #let x-spacing = if n > 1 { chart-width / (n - 1) } else { chart-width }
       #for (i, lbl) in labels.enumerate() {
-        let x = if n == 1 { x-start + chart-width / 2 } else { x-start + (i / (n - 1)) * (chart-width - 10pt) }
-        place(
-          left + bottom,
-          dx: x - 15pt,
-          dy: 10pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#lbl]
-        )
-      }
-
-      // Y-axis labels
-      #for i in array.range(t.tick-count) {
-        let fraction = if t.tick-count > 1 { i / (t.tick-count - 1) } else { 0 }
-        let y-val = calc.round(min-val + val-range * fraction, digits: 1)
-        let y-pos = chart-height - fraction * (chart-height - 20pt) - 10pt
-        place(
-          left + top,
-          dx: 5pt,
-          dy: y-pos - 5pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#y-val]
+        let x = if n == 1 { origin-x } else { origin-x + (i / (n - 1)) * chart-width }
+        place(left + top, dx: x - x-spacing / 2, dy: origin-y + 4pt,
+          box(width: x-spacing, height: 1.5em,
+            align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#lbl]))
         )
       }
 
       // Axis titles
-      #draw-axis-titles(x-label, y-label, 40pt + chart-width / 2, chart-height / 2, t)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
     ]
   ]
 }
@@ -194,18 +188,26 @@
   let max-val = calc.max(..cumulative.map(c => c.at(n-series - 1)))
   if max-val == 0 { max-val = 1 }
 
-  chart-container(width, height, title, t, extra-height: 50pt)[
-    #let chart-height = height - 20pt
-    #let chart-width = width - 50pt
-    #let x-start = 45pt
+  let pad-left = t.axis-padding-left
+  let pad-bottom = t.axis-padding-bottom
+  let pad-top = t.axis-padding-top
+  let pad-right = t.axis-padding-right
 
-    #box(width: width, height: chart-height)[
-      // Grid (no-op by default)
-      #draw-grid(40pt, 0pt, chart-width, chart-height, t)
+  chart-container(width, height, title, t, extra-height: 50pt)[
+    #let chart-height = height - pad-top - pad-bottom
+    #let chart-width = width - pad-left - pad-right
+    #let origin-x = pad-left
+    #let origin-y = pad-top + chart-height
+
+    #box(width: width, height: height)[
+      // Grid
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
 
       // Axes
-      #place(left + top, line(start: (40pt, 0pt), end: (40pt, chart-height), stroke: t.axis-stroke))
-      #place(left + bottom, line(start: (40pt, 0pt), end: (width, 0pt), stroke: t.axis-stroke))
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
+
+      // Y-axis ticks
+      #draw-y-ticks(0, max-val, chart-height, pad-top, origin-x, t, digits: 0)
 
       // Draw areas from top to bottom (reverse order so bottom series is on top visually)
       #for si in array.range(n-series - 1, -1, step: -1) {
@@ -216,18 +218,18 @@
 
         // Top edge (current cumulative)
         for i in array.range(n) {
-          let x = if n == 1 { x-start + chart-width / 2 } else { x-start + (i / (n - 1)) * (chart-width - 10pt) }
-          let y = chart-height - (cumulative.at(i).at(si) / max-val) * (chart-height - 20pt) - 10pt
+          let x = if n == 1 { origin-x + chart-width / 2 } else { origin-x + (i / (n - 1)) * chart-width }
+          let y = pad-top + chart-height - (cumulative.at(i).at(si) / max-val) * chart-height
           area-pts.push((x, y))
         }
 
         // Bottom edge (previous cumulative or baseline)
         for i in array.range(n - 1, -1, step: -1) {
-          let x = if n == 1 { x-start + chart-width / 2 } else { x-start + (i / (n - 1)) * (chart-width - 10pt) }
+          let x = if n == 1 { origin-x + chart-width / 2 } else { origin-x + (i / (n - 1)) * chart-width }
           let y = if si == 0 {
-            chart-height - 10pt  // baseline
+            origin-y  // baseline
           } else {
-            chart-height - (cumulative.at(i).at(si - 1) / max-val) * (chart-height - 20pt) - 10pt
+            pad-top + chart-height - (cumulative.at(i).at(si - 1) / max-val) * chart-height
           }
           area-pts.push((x, y))
         }
@@ -242,32 +244,18 @@
         )
       }
 
-      // X-axis labels
+      // X-axis labels — spread evenly across chart width
+      #let x-spacing = if n > 1 { chart-width / (n - 1) } else { chart-width }
       #for (i, lbl) in labels.enumerate() {
-        let x = if n == 1 { x-start + chart-width / 2 } else { x-start + (i / (n - 1)) * (chart-width - 10pt) }
-        place(
-          left + bottom,
-          dx: x - 15pt,
-          dy: 10pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#lbl]
-        )
-      }
-
-      // Y-axis labels
-      #for i in array.range(t.tick-count) {
-        let fraction = if t.tick-count > 1 { i / (t.tick-count - 1) } else { 0 }
-        let y-val = calc.round(max-val * fraction, digits: 0)
-        let y-pos = chart-height - fraction * (chart-height - 20pt) - 10pt
-        place(
-          left + top,
-          dx: 5pt,
-          dy: y-pos - 5pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#y-val]
+        let x = if n == 1 { origin-x } else { origin-x + (i / (n - 1)) * chart-width }
+        place(left + top, dx: x - x-spacing / 2, dy: origin-y + 4pt,
+          box(width: x-spacing, height: 1.5em,
+            align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#lbl]))
         )
       }
 
       // Axis titles
-      #draw-axis-titles(x-label, y-label, 40pt + chart-width / 2, chart-height / 2, t)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
     ]
 
     // Legend

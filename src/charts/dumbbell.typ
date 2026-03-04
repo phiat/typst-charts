@@ -117,12 +117,13 @@
             stroke: t.axis-stroke,
           )
         )
-        // Tick label
+        // Tick label — centered on tick position
         let display-val = if val == calc.floor(val) { str(int(val)) } else { str(calc.round(val, digits: 1)) }
         place(left + top,
-          dx: x - 10pt,
+          dx: x - 1.5em,
           dy: chart-height - bottom-pad + 6pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#display-val]
+          box(width: 3em, height: 1.5em,
+            align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#display-val]))
         )
       }
 
@@ -134,11 +135,13 @@
         let x-start = val-to-x(sv)
         let x-end = val-to-x(ev)
 
-        // Category label on the left
+        // Category label on the left — right-aligned into label margin
         place(left + top,
-          dx: 4pt,
-          dy: y - 5pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#lbl]
+          dx: 0pt,
+          dy: y,
+          box(width: label-margin - 4pt, height: 0pt,
+            align(right, move(dy: -0.5em,
+              text(size: t.axis-label-size, fill: t.text-color)[#lbl])))
         )
 
         // Connecting line (muted gray)
@@ -170,15 +173,15 @@
           let s-dx = if sv <= ev { x-start - 20pt } else { x-start + dot-size + 3pt }
           place(left + top,
             dx: s-dx,
-            dy: y - 5pt,
-            text(size: 6pt, fill: start-color)[#sv]
+            dy: y,
+            move(dy: -0.5em, text(size: 6pt, fill: start-color)[#sv])
           )
           // Value near end dot
           let e-dx = if ev >= sv { x-end + dot-size + 3pt } else { x-end - 20pt }
           place(left + top,
             dx: e-dx,
-            dy: y - 5pt,
-            text(size: 6pt, fill: end-color)[#ev]
+            dy: y,
+            move(dy: -0.5em, text(size: 6pt, fill: end-color)[#ev])
           )
         }
       }

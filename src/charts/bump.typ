@@ -2,7 +2,7 @@
 #import "../theme.typ": resolve-theme, get-color
 #import "../validate.typ": validate-series-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/axes.typ": draw-grid, draw-axis-titles
+#import "../primitives/axes.typ": draw-axis-lines, draw-grid, draw-axis-titles
 #import "../primitives/legend.typ": draw-legend, draw-legend-vertical
 
 /// Renders a bump chart showing how items change ranking over time periods.
@@ -50,21 +50,23 @@
   let rank-range = max-rank - min-rank
   if rank-range == 0 { rank-range = 1 }
 
-  chart-container(width, height, title, t, extra-height: 50pt)[
-    #let chart-height = height - 20pt
-    #let chart-width = width - 50pt
-    #let left-pad = 40pt
-    #let right-pad = 10pt
-    #let top-pad = 10pt
-    #let bottom-pad = 10pt
+  let pad-left = t.axis-padding-left
+  let pad-bottom = t.axis-padding-bottom
+  let pad-top = t.axis-padding-top
+  let pad-right = t.axis-padding-right
 
-    #box(width: width, height: chart-height)[
+  chart-container(width, height, title, t, extra-height: 50pt)[
+    #let chart-height = height - pad-top - pad-bottom
+    #let chart-width = width - pad-left - pad-right
+    #let origin-x = pad-left
+    #let origin-y = pad-top + chart-height
+
+    #box(width: width, height: height)[
       // Grid
-      #draw-grid(left-pad, 0pt, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
 
       // Axes
-      #place(left + top, line(start: (left-pad, 0pt), end: (left-pad, chart-height), stroke: t.axis-stroke))
-      #place(left + bottom, line(start: (left-pad, 0pt), end: (width, 0pt), stroke: t.axis-stroke))
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // Draw each series as a thick line with dots
       #for (si, s) in series.enumerate() {
@@ -75,8 +77,8 @@
         // Y is inverted: rank 1 at top, max-rank at bottom
         let points = ()
         for (i, val) in values.enumerate() {
-          let x = if n == 1 { left-pad + 5pt + chart-width / 2 } else { left-pad + 5pt + (i / (n - 1)) * (chart-width - right-pad - 5pt) }
-          let y = top-pad + ((val - min-rank) / rank-range) * (chart-height - top-pad - bottom-pad)
+          let x = if n == 1 { origin-x + chart-width / 2 } else { origin-x + (i / (n - 1)) * chart-width }
+          let y = pad-top + ((val - min-rank) / rank-range) * chart-height
           points.push((x, y))
         }
 
@@ -109,9 +111,11 @@
           let first-pt = points.at(0)
           place(
             left + top,
-            dx: first-pt.at(0) - 40pt,
-            dy: first-pt.at(1) - 5pt,
-            text(size: t.axis-label-size, fill: color, weight: "bold")[#s.name]
+            dx: 0pt,
+            dy: first-pt.at(1),
+            box(width: origin-x - 4pt, height: 0pt,
+              align(right, move(dy: -0.5em,
+                text(size: t.axis-label-size, fill: color, weight: "bold")[#s.name])))
           )
 
           if n > 1 {
@@ -119,32 +123,31 @@
             place(
               left + top,
               dx: last-pt.at(0) + dot-size / 2 + 3pt,
-              dy: last-pt.at(1) - 5pt,
-              text(size: t.axis-label-size, fill: color, weight: "bold")[#s.name]
+              dy: last-pt.at(1),
+              move(dy: -0.5em,
+                text(size: t.axis-label-size, fill: color, weight: "bold")[#s.name])
             )
           }
         }
       }
 
-      // X-axis labels (time periods)
+      // X-axis labels — spread evenly across chart width
+      #let x-spacing = if n > 1 { chart-width / (n - 1) } else { chart-width }
       #for (i, lbl) in labels.enumerate() {
-        let x = if n == 1 { left-pad + 5pt + chart-width / 2 } else { left-pad + 5pt + (i / (n - 1)) * (chart-width - right-pad - 5pt) }
-        place(
-          left + bottom,
-          dx: x - 15pt,
-          dy: 10pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#lbl]
+        let x = if n == 1 { origin-x } else { origin-x + (i / (n - 1)) * chart-width }
+        place(left + top, dx: x - x-spacing / 2, dy: origin-y + 4pt,
+          box(width: x-spacing, height: 1.5em,
+            align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#lbl]))
         )
       }
 
       // Y-axis labels (rank numbers, 1 at top, max at bottom)
       #for rank in array.range(int(min-rank), int(max-rank) + 1) {
-        let y = top-pad + ((rank - min-rank) / rank-range) * (chart-height - top-pad - bottom-pad)
-        place(
-          left + top,
-          dx: 5pt,
-          dy: y - 5pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#rank]
+        let y = pad-top + ((rank - min-rank) / rank-range) * chart-height
+        place(left + top, dx: 0pt, dy: y,
+          box(width: origin-x - 2pt, height: 0pt,
+            align(right, move(dy: -0.5em,
+              text(size: t.axis-label-size, fill: t.text-color)[#rank])))
         )
       }
     ]

@@ -49,7 +49,7 @@
 
   // Layout constants
   let label-area = 80pt        // Space for category labels on the left
-  let right-pad = 10pt
+  let right-pad = t.axis-padding-right
   let usable-width = width - label-area - right-pad
   let half-width = usable-width / 2
   let center-x = label-area + half-width
@@ -115,8 +115,8 @@
           place(
             left + top,
             dx: center-x - l-bar-w - 20pt,
-            dy: y-pos + actual-bar-h / 2 - 5pt,
-            text(size: t.value-label-size, fill: t.text-color)[#l-val]
+            dy: y-pos + actual-bar-h / 2,
+            move(dy: -0.5em, text(size: t.value-label-size, fill: t.text-color)[#l-val])
           )
         }
 
@@ -125,21 +125,23 @@
           place(
             left + top,
             dx: center-x + r-bar-w + 5pt,
-            dy: y-pos + actual-bar-h / 2 - 5pt,
-            text(size: t.value-label-size, fill: t.text-color)[#r-val]
+            dy: y-pos + actual-bar-h / 2,
+            move(dy: -0.5em, text(size: t.value-label-size, fill: t.text-color)[#r-val])
           )
         }
 
-        // Category label on the far left
+        // Category label on the far left — right-aligned into label area
         place(
           left + top,
-          dx: 5pt,
-          dy: y-pos + actual-bar-h / 2 - 5pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#label]
+          dx: 0pt,
+          dy: y-pos + actual-bar-h / 2,
+          box(width: label-area - 4pt, height: 0pt,
+            align(right, move(dy: -0.5em,
+              text(size: t.axis-label-size, fill: t.text-color)[#label])))
         )
       }
 
-      // X-axis tick labels (symmetric around center)
+      // X-axis tick labels (symmetric around center) — centered on tick position
       #for i in array.range(t.tick-count) {
         let fraction = if t.tick-count > 1 { i / (t.tick-count - 1) } else { 0 }
         let tick-val = calc.round(max-val * fraction, digits: 0)
@@ -148,9 +150,10 @@
         let rx = center-x + fraction * half-width
         place(
           left + bottom,
-          dx: rx - 10pt,
-          dy: 8pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#tick-val]
+          dx: rx - 1.5em,
+          dy: 4pt,
+          box(width: 3em, height: 1.5em,
+            align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#tick-val]))
         )
 
         // Left side ticks (mirror, skip zero to avoid double-drawing)
@@ -158,9 +161,10 @@
           let lx = center-x - fraction * half-width
           place(
             left + bottom,
-            dx: lx - 10pt,
-            dy: 8pt,
-            text(size: t.axis-label-size, fill: t.text-color)[#tick-val]
+            dx: lx - 1.5em,
+            dy: 4pt,
+            box(width: 3em, height: 1.5em,
+              align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#tick-val]))
           )
         }
       }

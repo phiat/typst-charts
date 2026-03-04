@@ -87,29 +87,29 @@
   if y-max == 0 { y-max = 1 }
 
   // Render
-  let left-pad = 40pt
-  let bottom-pad = 20pt
-  let top-pad = 10pt
-  let right-pad = 10pt
+  let pad-left = t.axis-padding-left
+  let pad-bottom = t.axis-padding-bottom
+  let pad-top = t.axis-padding-top
+  let pad-right = t.axis-padding-right
 
   chart-container(width, height, title, t, extra-height: 30pt)[
-    #let chart-height = height - bottom-pad - top-pad
-    #let chart-width = width - left-pad - right-pad
+    #let chart-height = height - pad-top - pad-bottom
+    #let chart-width = width - pad-left - pad-right
 
     #box(width: width, height: height - 10pt)[
       // Grid
-      #draw-grid(left-pad, top-pad, chart-width, chart-height, t)
+      #draw-grid(pad-left, pad-top, chart-width, chart-height, t)
 
       // Axes
-      #draw-axis-lines(left-pad, top-pad + chart-height, left-pad + chart-width, top-pad, t)
+      #draw-axis-lines(pad-left, pad-top + chart-height, pad-left + chart-width, pad-top, t)
 
       // Draw bars (no gaps — contiguous)
       #let bar-w = chart-width / num-bins
       #for bi in array.range(num-bins) {
         let val = y-values.at(bi)
         let bar-h = (val / y-max) * chart-height
-        let x-pos = left-pad + bi * bar-w
-        let y-pos = top-pad + chart-height - bar-h
+        let x-pos = pad-left + bi * bar-w
+        let y-pos = pad-top + chart-height - bar-h
 
         let fill-color = if color != none { color } else { get-color(t, 0) }
 
@@ -129,21 +129,22 @@
           let count-val = counts.at(bi)
           place(
             left + top,
-            dx: x-pos + bar-w / 2 - 6pt,
-            dy: y-pos - 12pt,
-            text(size: t.value-label-size, fill: t.text-color)[#count-val]
+            dx: x-pos,
+            dy: y-pos - 1.2em,
+            box(width: bar-w,
+              align(center, text(size: t.value-label-size, fill: t.text-color)[#count-val]))
           )
         }
       }
 
       // Y-axis ticks
-      #draw-y-ticks(0, y-max, chart-height, top-pad, 2pt, t, digits: if density { 3 } else { 1 })
+      #draw-y-ticks(0, y-max, chart-height, pad-top, 2pt, t, digits: if density { 3 } else { 1 })
 
       // X-axis ticks (numeric)
-      #draw-x-ticks(data-min, data-max, chart-width, left-pad, top-pad + chart-height + 5pt, t, digits: 1)
+      #draw-x-ticks(data-min, data-max, chart-width, pad-left, pad-top + chart-height + 5pt, t, digits: 1)
 
       // Axis titles
-      #draw-axis-titles(x-label, y-label, left-pad + chart-width / 2, top-pad + chart-height / 2, t)
+      #draw-axis-titles(x-label, y-label, pad-left + chart-width / 2, pad-top + chart-height / 2, t)
     ]
   ]
 }
