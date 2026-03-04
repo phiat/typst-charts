@@ -3,6 +3,7 @@
 #import "../util.typ": normalize-data, format-number
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
+#import "../primitives/layout.typ": label-fits-inside
 
 /// Renders a funnel chart for visualizing process or conversion stages.
 ///
@@ -90,7 +91,6 @@
           } else { "" }
 
           // Build display string
-          let display = label-text
           let detail-parts = ()
           if show-values { detail-parts.push(value-text) }
           if show-percentages { detail-parts.push(pct-text) }
@@ -99,29 +99,74 @@
           // Center the text on the segment — use inset width to avoid boundary overlap
           let mid-y = y-top + seg-height / 2
           let avg-half = (top-half + bottom-half) / 2
-          let inset-half = calc.max(10pt, avg-half - 6pt)  // shrink box away from edges
+          let inset-half = calc.max(10pt, avg-half - 6pt)
           let label-size = if avg-half * 2 < 60pt { calc.max(5pt, t.value-label-size - 1pt) } else { t.value-label-size }
 
-          // Stack label + detail vertically, centered on segment
+          let lbl-len = label-text.len()
+          let avail-w = inset-half * 2
+          let avail-h = seg-height
+
+          // Check if label fits inside segment
           let has-detail = n <= 9 and detail != ""
           let detail-size = label-size * 0.85
-          let block-h = if has-detail { label-size + detail-size + 2pt } else { label-size + 2pt }
-          let start-y = mid-y - block-h / 2
+          let label-inside = label-fits-inside(avail-w, avail-h, label-size, lbl-len)
 
-          place(
-            left + top,
-            dx: center-x - inset-half,
-            dy: start-y,
-            box(width: inset-half * 2, height: block-h, clip: true)[
-              #align(center + horizon)[
-                #text(size: label-size, fill: t.text-color-inverse, weight: "bold")[#label-text]
-                #if has-detail {
-                  linebreak()
-                  text(size: detail-size, fill: t.text-color-inverse)[#detail]
-                }
+          if label-inside {
+            // Determine if detail also fits (combined height)
+            let detail-len = detail.len()
+            let detail-fits = has-detail and label-fits-inside(avail-w, avail-h, detail-size, detail-len)
+            let show-detail = has-detail and detail-fits
+            let block-h = if show-detail { label-size + detail-size + 2pt } else { label-size + 2pt }
+            let start-y = mid-y - block-h / 2
+
+            place(
+              left + top,
+              dx: center-x - inset-half,
+              dy: start-y,
+              box(width: avail-w, height: block-h, clip: true)[
+                #align(center + horizon)[
+                  #if show-detail {
+                    stack(dir: ttb, spacing: 1pt,
+                      text(size: label-size, fill: t.text-color-inverse, weight: "bold")[#label-text],
+                      text(size: detail-size, fill: t.text-color-inverse)[#detail],
+                    )
+                  } else {
+                    text(size: label-size, fill: t.text-color-inverse, weight: "bold")[#label-text]
+                  }
+                ]
               ]
-            ]
-          )
+            )
+          } else {
+            // External label: place to the right with leader line
+            let ext-label-size = calc.max(5pt, label-size - 0.5pt)
+            let right-edge = center-x + top-half
+            let leader-start-x = right-edge + 2pt
+            let ext-label-x = leader-start-x + 10pt
+            let ext-label-w = width - ext-label-x - 4pt
+            if ext-label-w > 20pt {
+              let block-h = ext-label-size + 2pt
+              let label-y = mid-y - block-h / 2
+              // Leader line
+              place(left + top,
+                line(start: (leader-start-x, mid-y),
+                     end: (ext-label-x - 1pt, mid-y),
+                     stroke: 0.5pt + luma(140)))
+              // Label
+              place(
+                left + top,
+                dx: ext-label-x,
+                dy: label-y,
+                box(width: ext-label-w, height: block-h)[
+                  #align(left + horizon)[
+                    #text(size: ext-label-size, fill: t.text-color, weight: "bold")[#label-text]
+                    #if has-detail {
+                      text(size: ext-label-size * 0.85, fill: t.text-color)[ #detail]
+                    }
+                  ]
+                ]
+              )
+            }
+          }
         }
       }
     ]

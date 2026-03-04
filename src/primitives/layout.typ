@@ -68,6 +68,69 @@
   }
 }
 
+/// Tries shrinking a label font from `base-size` down to `shrink-min` until it fits.
+///
+/// Returns `(fits: bool, size: length)`.
+///
+/// - available-w (length): Width of the container
+/// - available-h (length): Height of the container
+/// - base-size (length): Starting (preferred) font size
+/// - text-len (int): Number of characters in the label
+/// - shrink-min (length): Minimum font size to try before giving up
+/// -> dictionary
+#let try-fit-label(available-w, available-h, base-size, text-len, shrink-min: 5pt) = {
+  let steps = calc.max(1, int((base-size - shrink-min) / 1pt) + 1)
+  let result = (fits: false, size: base-size)
+  for i in range(steps) {
+    let sz = base-size - i * 1pt
+    if sz < shrink-min { break }
+    if label-fits-inside(available-w, available-h, sz, text-len) {
+      result = (fits: true, size: sz)
+      break
+    }
+  }
+  result
+}
+
+/// Single-pass greedy label deconfliction.
+///
+/// Takes an array of proposal dicts, each with keys `cx`, `cy`, `lx`, `ly`, `w`, `h`
+/// (plus any extra keys which are preserved). Sorts by `ly`, then nudges overlapping
+/// labels downward. Clamps final positions to `bounds`.
+///
+/// - proposals (array): Array of label-position dicts
+/// - bounds (dictionary): Dict with `left`, `right`, `top`, `bottom` keys
+/// - gap (length): Minimum vertical gap between labels
+/// -> array
+#let greedy-deconflict(proposals, bounds, gap: 2pt) = {
+  // Sort by ly (top position)
+  let sorted = proposals.sorted(key: p => p.ly)
+  let placed = ()
+  for p in sorted {
+    let ly = p.ly
+    // Check against all already-placed labels, nudge down if overlapping
+    for prev in placed {
+      let overlap-v = prev.ly + prev.h + gap - ly
+      let overlap-h = not (p.lx + p.w <= prev.lx or prev.lx + prev.w <= p.lx)
+      if overlap-h and overlap-v > 0pt {
+        ly = prev.ly + prev.h + gap
+      }
+    }
+    // Clamp to bounds
+    let ly = calc.max(bounds.top, calc.min(bounds.bottom - p.h, ly))
+    let lx = calc.max(bounds.left, calc.min(bounds.right - p.w, p.lx))
+    let entry = p
+    let entry = (:)
+    for (k, v) in p.pairs() {
+      if k == "lx" { entry.insert(k, lx) }
+      else if k == "ly" { entry.insert(k, ly) }
+      else { entry.insert(k, v) }
+    }
+    placed.push(entry)
+  }
+  placed
+}
+
 /// Places a label near a Cartesian point with quadrant-aware alignment.
 ///
 /// Clamps the label position to stay within the given bounds rectangle.
@@ -78,16 +141,17 @@
 /// - body (content): Label content to place
 /// - bounds (dictionary): Dict with `left`, `right`, `top`, `bottom` keys
 /// - box-width (length): Width of the label box
+/// - box-height (length): Height of the label box
+/// - offset-y (length): Vertical offset from the point (negative = above)
 /// - leader (bool): Whether to draw a leader line
 /// - leader-stroke (stroke): Stroke style for the leader line
 /// -> content
-#let place-cartesian-label(x, y, body, bounds, box-width: 40pt, leader: false, leader-stroke: 0.5pt + luma(140)) = {
+#let place-cartesian-label(x, y, body, bounds, box-width: 40pt, box-height: 12pt, offset-y: -12pt, leader: false, leader-stroke: 0.5pt + luma(140)) = {
   // Determine quadrant-aware offset: push label away from center
   let cx = (bounds.left + bounds.right) / 2
   let cy = (bounds.top + bounds.bottom) / 2
 
   let offset-x = if x >= cx { 8pt } else { -8pt - box-width }
-  let offset-y = -12pt  // default: above the point
 
   // Compute displaced position
   let lx = x + offset-x
@@ -95,12 +159,12 @@
 
   // Clamp to bounds
   let lx = calc.max(bounds.left, calc.min(bounds.right - box-width, lx))
-  let ly = calc.max(bounds.top, calc.min(bounds.bottom - 10pt, ly))
+  let ly = calc.max(bounds.top, calc.min(bounds.bottom - box-height, ly))
 
   // Leader line from original point to label anchor
   if leader {
     place(left + top,
-      line(start: (x, y), end: (lx + box-width / 2, ly + 7pt), stroke: leader-stroke))
+      line(start: (x, y), end: (lx + box-width / 2, ly + box-height / 2), stroke: leader-stroke))
   }
 
   // Label
