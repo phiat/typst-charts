@@ -2,7 +2,7 @@
 #import "../theme.typ": resolve-theme, get-color
 #import "../validate.typ": validate-diverging-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/legend.typ": draw-legend, draw-legend-vertical
+#import "../primitives/legend.typ": draw-legend-auto
 
 /// Renders a horizontal diverging bar chart where bars extend left and right
 /// from a central vertical axis. Useful for survey results (agree/disagree),
@@ -172,16 +172,9 @@
     ]
 
     // Legend
-    #if show-legend {
-      let legend-entries = (
-        (name: left-label, color: get-color(t, 0)),
-        (name: right-label, color: get-color(t, 1)),
-      )
-      if t.legend-position == "right" {
-        draw-legend-vertical(legend-entries, t)
-      } else {
-        draw-legend(legend-entries, t)
-      }
-    }
+    #draw-legend-auto(
+      ((name: left-label, color: get-color(t, 0)), (name: right-label, color: get-color(t, 1))),
+      t, show-legend: show-legend,
+    )
   ]
 }

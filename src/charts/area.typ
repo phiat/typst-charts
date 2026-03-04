@@ -4,7 +4,7 @@
 #import "../validate.typ": validate-simple-data, validate-series-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks
-#import "../primitives/legend.typ": draw-legend, draw-legend-vertical
+#import "../primitives/legend.typ": draw-legend-auto
 
 /// Renders a single-series area chart with a filled region below the line.
 ///
@@ -259,12 +259,6 @@
     ]
 
     // Legend
-    #if show-legend and t.legend-position != "none" {
-      if t.legend-position == "right" {
-        draw-legend-vertical(series.map(s => s.name), t)
-      } else {
-        draw-legend(series.map(s => s.name), t)
-      }
-    }
+    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
   ]
 }

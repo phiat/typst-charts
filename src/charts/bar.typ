@@ -4,7 +4,7 @@
 #import "../validate.typ": validate-simple-data, validate-series-data, validate-grouped-stacked-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks, draw-x-category-labels
-#import "../primitives/legend.typ": draw-legend, draw-legend-vertical
+#import "../primitives/legend.typ": draw-legend-auto
 #import "../primitives/annotations.typ": draw-annotations
 
 /// Renders a horizontal bar chart with category labels on the y-axis.
@@ -289,13 +289,7 @@
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
     ]
 
-    #if show-legend and t.legend-position != "none" {
-      if t.legend-position == "right" {
-        draw-legend-vertical(series.map(s => s.name), t)
-      } else {
-        draw-legend(series.map(s => s.name), t)
-      }
-    }
+    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
   ]
 }
 
@@ -389,13 +383,7 @@
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
     ]
 
-    #if show-legend and t.legend-position != "none" {
-      if t.legend-position == "right" {
-        draw-legend-vertical(series.map(s => s.name), t)
-      } else {
-        draw-legend(series.map(s => s.name), t)
-      }
-    }
+    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
   ]
 }
 
@@ -529,12 +517,6 @@
     ]
 
     // Legend shows segment names (consistent colors across groups)
-    #if show-legend and t.legend-position != "none" {
-      if t.legend-position == "right" {
-        draw-legend-vertical(segment-names, t)
-      } else {
-        draw-legend(segment-names, t)
-      }
-    }
+    #draw-legend-auto(segment-names, t, show-legend: show-legend)
   ]
 }

@@ -2,7 +2,7 @@
 #import "../theme.typ": resolve-theme, get-color
 #import "../validate.typ": validate-dumbbell-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/legend.typ": draw-legend
+#import "../primitives/legend.typ": draw-legend-auto
 
 /// Renders a dumbbell chart showing range or before/after comparisons.
 ///
@@ -67,7 +67,7 @@
     (name: end-label, color: end-color),
   )
 
-  let legend-content = draw-legend(legend-entries, t, swatch-type: "circle")
+  let legend-content = draw-legend-auto(legend-entries, t, swatch-type: "circle")
 
   chart-container(width, height, title, t, extra-height: 30pt, legend: legend-content)[
     #let chart-height = height - 10pt

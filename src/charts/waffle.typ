@@ -3,7 +3,7 @@
 #import "../util.typ": normalize-data
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/legend.typ": draw-legend
+#import "../primitives/legend.typ": draw-legend-auto
 
 /// Renders a waffle chart — a grid of squares where each square represents
 /// a unit or percentage of the total. Commonly used in infographics to
@@ -131,8 +131,6 @@
     ]
 
     // Legend
-    #if show-legend {
-      draw-legend(legend-entries, t)
-    }
+    #draw-legend-auto(legend-entries, t, show-legend: show-legend)
   ]
 }

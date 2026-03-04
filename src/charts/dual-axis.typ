@@ -3,7 +3,7 @@
 #import "../validate.typ": validate-dual-axis-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": draw-grid, draw-axis-titles
-#import "../primitives/legend.typ": draw-legend
+#import "../primitives/legend.typ": draw-legend-auto
 #import "../util.typ": format-number
 
 #let dual-axis-chart(
@@ -186,13 +186,9 @@
     ]
 
     // Legend
-    #draw-legend(
-      (
-        (name: left-series.name, color: l-color),
-        (name: right-series.name, color: r-color),
-      ),
-      t,
-      swatch-type: "line",
+    #draw-legend-auto(
+      ((name: left-series.name, color: l-color), (name: right-series.name, color: r-color)),
+      t, swatch-type: "line",
     )
   ]
 }

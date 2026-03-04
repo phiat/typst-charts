@@ -4,7 +4,7 @@
 #import "../validate.typ": validate-simple-data, validate-series-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-category-labels
-#import "../primitives/legend.typ": draw-legend, draw-legend-vertical
+#import "../primitives/legend.typ": draw-legend-auto
 #import "../primitives/annotations.typ": draw-annotations
 
 /// Renders a single-series line chart.
@@ -241,12 +241,6 @@
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
     ]
 
-    #if show-legend and t.legend-position != "none" {
-      if t.legend-position == "right" {
-        draw-legend-vertical(series.map(s => s.name), t)
-      } else {
-        draw-legend(series.map(s => s.name), t, swatch-type: "line")
-      }
-    }
+    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "line")
   ]
 }

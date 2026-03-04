@@ -3,6 +3,7 @@
 #import "../util.typ": normalize-data
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
+#import "../primitives/legend.typ": draw-legend-vertical
 
 /// Renders a parliament (hemicycle) chart — a semicircle of dots showing seat distribution.
 ///
@@ -155,20 +156,10 @@
 
       // Legend
       if show-legend {
-        box(width: legend-width)[
-          #v(10pt)
-          #for (i, lbl) in labels.enumerate() {
-            let count = values.at(i)
-            if count > 0 {
-              box(inset: (x: 0pt, y: 2pt))[
-                #box(width: t.legend-swatch-size, height: t.legend-swatch-size, fill: get-color(t, i), baseline: 2pt, radius: 2pt)
-                #h(6pt)
-                #text(size: t.legend-size, fill: t.text-color)[#lbl (#count)]
-              ]
-              linebreak()
-            }
-          }
-        ]
+        let legend-entries = labels.enumerate().filter(((i, _)) => values.at(i) > 0).map(((i, lbl)) => {
+          str(lbl) + " (" + str(values.at(i)) + ")"
+        })
+        draw-legend-vertical(legend-entries, t, width: legend-width)
       }
     )
   ]

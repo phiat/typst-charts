@@ -3,7 +3,7 @@
 #import "../validate.typ": validate-scatter-data, validate-multi-scatter-data, validate-bubble-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks
-#import "../primitives/legend.typ": draw-legend, draw-legend-vertical
+#import "../primitives/legend.typ": draw-legend-auto
 #import "../primitives/annotations.typ": draw-annotations
 
 /// Renders a scatter plot of x-y data points.
@@ -199,17 +199,7 @@
     ]
 
     // Legend
-    #if show-legend and t.legend-position != "none" {
-      if t.legend-position == "right" {
-        draw-legend-vertical(series.map(s => s.name), t)
-      } else {
-        draw-legend(
-          series.map(s => s.name),
-          t,
-          swatch-type: "circle",
-        )
-      }
-    }
+    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "circle")
   ]
 }
 

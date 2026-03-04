@@ -3,7 +3,7 @@
 #import "../util.typ": normalize-data
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/legend.typ": draw-legend-vertical
+#import "../primitives/legend.typ": draw-legend-vertical, draw-legend-auto
 #import "../primitives/polar.typ": pie-slice-points, place-donut-hole, separator-stroke
 
 /// Renders a pie or donut chart from label-value data.
@@ -100,18 +100,11 @@
 
       // Legend (if shown)
       if show-legend {
-        box(width: legend-width)[
-          #v(10pt)
-          #for (i, lbl) in labels.enumerate() {
-            let pct = calc.round((values.at(i) / total) * 100, digits: 1)
-            box(inset: (x: 0pt, y: 2pt))[
-              #box(width: t.legend-swatch-size, height: t.legend-swatch-size, fill: get-color(t, i), baseline: 2pt, radius: 2pt)
-              #h(6pt)
-              #text(size: t.legend-size, fill: t.text-color)[#lbl (#pct%)]
-            ]
-            linebreak()
-          }
-        ]
+        let legend-entries = labels.enumerate().map(((i, lbl)) => {
+          let pct = calc.round((values.at(i) / total) * 100, digits: 1)
+          str(lbl) + " (" + str(pct) + "%)"
+        })
+        draw-legend-vertical(legend-entries, t, width: legend-width)
       }
     )
   ]

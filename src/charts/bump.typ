@@ -3,7 +3,7 @@
 #import "../validate.typ": validate-series-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": draw-axis-lines, draw-grid, draw-axis-titles
-#import "../primitives/legend.typ": draw-legend, draw-legend-vertical
+#import "../primitives/legend.typ": draw-legend-auto
 
 /// Renders a bump chart showing how items change ranking over time periods.
 ///
@@ -152,12 +152,6 @@
       }
     ]
 
-    #if show-legend and t.legend-position != "none" {
-      if t.legend-position == "right" {
-        draw-legend-vertical(series.map(s => s.name), t)
-      } else {
-        draw-legend(series.map(s => s.name), t, swatch-type: "line")
-      }
-    }
+    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "line")
   ]
 }

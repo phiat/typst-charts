@@ -2,7 +2,7 @@
 #import "../theme.typ": resolve-theme, get-color
 #import "../validate.typ": validate-series-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/legend.typ": draw-legend-vertical
+#import "../primitives/legend.typ": draw-legend-vertical, draw-legend-auto
 #import "../primitives/polar.typ": place-polar-label
 
 /// Renders a radar (spider) chart for comparing series across multiple axes.
@@ -152,17 +152,7 @@
 
       // Legend
       if legend-width > 0pt {
-        box(width: legend-width)[
-          #v(20pt)
-          #for (i, s) in series.enumerate() {
-            box(inset: (x: 5pt, y: 3pt))[
-              #box(width: t.legend-swatch-size, height: t.legend-swatch-size, fill: get-color(t, i), baseline: 2pt, radius: 2pt)
-              #h(6pt)
-              #text(size: t.legend-size, fill: t.text-color)[#s.name]
-            ]
-            linebreak()
-          }
-        ]
+        draw-legend-vertical(series.map(s => s.name), t, width: legend-width)
       }
     )
   ]
