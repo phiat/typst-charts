@@ -1,6 +1,6 @@
 // boxplot.typ - Box-and-whisker plot
 #import "../theme.typ": resolve-theme, get-color
-#import "../util.typ": nonzero
+#import "../util.typ": nonzero, nice-ceil
 #import "../validate.typ": validate-boxplot-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-y-ticks, draw-x-category-labels, draw-grid, draw-axis-titles
@@ -46,10 +46,8 @@
     if b.max > global-max { global-max = b.max }
   }
   // Add padding to range
-  let val-range = global-max - global-min
-  let padding = val-range * 0.1
-  let y-min = global-min - padding
-  let y-max = global-max + padding
+  let y-min = calc.min(0, global-min)
+  let y-max = nice-ceil(global-max)
 
   let cl = cartesian-layout(width, height, t)
 

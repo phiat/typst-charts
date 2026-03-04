@@ -1,6 +1,6 @@
 // area.typ - Area charts (single and stacked)
 #import "../theme.typ": resolve-theme, get-color
-#import "../util.typ": normalize-data, nonzero
+#import "../util.typ": normalize-data, nonzero, nice-ceil
 #import "../validate.typ": validate-simple-data, validate-series-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks
@@ -39,7 +39,7 @@
   let labels = norm.labels
   let values = norm.values
 
-  let max-val = calc.max(..values)
+  let max-val = nice-ceil(calc.max(..values))
   let min-val = calc.min(0, ..values)  // Include 0 for area charts
   let val-range = nonzero(max-val - min-val)
 
@@ -182,7 +182,7 @@
     cumulative.push(cum)
   }
 
-  let max-val = nonzero(calc.max(..cumulative.map(c => c.at(n-series - 1))))
+  let max-val = nice-ceil(nonzero(calc.max(..cumulative.map(c => c.at(n-series - 1)))))
 
   let cl = cartesian-layout(width, height, t)
 

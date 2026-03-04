@@ -66,7 +66,7 @@
   if theme.legend-position == "none" { return }
   if entries.len() == 0 { return }
 
-  if theme.legend-position == "right" {
+  if theme.legend-position == "right" or theme.legend-position == "left" {
     draw-legend-vertical(entries, theme)
   } else {
     draw-legend(entries, theme, swatch-type: swatch-type)

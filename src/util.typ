@@ -176,6 +176,50 @@
 ///
 /// - data (dictionary): Dict with `labels` and `values` arrays
 /// -> dictionary
+/// Rounds a value up to the next "nice" number for axis scaling.
+/// Uses the standard nice-number algorithm (similar to D3/matplotlib).
+///
+/// - val (int, float): Value to round up
+/// -> int, float
+#let nice-ceil(val) = {
+  if val <= 0 { return val }
+  let exp = calc.floor(calc.log(val, base: 10))
+  let base = calc.pow(10, exp)
+  let frac = val / base
+  // Pick the next nice fraction: 1, 1.5, 2, 2.5, 3, 4, 5, 7, 10
+  let nice = if frac <= 1 { 1 }
+    else if frac <= 1.5 { 1.5 }
+    else if frac <= 2 { 2 }
+    else if frac <= 2.5 { 2.5 }
+    else if frac <= 3 { 3 }
+    else if frac <= 4 { 4 }
+    else if frac <= 5 { 5 }
+    else if frac <= 7 { 7 }
+    else { 10 }
+  nice * base
+}
+
+/// Rounds a value down to the previous "nice" number for axis scaling.
+///
+/// - val (int, float): Value to round down
+/// -> int, float
+#let nice-floor(val) = {
+  if val <= 0 { return 0 }
+  let exp = calc.floor(calc.log(val, base: 10))
+  let base = calc.pow(10, exp)
+  let frac = val / base
+  let nice = if frac >= 10 { 10 }
+    else if frac >= 7 { 7 }
+    else if frac >= 5 { 5 }
+    else if frac >= 4 { 4 }
+    else if frac >= 3 { 3 }
+    else if frac >= 2.5 { 2.5 }
+    else if frac >= 2 { 2 }
+    else if frac >= 1.5 { 1.5 }
+    else { 1 }
+  nice * base
+}
+
 #let percent-of-total(data) = {
   let total = data.values.sum()
   if total == 0 { return data }

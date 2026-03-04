@@ -1,6 +1,6 @@
 // bar.typ - Bar charts (simple, horizontal, grouped, stacked, grouped-stacked)
 #import "../theme.typ": resolve-theme, get-color
-#import "../util.typ": normalize-data, nonzero
+#import "../util.typ": normalize-data, nonzero, nice-ceil
 #import "../validate.typ": validate-simple-data, validate-series-data, validate-grouped-stacked-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks, draw-x-category-labels
@@ -37,7 +37,7 @@
   let labels = norm.labels
   let values = norm.values
 
-  let max-val = nonzero(calc.max(..values))
+  let max-val = nice-ceil(nonzero(calc.max(..values)))
   let n = values.len()
 
   let cl = cartesian-layout(width, height, t, extra-left: 40pt)
@@ -137,7 +137,7 @@
   let labels = norm.labels
   let values = norm.values
 
-  let max-val = nonzero(calc.max(..values))
+  let max-val = nice-ceil(nonzero(calc.max(..values)))
   let n = values.len()
 
   let cl = cartesian-layout(width, height, t)
@@ -230,7 +230,7 @@
   let n-series = series.len()
 
   let all-values = series.map(s => s.values).flatten()
-  let max-val = nonzero(calc.max(..all-values))
+  let max-val = nice-ceil(nonzero(calc.max(..all-values)))
 
   let cl = cartesian-layout(width, height, t)
 
@@ -317,7 +317,7 @@
     let total = series.map(s => s.values.at(i)).sum()
     totals.push(total)
   }
-  let max-val = nonzero(calc.max(..totals))
+  let max-val = nice-ceil(nonzero(calc.max(..totals)))
 
   let cl = cartesian-layout(width, height, t)
 
@@ -436,7 +436,7 @@
       if total > max-val { max-val = total }
     }
   }
-  let max-val = nonzero(max-val)
+  let max-val = nice-ceil(nonzero(max-val))
 
   let cl = cartesian-layout(width, height, t)
 

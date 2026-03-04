@@ -1,6 +1,6 @@
 // scatter.typ - Scatter plot and bubble chart
 #import "../theme.typ": resolve-theme, get-color
-#import "../util.typ": nonzero, clamp
+#import "../util.typ": nonzero, clamp, nice-ceil, nice-floor
 #import "../primitives/layout.typ": label-fits-inside, place-cartesian-label
 #import "../validate.typ": validate-scatter-data, validate-multi-scatter-data, validate-bubble-data, validate-multi-bubble-data
 #import "../primitives/container.typ": chart-container
@@ -47,12 +47,11 @@
   let x-vals = points.map(p => p.at(0))
   let y-vals = points.map(p => p.at(1))
 
-  let x-min = calc.min(..x-vals)
-  let x-max = calc.max(..x-vals)
-  let y-min = calc.min(..y-vals)
-  let y-max = calc.max(..y-vals)
+  let x-min = nice-floor(calc.min(..x-vals))
+  let x-max = nice-ceil(calc.max(..x-vals))
+  let y-min = nice-floor(calc.min(..y-vals))
+  let y-max = nice-ceil(calc.max(..y-vals))
 
-  // Add padding to ranges
   let x-range = nonzero(x-max - x-min)
   let y-range = nonzero(y-max - y-min)
 
@@ -146,10 +145,10 @@
     }
   }
 
-  let x-min = calc.min(..x-vals)
-  let x-max = calc.max(..x-vals)
-  let y-min = calc.min(..y-vals)
-  let y-max = calc.max(..y-vals)
+  let x-min = nice-floor(calc.min(..x-vals))
+  let x-max = nice-ceil(calc.max(..x-vals))
+  let y-min = nice-floor(calc.min(..y-vals))
+  let y-max = nice-ceil(calc.max(..y-vals))
 
   let x-range = nonzero(x-max - x-min)
   let y-range = nonzero(y-max - y-min)
@@ -248,10 +247,10 @@
   let y-vals = points.map(p => p.at(1))
   let size-vals = points.map(p => p.at(2))
 
-  let x-min = calc.min(..x-vals)
-  let x-max = calc.max(..x-vals)
-  let y-min = calc.min(..y-vals)
-  let y-max = calc.max(..y-vals)
+  let x-min = nice-floor(calc.min(..x-vals))
+  let x-max = nice-ceil(calc.max(..x-vals))
+  let y-min = nice-floor(calc.min(..y-vals))
+  let y-max = nice-ceil(calc.max(..y-vals))
   let size-min = calc.min(..size-vals)
   let size-max = calc.max(..size-vals)
 
@@ -379,10 +378,10 @@
     }
   }
 
-  let x-min = calc.min(..x-vals)
-  let x-max = calc.max(..x-vals)
-  let y-min = calc.min(..y-vals)
-  let y-max = calc.max(..y-vals)
+  let x-min = nice-floor(calc.min(..x-vals))
+  let x-max = nice-ceil(calc.max(..x-vals))
+  let y-min = nice-floor(calc.min(..y-vals))
+  let y-max = nice-ceil(calc.max(..y-vals))
   let size-min = calc.min(..size-vals)
   let size-max = calc.max(..size-vals)
 

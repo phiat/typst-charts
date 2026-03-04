@@ -46,9 +46,11 @@
   // Angle: -180deg (left) to 0deg (right)
   let needle-angle = -180deg + normalized * 180deg
 
-  let extra-height = calc.max(10pt, size * 0.15)
+  let value-size-est = calc.max(5pt, size * 0.07)
+  let sub-label-est = calc.max(5pt, size * 0.05)
+  let extra-height = calc.max(10pt, value-size-est + sub-label-est + 15pt)
   chart-container(size, size / 2 + margin + 5pt, title, t, extra-height: extra-height)[
-    #box(width: size, height: size / 2 + margin + extra-height * 0.5)[
+    #box(width: size, height: size / 2 + margin + extra-height)[
       // Draw segments or default arc
       #if segments != none {
         let prev-threshold = min-val
@@ -119,25 +121,25 @@
       #place(left + top, dx: cx + radius, dy: cy + 0.3em,
         text(size: scale-label-size, fill: t.text-color)[#max-val])
 
-      // Value display — centered at gauge center, aggressively scaled to chart size
-      #let value-size = font-for-space(size, 14pt, min-size: 5pt, ratio: 0.07)
+      // Value display — below the semicircle, in the open space
+      #let value-size = font-for-space(size, 14pt, min-size: 7pt, ratio: 0.15)
       #if show-value {
         place(
           left + top,
           dx: cx - size * 0.2,
-          dy: cy - value-size * 1.2,
+          dy: cy + cap-r + 2pt,
           box(width: size * 0.4, align(center,
             text(size: value-size, weight: "bold", fill: t.text-color)[#calc.round(value, digits: 1)]))
         )
       }
 
-      // Label below — centered under gauge center
+      // Label below value
       #let sub-label-size = font-for-space(size, t.value-label-size, ratio: 0.05)
       #if label != none {
         place(
           left + top,
           dx: cx - size * 0.3,
-          dy: cy + 0.3em,
+          dy: cy + cap-r + value-size + 4pt,
           box(width: size * 0.6, align(center,
             text(size: sub-label-size, fill: t.text-color-light)[#label]))
         )

@@ -9,7 +9,7 @@ A charting library for [Typst](https://typst.app) built entirely with native pri
 
 ## Gallery
 
-All 51 chart types across 7 pages — see [`examples/showcase.typ`](examples/showcase.typ) for the source:
+All 51 chart types across 8 pages — see [`examples/showcase.typ`](examples/showcase.typ) for the source:
 
 ![Showcase Page 1](screenshots/showcase-1.png)
 ![Showcase Page 2](screenshots/showcase-2.png)
@@ -18,22 +18,51 @@ All 51 chart types across 7 pages — see [`examples/showcase.typ`](examples/sho
 ![Showcase Page 5](screenshots/showcase-5.png)
 ![Showcase Page 6](screenshots/showcase-6.png)
 ![Showcase Page 7](screenshots/showcase-7.png)
+![Showcase Page 8](screenshots/showcase-8.png)
+
+## Per-Chart Demos
+
+Each demo shows a chart family in a 2×2 grid with light/dark themes and variations.
+See [`examples/demos/`](examples/demos/) for the source files.
+
+| Demo | Charts shown |
+|---|---|
+| ![bar](screenshots/demo-bar.png) | `bar-chart`, `horizontal-bar-chart` (light + dark) |
+| ![bar-multi](screenshots/demo-bar-multi.png) | `grouped-bar-chart`, `stacked-bar-chart` (light + dark) |
+| ![bar-advanced](screenshots/demo-bar-advanced.png) | `grouped-stacked-bar-chart`, `diverging-bar-chart` (light + dark) |
+| ![line](screenshots/demo-line.png) | `line-chart`, `multi-line-chart` (light + dark) |
+| ![area](screenshots/demo-area.png) | `area-chart`, `stacked-area-chart` (light + dark) |
+| ![dual-axis](screenshots/demo-dual-axis.png) | `dual-axis-chart` (light, dark, presentation, minimal) |
+| ![pie](screenshots/demo-pie.png) | `pie-chart`, donut mode (light + dark) |
+| ![radar](screenshots/demo-radar.png) | `radar-chart` (light, dark, 3-series, accessible) |
+| ![scatter](screenshots/demo-scatter.png) | `scatter-plot`, `multi-scatter-plot`, `bubble-chart` |
+| ![gauge](screenshots/demo-gauge.png) | `gauge-chart`, `progress-bar`, `circular-progress` |
+| ![heatmap](screenshots/demo-heatmap.png) | `heatmap`, `calendar-heatmap`, `correlation-matrix` |
+| ![statistical](screenshots/demo-statistical.png) | `histogram`, `box-plot`, `violin-plot`, `waterfall-chart` |
+| ![comparison](screenshots/demo-comparison.png) | `slope-chart`, `dumbbell-chart`, `lollipop-chart`, `bullet-chart` |
+| ![flow](screenshots/demo-flow.png) | `sankey-chart`, `gantt-chart`, `timeline-chart`, `chord-diagram` |
+| ![misc](screenshots/demo-misc.png) | `waffle-chart`, `parliament-chart`, `radial-bar-chart`, `sunburst-chart` |
+| ![dashboard](screenshots/demo-dashboard.png) | `metric-row`, `word-cloud`, sparklines table, `progress-bars` |
+| ![rings](screenshots/demo-rings.png) | `ring-progress`, `treemap` (light + dark) |
+| ![bump](screenshots/demo-bump.png) | `bump-chart`, `funnel-chart` (light + dark) |
 
 ## Examples
 
 | File | Description |
 |---|---|
-| [`examples/showcase.typ`](examples/showcase.typ) | Compact 7-page showcase of all chart types (dark theme) |
+| [`examples/demos/`](examples/demos/) | 18 per-chart demo files, each a 2×2 grid (light/dark + variations) |
+| [`examples/showcase.typ`](examples/showcase.typ) | Compact 8-page showcase of all chart types (dark theme) |
 | [`examples/demo.typ`](examples/demo.typ) | Comprehensive demo with all features, themes, and data loading |
 
-Sample data files used by the demo:
+Sample data files used by `demo.typ`:
 - [`data/characters.json`](data/characters.json) — RPG character stats
 - [`data/events.json`](data/events.json) — Conference/event data
 - [`data/analytics.json`](data/analytics.json) — Dashboard analytics data
 
 ```bash
-typst compile --root . examples/showcase.typ
-typst compile --root . examples/demo.typ
+just demos      # Compile all per-chart demos
+just showcase   # Compile the showcase
+just demo       # Compile the comprehensive demo
 ```
 
 ## Features
@@ -317,7 +346,7 @@ primaviz/
       wordcloud.typ
     primitives/        # Low-level drawing helpers
       axes.typ         # axis lines, ticks, labels, grid, cartesian-layout
-      layout.typ       # label-fits-inside, density-skip, font-for-space, place-cartesian-label
+      layout.typ       # label-fits-inside, density-skip, font-for-space, page-grid, place-cartesian-label
       annotations.typ
       container.typ
       legend.typ       # horizontal, vertical, draw-legend-auto
@@ -325,10 +354,29 @@ primaviz/
       title.typ
     validate.typ       # Input validation helpers
   examples/
-    showcase.typ       # 6-page compact showcase (dark theme)
-    demo.typ           # Comprehensive 18-page demo
+    demos/             # Per-chart demo files (18 files, 2×2 grids)
+      demo-bar.typ     # bar-chart, horizontal-bar-chart
+      demo-bar-multi.typ  # grouped-bar, stacked-bar
+      demo-bar-advanced.typ  # grouped-stacked, diverging
+      demo-line.typ    # line-chart, multi-line-chart
+      demo-area.typ    # area-chart, stacked-area-chart
+      demo-dual-axis.typ  # dual-axis-chart (4 themes)
+      demo-pie.typ     # pie-chart, donut
+      demo-radar.typ   # radar-chart (4 variants)
+      demo-scatter.typ # scatter, multi-scatter, bubble
+      demo-gauge.typ   # gauge, progress-bar, circular-progress
+      demo-heatmap.typ # heatmap, calendar-heatmap, correlation-matrix
+      demo-statistical.typ  # histogram, box-plot, violin, waterfall
+      demo-comparison.typ   # slope, dumbbell, lollipop, bullet
+      demo-flow.typ    # sankey, gantt, timeline, chord
+      demo-misc.typ    # waffle, parliament, radial-bar, sunburst
+      demo-dashboard.typ    # metric-row, word-cloud, sparklines, progress-bars
+      demo-rings.typ   # ring-progress, treemap
+      demo-bump.typ    # bump-chart, funnel-chart
+    showcase.typ       # 8-page compact showcase (dark theme)
+    demo.typ           # Comprehensive demo with JSON data loading
   data/                # Sample JSON data files
-  screenshots/         # Gallery images
+  screenshots/         # Gallery images (demo-*.png + showcase-*.png)
   justfile             # Common dev commands
 ```
 
@@ -337,12 +385,14 @@ primaviz/
 Dev commands via [just](https://github.com/casey/just):
 
 ```bash
-just demo         # Compile the full demo
-just showcase     # Compile the 3-page showcase
+just demos        # Compile all per-chart demos
+just demo         # Compile the comprehensive demo
+just showcase     # Compile the showcase
 just watch        # Live-reload during development
+just watch-demo bar  # Watch a specific demo (e.g., bar, pie, scatter)
 just test         # Run all compilation tests
-just check        # Full CI check (demo + showcase + tests)
-just screenshots  # Regenerate gallery images
+just check        # Full CI check (demo + demos + showcase + tests)
+just screenshots  # Regenerate gallery images (demo-*.png + showcase-*.png)
 just open         # Compile and open the demo PDF
 just dev          # Watch with live-reload and open PDF
 just clean        # Clean generated artifacts

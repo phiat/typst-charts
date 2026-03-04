@@ -1,6 +1,6 @@
 // violin.typ - Violin plot (distribution shape visualization)
 #import "../theme.typ": resolve-theme, get-color
-#import "../util.typ": nonzero
+#import "../util.typ": nonzero, nice-ceil
 #import "../validate.typ": validate-violin-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-y-ticks, draw-x-category-labels, draw-grid, draw-axis-titles
@@ -99,10 +99,8 @@
       if v > global-max { global-max = v }
     }
   }
-  let val-range = nonzero(global-max - global-min)
-  let padding = val-range * 0.15
-  let y-min = global-min - padding
-  let y-max = global-max + padding
+  let y-min = calc.min(0, global-min)
+  let y-max = nice-ceil(global-max)
 
   // ── Compute KDE for each dataset ──────────────────────────────────────
   // Returns array of (value, density) pairs, plus the max density.

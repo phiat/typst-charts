@@ -5,23 +5,36 @@
 
 // Wraps chart body in a box with optional background/border and title.
 #let chart-container(width, height, title, theme, extra-height: 0pt, legend: none, body) = {
+  let title-overhead = if title != none { theme.title-size + theme.title-gap + 4pt } else { 0pt }
+  let lp = theme.legend-position
+  let side-legend = (lp == "right" or lp == "left") and legend != none
   box(
-    width: if theme.legend-position == "right" and legend != none { width + 120pt } else { width },
-    height: height + extra-height,
+    width: if side-legend { width + 120pt } else { width },
+    height: height + extra-height + title-overhead,
     fill: theme.background,
     stroke: theme.border,
   )[
     #draw-title(title, theme)
-    #if theme.legend-position == "right" and legend != none {
+    #if lp == "top" and legend != none {
+      legend
+    }
+    #if lp == "right" and legend != none {
       grid(
         columns: (width, 1fr),
         column-gutter: 10pt,
         body,
         legend,
       )
+    } else if lp == "left" and legend != none {
+      grid(
+        columns: (1fr, width),
+        column-gutter: 10pt,
+        legend,
+        body,
+      )
     } else {
       body
-      if legend != none and theme.legend-position == "bottom" {
+      if legend != none and lp == "bottom" {
         legend
       }
     }

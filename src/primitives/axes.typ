@@ -1,7 +1,7 @@
 // axes.typ - Axis drawing primitives
 
 #import "../theme.typ": *
-#import "../util.typ": format-number
+#import "../util.typ": format-number, nice-ceil, nice-floor
 #import "layout.typ": density-skip
 
 /// Computes the standard Cartesian layout dimensions from theme padding.

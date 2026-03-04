@@ -4,34 +4,54 @@
 default:
     @just --list
 
-# Compile the demo showcase
+# Compile the demo
 demo:
     typst compile --root . examples/demo.typ
 
-# Compile the compact 3-page showcase
+# Compile the showcase
 showcase:
     typst compile --root . examples/showcase.typ
 
-# Watch demo for live reload during development
+# Compile all per-chart demos
+demos:
+    #!/usr/bin/env bash
+    for f in examples/demos/demo-*.typ; do
+        typst compile --root . "$f" || exit 1
+    done
+    echo "Compiled $(ls examples/demos/demo-*.typ | wc -l) demos"
+
+# Watch demo for live reload
 watch:
     typst watch --root . examples/demo.typ
+
+# Watch showcase for live reload
+watch-showcase:
+    typst watch --root . examples/showcase.typ
+
+# Watch a specific per-chart demo (e.g., just watch-demo bar)
+watch-demo name:
+    typst watch --root . examples/demos/demo-{{name}}.typ
 
 # Run all compilation tests
 test:
     typst compile --root . tests/test-all.typ
 
-# Regenerate all gallery screenshots from demo and showcase
+# Regenerate all screenshots from demos and showcase
 screenshots:
-    typst compile --root . examples/demo.typ screenshots/page-{n}.png
-    typst compile --root . examples/showcase.typ screenshots/showcase-{n}.png
+    #!/usr/bin/env bash
+    for f in examples/demos/demo-*.typ; do
+        base=$(basename "$f" .typ)
+        typst compile --root . "$f" "screenshots/${base}.png" || exit 1
+    done
+    typst compile --root . examples/showcase.typ screenshots/showcase-{0p}.png
     optipng -o2 -quiet screenshots/*.png || echo "optipng not found, skipping optimization"
-    @echo "Generated $(ls screenshots/*.png | wc -l) screenshots"
+    echo "Generated $(ls screenshots/*.png | wc -l) screenshots"
 
-# Compile demo + showcase + tests (full CI check)
-check: demo showcase test
+# Compile demo + demos + showcase + tests (full CI check)
+check: demo demos showcase test
     @echo "All compilations passed"
 
-# Open the demo PDF (uses xdg-open on Linux)
+# Open the demo PDF
 open: demo
     xdg-open examples/demo.pdf 2>/dev/null || open examples/demo.pdf
 
@@ -43,7 +63,7 @@ dev:
 
 # Clean generated artifacts
 clean:
-    rm -f examples/demo.pdf tests/test-all.pdf
+    rm -f examples/*.pdf examples/demos/*.pdf tests/*.pdf
 
 # Full release prep: test, screenshots, clean build artifacts
 release: check screenshots
@@ -51,17 +71,8 @@ release: check screenshots
 
 # Show project stats
 stats:
-    @echo "Chart modules:"
-    @ls src/charts/*.typ | wc -l
-    @echo "Primitive modules:"
-    @ls src/primitives/*.typ | wc -l
-    @echo "Total .typ files:"
-    @find src/ -name '*.typ' | wc -l
-    @echo "Screenshot pages:"
-    @ls screenshots/*.png | wc -l
-
-# Compile a specific chart file for quick iteration (e.g., just compile-chart bar)
-compile-chart name:
-    @echo '#import "../src/lib.typ": *' > /tmp/test-chart.typ
-    @echo '#import "../src/lib.typ": *\n// Quick test for {{name}}' > /tmp/test-chart.typ
-    typst compile --root . /tmp/test-chart.typ
+    @echo "Chart modules:    $(ls src/charts/*.typ | wc -l)"
+    @echo "Primitive modules: $(ls src/primitives/*.typ | wc -l)"
+    @echo "Total .typ files:  $(find src/ -name '*.typ' | wc -l)"
+    @echo "Demo files:        $(ls examples/demos/demo-*.typ | wc -l)"
+    @echo "Screenshots:       $(ls screenshots/*.png 2>/dev/null | wc -l)"

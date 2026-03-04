@@ -1,6 +1,6 @@
 // lollipop.typ - Lollipop charts (vertical and horizontal)
 #import "../theme.typ": resolve-theme, get-color
-#import "../util.typ": normalize-data, nonzero
+#import "../util.typ": normalize-data, nonzero, nice-ceil
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks, draw-x-category-labels
@@ -43,7 +43,7 @@
   let labels = norm.labels
   let values = norm.values
 
-  let max-val = nonzero(if values.len() > 0 { calc.max(..values) } else { 0 })
+  let max-val = nice-ceil(nonzero(if values.len() > 0 { calc.max(..values) } else { 0 }))
   let n = values.len()
   if n == 0 { return }
 
@@ -154,7 +154,7 @@
   let labels = norm.labels
   let values = norm.values
 
-  let max-val = nonzero(if values.len() > 0 { calc.max(..values) } else { 0 })
+  let max-val = nice-ceil(nonzero(if values.len() > 0 { calc.max(..values) } else { 0 }))
   let n = values.len()
   if n == 0 { return }
 

@@ -40,6 +40,34 @@
   calc.min(base-size, calc.max(min-size, available * ratio))
 }
 
+/// Lays out items in a paged grid with automatic pagebreaks.
+///
+/// Groups items into pages of `cols × rows`, rendering each page as a grid
+/// and inserting `#pagebreak()` between pages.
+///
+/// - items (array): Array of content items (charts, blocks, etc.)
+/// - cols (int): Number of columns per page
+/// - rows (int): Number of rows per page
+/// - col-gutter (length): Horizontal gap between columns
+/// - row-gutter (length): Vertical gap between rows
+/// -> content
+#let page-grid(items, cols: 2, rows: 4, col-gutter: 8pt, row-gutter: 4pt) = {
+  let per-page = cols * rows
+  let pages = calc.ceil(items.len() / per-page)
+  for p in array.range(pages) {
+    if p > 0 { pagebreak() }
+    let start = p * per-page
+    let end = calc.min(start + per-page, items.len())
+    let page-items = items.slice(start, end)
+    grid(
+      columns: array.range(cols).map(_ => 1fr),
+      column-gutter: col-gutter,
+      row-gutter: row-gutter,
+      ..page-items,
+    )
+  }
+}
+
 /// Places a label near a Cartesian point with quadrant-aware alignment.
 ///
 /// Clamps the label position to stay within the given bounds rectangle.

@@ -1,6 +1,6 @@
 // histogram.typ - Histogram chart (frequency distribution of numeric data)
 #import "../theme.typ": resolve-theme, get-color
-#import "../util.typ": nonzero
+#import "../util.typ": nonzero, nice-ceil
 #import "../validate.typ": validate-histogram-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-y-ticks, draw-x-ticks, draw-axis-titles
@@ -84,7 +84,7 @@
     counts.map(c => float(c))
   }
 
-  let y-max = nonzero(calc.max(..y-values))
+  let y-max = nice-ceil(nonzero(calc.max(..y-values)))
 
   // Render
   let cl = cartesian-layout(width, height, t)
