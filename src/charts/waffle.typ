@@ -92,7 +92,8 @@
     }
   }
 
-  let legend-height = if show-legend { calc.max(30pt, calc.ceil(n / 3) * 18pt) } else { 0pt }
+  // Reserve enough height for legend: horizontal legend wraps ~3 entries per row
+  let legend-height = if show-legend { calc.max(35pt, calc.ceil(n / 2) * 20pt) } else { 0pt }
 
   chart-container(size, size + legend-height, title, t)[
     // Draw grid bottom-to-top, left-to-right

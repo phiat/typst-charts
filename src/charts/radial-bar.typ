@@ -4,6 +4,7 @@
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/polar.typ": annular-wedge-points, place-polar-label, place-donut-hole, separator-stroke
+#import "../primitives/layout.typ": font-for-space
 
 /// Renders a radial bar chart where each category occupies an equal angular
 /// slice of a circle and bar length (radius) is proportional to value.
@@ -48,17 +49,16 @@
   // Line-segment resolution: ~72 segments per full circle
   let samples-per-circle = 72
 
-  // Legend width when labels shown
-  let legend-width = if show-labels { 100pt } else { 0pt }
-  let total-width = size + legend-width
+  // When labels are shown, expand the box to give room for perimeter text
+  let label-pad = if show-labels { calc.max(20pt, size * 0.2) } else { 0pt }
+  let box-size = size + label-pad * 2
+  let total-width = box-size
 
-  chart-container(total-width, size, title, t, extra-height: 20pt)[
-    #grid(
-      columns: if legend-width > 0pt { (size, legend-width) } else { (size,) },
-    box(width: size, height: size)[
-      // Center of chart
-      #let cx = size / 2
-      #let cy = size / 2
+  chart-container(total-width, box-size, title, t, extra-height: 20pt)[
+    #box(width: box-size, height: box-size)[
+      // Center of chart — offset by label padding
+      #let cx = box-size / 2
+      #let cy = box-size / 2
 
       // ── Draw bars as filled arc wedges ──────────────────────────────
       #for (i, val) in values.enumerate() {
@@ -100,13 +100,13 @@
 
       // ── Labels around the perimeter ───────────────────────────────
       #if show-labels {
+        let lbl-size = font-for-space(size, t.legend-size, min-size: 5pt, ratio: 0.05)
         for (i, lbl) in labels.enumerate() {
           let mid-angle-deg = i * slice-deg + slice-deg / 2 - 90
-          place-polar-label(cx, cy, mid-angle-deg, radius + 8pt,
-            text(size: t.legend-size, fill: t.text-color)[#lbl])
+          place-polar-label(cx, cy, mid-angle-deg, radius + calc.max(6pt, size * 0.06),
+            text(size: lbl-size, fill: t.text-color)[#lbl])
         }
       }
-    ],
-    )
+    ]
   ]
 }

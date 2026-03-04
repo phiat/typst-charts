@@ -1,6 +1,7 @@
 // pie.typ - Pie and donut charts
 #import "../theme.typ": resolve-theme, get-color
 #import "../util.typ": normalize-data
+#import "../primitives/layout.typ": font-for-space
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/legend.typ": draw-legend-vertical
@@ -40,13 +41,18 @@
   // Respect both show-legend param and theme legend-position
   let show-legend = show-legend and t.legend-position != "none"
 
-  // Calculate legend width — scale with label count for long legends
-  let legend-width = calc.max(130pt, calc.min(180pt, n * 20pt + 40pt))
+  // Calculate legend width — ensure enough room for label text + percentages
+  let legend-width = if size < 120pt { calc.max(100pt, calc.min(150pt, n * 18pt + 30pt)) } else { calc.max(130pt, calc.min(180pt, n * 20pt + 40pt)) }
 
   // Total width: pie + gap + legend (if shown)
   let total-width = size + (if show-legend { 20pt + legend-width } else { 0pt })
 
-  chart-container(total-width, size, title, t, extra-height: 40pt)[
+  // Compute legend height — grow container if legend is taller than pie
+  let swatch-size = 10pt
+  let legend-height = if show-legend { n * (swatch-size + 4pt) + 10pt } else { 0pt }
+  let extra-height = calc.max(40pt, legend-height - size + 40pt)
+
+  chart-container(total-width, size, title, t, extra-height: extra-height)[
     // Use a grid layout to keep pie and legend separate
     #grid(
       columns: if show-legend { (size, legend-width) } else { (size,) },
@@ -74,20 +80,22 @@
             )
           )
 
-          // Percentage label
+          // Percentage label — scale font with chart size
           if show-percentages {
             let mid-deg = current-deg + slice-deg / 2
             let pct = calc.round((val / total) * 100, digits: 1)
-            if pct >= 5 {
+            let min-pct = if size < 120pt { 8 } else { 5 }
+            if pct >= min-pct {
               let label-dist = radius * (if donut { 0.75 } else { 0.6 })
               let lx = center-x + label-dist * calc.cos(mid-deg * 1deg)
               let ly = center-y + label-dist * calc.sin(mid-deg * 1deg)
+              let pct-size = font-for-space(size, t.value-label-size, ratio: 0.06)
               place(
                 left + top,
                 dx: lx,
                 dy: ly,
                 move(dx: -1em, dy: -0.5em,
-                  text(size: t.value-label-size, fill: t.text-color-inverse, weight: "bold")[#pct%])
+                  text(size: pct-size, fill: t.text-color-inverse, weight: "bold")[#pct%])
               )
             }
           }

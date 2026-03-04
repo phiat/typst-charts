@@ -3,6 +3,7 @@
 #import "../util.typ": lerp-color, heat-color, nonzero
 #import "../validate.typ": validate-heatmap-data, validate-calendar-data, validate-correlation-data
 #import "../primitives/container.typ": chart-container
+#import "../primitives/layout.typ": density-skip
 
 /// Renders a heatmap grid with color-coded cells.
 ///
@@ -38,8 +39,8 @@
   let max-val = calc.max(..all-vals)
   let val-range = nonzero(max-val - min-val)
 
-  let row-label-width = 60pt
-  let col-label-height = 40pt
+  let row-label-width = calc.max(30pt, n-cols * cell-size * 0.2 + 20pt)
+  let col-label-height = calc.max(25pt, cell-size * 1.5)
   let legend-width = if show-legend { 60pt } else { 0pt }
 
   let grid-width = n-cols * cell-size
@@ -47,14 +48,17 @@
 
   chart-container(row-label-width + grid-width + legend-width + 20pt, col-label-height + grid-height, title, t, extra-height: 40pt)[
     #box[
-      // Column labels (rotated)
+      // Column labels (rotated) — skip when columns are narrow
+      #let col-skip = density-skip(n-cols, n-cols * cell-size)
       #for (j, col) in cols.enumerate() {
-        place(
-          left + top,
-          dx: row-label-width + j * cell-size + cell-size / 2,
-          dy: col-label-height - 2pt,
-          rotate(-45deg, origin: bottom + left, text(size: t.axis-label-size, fill: t.text-color)[#col])
-        )
+        if calc.rem(j, col-skip) == 0 or j == n-cols - 1 {
+          place(
+            left + top,
+            dx: row-label-width + j * cell-size + cell-size / 2,
+            dy: col-label-height - 2pt,
+            rotate(-45deg, origin: bottom + left, text(size: t.axis-label-size, fill: t.text-color)[#col])
+          )
+        }
       }
 
       // Grid cells and row labels
@@ -262,14 +266,17 @@
 
   chart-container(label-area + n * cell-size + 20pt, label-area + n * cell-size, title, t, extra-height: 40pt)[
     #box[
-      // Column labels
+      // Column labels — skip when columns are narrow
+      #let col-skip = density-skip(n, n * cell-size)
       #for (j, lbl) in labels.enumerate() {
-        place(
-          left + top,
-          dx: label-area + j * cell-size + cell-size / 2,
-          dy: label-area - 12pt,
-          rotate(-45deg, origin: bottom + left, text(size: t.axis-label-size, fill: t.text-color)[#lbl])
-        )
+        if calc.rem(j, col-skip) == 0 or j == n - 1 {
+          place(
+            left + top,
+            dx: label-area + j * cell-size + cell-size / 2,
+            dy: label-area - 12pt,
+            rotate(-45deg, origin: bottom + left, text(size: t.axis-label-size, fill: t.text-color)[#lbl])
+          )
+        }
       }
 
       // Cells and row labels

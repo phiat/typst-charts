@@ -1,6 +1,7 @@
 // scatter.typ - Scatter plot and bubble chart
 #import "../theme.typ": resolve-theme, get-color
-#import "../util.typ": nonzero
+#import "../util.typ": nonzero, clamp
+#import "../primitives/layout.typ": label-fits-inside, place-cartesian-label
 #import "../validate.typ": validate-scatter-data, validate-multi-scatter-data, validate-bubble-data, validate-multi-bubble-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks
@@ -81,15 +82,18 @@
       // X-axis ticks
       #draw-x-ticks(x-min, x-max, chart-width, origin-x, origin-y + 4pt, t)
 
-      // Plot points
+      // Plot points — clamp to chart bounds
+      #let half = point-size / 2
       #for pt in points {
         let px = origin-x + ((pt.at(0) - x-min) / x-range) * chart-width
         let py = pad-top + chart-height - ((pt.at(1) - y-min) / y-range) * chart-height
+        let px = clamp(px, origin-x + half, origin-x + chart-width - half)
+        let py = clamp(py, pad-top + half, origin-y - half)
 
         place(
           left + top,
-          dx: px - point-size / 2,
-          dy: py - point-size / 2,
+          dx: px - half,
+          dy: py - half,
           circle(radius: point-size / 2, fill: point-color, stroke: white + 0.5pt)
         )
       }
@@ -174,17 +178,20 @@
       // X-axis ticks
       #draw-x-ticks(x-min, x-max, chart-width, origin-x, origin-y + 4pt, t)
 
-      // Plot points for each series
+      // Plot points for each series — clamp to chart bounds
+      #let half = point-size / 2
       #for (si, s) in series.enumerate() {
         let color = get-color(t, si)
         for pt in s.points {
           let px = origin-x + ((pt.at(0) - x-min) / x-range) * chart-width
           let py = pad-top + chart-height - ((pt.at(1) - y-min) / y-range) * chart-height
+          let px = clamp(px, origin-x + half, origin-x + chart-width - half)
+          let py = clamp(py, pad-top + half, origin-y - half)
 
           place(
             left + top,
-            dx: px - point-size / 2,
-            dy: py - point-size / 2,
+            dx: px - half,
+            dy: py - half,
             circle(radius: point-size / 2, fill: color, stroke: white + 0.5pt)
           )
         }
@@ -278,11 +285,17 @@
       // X-axis ticks
       #draw-x-ticks(x-min, x-max, chart-width, origin-x, origin-y + 4pt, t)
 
-      // Plot bubbles
+      // Plot bubbles — clamp max-radius to chart dimensions
+      #let effective-max-r = calc.min(max-radius, chart-height * 0.25, chart-width * 0.15)
+      #let effective-min-r = calc.min(min-radius, effective-max-r * 0.3)
+      #let bounds = (left: origin-x, right: origin-x + chart-width, top: pad-top, bottom: origin-y)
       #for (i, pt) in points.enumerate() {
         let px = origin-x + ((pt.at(0) - x-min) / x-range) * chart-width
         let py = pad-top + chart-height - ((pt.at(1) - y-min) / y-range) * chart-height
-        let radius = min-radius + ((pt.at(2) - size-min) / size-range) * (max-radius - min-radius)
+        let radius = effective-min-r + ((pt.at(2) - size-min) / size-range) * (effective-max-r - effective-min-r)
+        // Clamp bubble center to chart bounds
+        let px = clamp(px, origin-x + radius, origin-x + chart-width - radius)
+        let py = clamp(py, pad-top + radius, origin-y - radius)
 
         place(
           left + top,
@@ -295,15 +308,23 @@
           )
         )
 
-        // Optional label — centered on bubble
+        // Optional label — inside bubble if it fits, otherwise outside with leader
         if show-labels and labels != none and i < labels.len() {
-          place(
-            left + top,
-            dx: px,
-            dy: py,
-            move(dx: -1em, dy: -0.5em,
-              text(size: t.axis-label-size, fill: t.text-color, weight: "bold")[#labels.at(i)])
-          )
+          let lbl = labels.at(i)
+          let lbl-len = if type(lbl) == str { lbl.len() } else { str(lbl).len() }
+          if label-fits-inside(radius * 2, radius * 2, t.axis-label-size, lbl-len) {
+            place(
+              left + top,
+              dx: px,
+              dy: py,
+              move(dx: -1em, dy: -0.5em,
+                text(size: t.axis-label-size, fill: t.text-color, weight: "bold")[#lbl])
+            )
+          } else {
+            place-cartesian-label(px, py - radius,
+              text(size: t.axis-label-size, fill: t.text-color, weight: "bold")[#lbl],
+              bounds, leader: true)
+          }
         }
       }
 
@@ -393,13 +414,18 @@
       // X-axis ticks
       #draw-x-ticks(x-min, x-max, chart-width, origin-x, origin-y + 4pt, t)
 
-      // Plot bubbles for each series
+      // Plot bubbles for each series — clamp to chart bounds
+      #let effective-max-r = calc.min(max-radius, chart-height * 0.25, chart-width * 0.15)
+      #let effective-min-r = calc.min(min-radius, effective-max-r * 0.3)
       #for (si, s) in series.enumerate() {
         let color = get-color(t, si)
         for pt in s.points {
           let px = origin-x + ((pt.at(0) - x-min) / x-range) * chart-width
           let py = pad-top + chart-height - ((pt.at(1) - y-min) / y-range) * chart-height
-          let radius = min-radius + ((pt.at(2) - size-min) / size-range) * (max-radius - min-radius)
+          let radius = effective-min-r + ((pt.at(2) - size-min) / size-range) * (effective-max-r - effective-min-r)
+          // Clamp bubble center to chart bounds
+          let px = clamp(px, origin-x + radius, origin-x + chart-width - radius)
+          let py = clamp(py, pad-top + radius, origin-y - radius)
 
           place(
             left + top,

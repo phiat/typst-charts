@@ -2,6 +2,7 @@
 
 #import "../theme.typ": *
 #import "../util.typ": format-number
+#import "layout.typ": density-skip
 
 /// Computes the standard Cartesian layout dimensions from theme padding.
 /// Returns a dictionary with: pad-left, pad-right, pad-top, pad-bottom,
@@ -66,7 +67,7 @@
 #let draw-x-category-labels(labels, x-start, spacing, y-pos, theme, center-offset: 0pt) = {
   let n = labels.len()
   let rotate-labels = n > 8
-  let skip = if n > 15 { calc.ceil(n / 10) } else { 1 }
+  let skip = density-skip(n, spacing * n)
 
   for i in array.range(n) {
     if calc.rem(i, skip) != 0 and i != n - 1 { continue }

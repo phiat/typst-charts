@@ -2,6 +2,7 @@
 #import "../theme.typ": resolve-theme, get-color
 #import "../validate.typ": validate-gantt-data
 #import "../primitives/container.typ": chart-container
+#import "../primitives/layout.typ": density-skip, font-for-space
 
 /// Renders a Gantt chart — a timeline bar chart for project scheduling.
 ///
@@ -57,8 +58,8 @@
   }
   let has-groups = group-names.len() > 0
 
-  // Label area width for task names
-  let label-area = 100pt
+  // Label area width for task names — scale with chart width
+  let label-area = calc.min(100pt, width * 0.35)
   let timeline-width = width - label-area - 10pt
   let col-width = timeline-width / time-count
 
@@ -83,10 +84,13 @@
         }
       }
 
-      // Time labels along the bottom — rotate when crowded
+      // Time labels along the bottom — rotate when crowded, skip when very tight
+      #let label-font = font-for-space(col-width, t.axis-label-size)
+      // Skip labels when columns are very narrow
+      #let skip-n = density-skip(time-count, timeline-width)
       #let rotate-labels = time-count > 8
       #for (i, lbl) in time-labels.enumerate() {
-        if i < time-count {
+        if i < time-count and calc.rem(i, skip-n) == 0 {
           let x = label-area + i * col-width
           if rotate-labels {
             place(
@@ -94,7 +98,7 @@
               dx: x + 2pt,
               dy: body-height - 18pt,
               rotate(-45deg, origin: top + left,
-                text(size: t.axis-label-size, fill: t.text-color)[#lbl]),
+                text(size: label-font, fill: t.text-color)[#lbl]),
             )
           } else {
             place(
@@ -102,7 +106,7 @@
               dx: x,
               dy: body-height - 18pt,
               box(width: col-width,
-                align(center, text(size: t.axis-label-size, fill: t.text-color)[#lbl])),
+                align(center, text(size: label-font, fill: t.text-color)[#lbl])),
             )
           }
         }

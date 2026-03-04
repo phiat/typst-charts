@@ -9,7 +9,7 @@ A charting library for [Typst](https://typst.app) built entirely with native pri
 
 ## Gallery
 
-All 51 chart types across 6 pages — see [`examples/showcase.typ`](examples/showcase.typ) for the source:
+All 51 chart types across 7 pages — see [`examples/showcase.typ`](examples/showcase.typ) for the source:
 
 ![Showcase Page 1](screenshots/showcase-1.png)
 ![Showcase Page 2](screenshots/showcase-2.png)
@@ -17,12 +17,13 @@ All 51 chart types across 6 pages — see [`examples/showcase.typ`](examples/sho
 ![Showcase Page 4](screenshots/showcase-4.png)
 ![Showcase Page 5](screenshots/showcase-5.png)
 ![Showcase Page 6](screenshots/showcase-6.png)
+![Showcase Page 7](screenshots/showcase-7.png)
 
 ## Examples
 
 | File | Description |
 |---|---|
-| [`examples/showcase.typ`](examples/showcase.typ) | Compact 6-page showcase of all chart types (dark theme) |
+| [`examples/showcase.typ`](examples/showcase.typ) | Compact 7-page showcase of all chart types (dark theme) |
 | [`examples/demo.typ`](examples/demo.typ) | Comprehensive demo with all features, themes, and data loading |
 
 Sample data files used by the demo:
@@ -38,10 +39,12 @@ typst compile --root . examples/demo.typ
 ## Features
 
 - **51 chart types** for data visualization
-- **JSON data input** - load data directly from JSON files
-- **Theme system** - preset themes and custom overrides for consistent styling
-- **Customizable** - colors, sizes, labels, legends
-- **Pure Typst** - no packages or external tools needed
+- **JSON data input** — load data directly from JSON files
+- **Theme system** — preset themes and custom overrides for consistent styling
+- **Layout primitives** — shared utilities for label density, font scaling, and label placement
+- **Annotations** — overlay reference lines, bands, and labels on Cartesian charts
+- **Customizable** — colors, sizes, labels, legends
+- **Pure Typst** — no packages or external tools needed
 
 ## Chart Types
 
@@ -314,6 +317,7 @@ primaviz/
       wordcloud.typ
     primitives/        # Low-level drawing helpers
       axes.typ         # axis lines, ticks, labels, grid, cartesian-layout
+      layout.typ       # label-fits-inside, density-skip, font-for-space, place-cartesian-label
       annotations.typ
       container.typ
       legend.typ       # horizontal, vertical, draw-legend-auto

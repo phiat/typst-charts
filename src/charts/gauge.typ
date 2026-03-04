@@ -1,9 +1,10 @@
 // gauge.typ - Gauge/dial and progress indicators
 #import "../theme.typ": resolve-theme, get-color
-#import "../util.typ": nonzero
+#import "../util.typ": nonzero, clamp
 #import "../validate.typ": validate-number, validate-simple-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/polar.typ": pie-slice-points, place-donut-hole
+#import "../primitives/layout.typ": font-for-space
 
 /// Renders a semicircular gauge/dial chart with a needle indicator.
 ///
@@ -33,19 +34,21 @@
   validate-number(value, "gauge-chart")
   let t = resolve-theme(theme)
   let needle-color = if needle-color == auto { t.text-color } else { needle-color }
-  let radius = size / 2 - 10pt
+  let margin = calc.max(3pt, size * 0.07)
+  let radius = size / 2 - margin
   let cx = size / 2
-  let cy = size / 2 + 10pt
+  let cy = size / 2 + margin
 
   let val-range = nonzero(max-val - min-val)
   let normalized = (value - min-val) / val-range
-  normalized = calc.max(0, calc.min(1, normalized))  // clamp 0-1
+  normalized = clamp(normalized, 0, 1)
 
   // Angle: -180deg (left) to 0deg (right)
   let needle-angle = -180deg + normalized * 180deg
 
-  chart-container(size, size / 2 + 20pt, title, t, extra-height: 30pt)[
-    #box(width: size, height: size / 2 + 30pt)[
+  let extra-height = calc.max(10pt, size * 0.15)
+  chart-container(size, size / 2 + margin + 5pt, title, t, extra-height: extra-height)[
+    #box(width: size, height: size / 2 + margin + extra-height * 0.5)[
       // Draw segments or default arc
       #if segments != none {
         let prev-threshold = min-val
@@ -85,54 +88,58 @@
       #let inner-radius = radius * 0.6
       #place-donut-hole(cx, cy, inner-radius, t)
 
-      // Needle
+      // Needle — scale thickness with chart size
       #let needle-len = radius * 0.85
       #let needle-end-x = cx + needle-len * calc.cos(needle-angle)
       #let needle-end-y = cy + needle-len * calc.sin(needle-angle)
+      #let needle-w = calc.max(1pt, size * 0.016)
 
       #place(
         left + top,
         line(
           start: (cx, cy),
           end: (needle-end-x, needle-end-y),
-          stroke: needle-color + 2.5pt
+          stroke: needle-color + needle-w
         )
       )
 
-      // Center cap
+      // Center cap — scale with chart size
+      #let cap-r = calc.max(2pt, size * 0.04)
       #place(
         left + top,
-        dx: cx - 6pt,
-        dy: cy - 6pt,
-        circle(radius: 6pt, fill: needle-color, stroke: white + 1pt)
+        dx: cx - cap-r,
+        dy: cy - cap-r,
+        circle(radius: cap-r, fill: needle-color, stroke: white + 0.5pt)
       )
 
-      // Min/max labels — right-align min under left arc edge, left-align max under right edge
-      #place(left + top, dx: cx - radius, dy: cy + 0.5em,
-        move(dx: -1em, text(size: t.axis-label-size, fill: t.text-color)[#min-val]))
-      #place(left + top, dx: cx + radius, dy: cy + 0.5em,
-        text(size: t.axis-label-size, fill: t.text-color)[#max-val])
+      // Min/max labels — scale font with chart size
+      #let scale-label-size = font-for-space(size, t.axis-label-size, ratio: 0.05)
+      #place(left + top, dx: cx - radius, dy: cy + 0.3em,
+        move(dx: -1em, text(size: scale-label-size, fill: t.text-color)[#min-val]))
+      #place(left + top, dx: cx + radius, dy: cy + 0.3em,
+        text(size: scale-label-size, fill: t.text-color)[#max-val])
 
-      // Value display — centered at gauge center, scaled to chart size
-      #let value-size = calc.max(10pt, size * 0.1)
+      // Value display — centered at gauge center, aggressively scaled to chart size
+      #let value-size = font-for-space(size, 14pt, min-size: 5pt, ratio: 0.07)
       #if show-value {
         place(
           left + top,
-          dx: cx - size * 0.15,
-          dy: cy - value-size,
-          box(width: size * 0.3, align(center,
+          dx: cx - size * 0.2,
+          dy: cy - value-size * 1.2,
+          box(width: size * 0.4, align(center,
             text(size: value-size, weight: "bold", fill: t.text-color)[#calc.round(value, digits: 1)]))
         )
       }
 
       // Label below — centered under gauge center
+      #let sub-label-size = font-for-space(size, t.value-label-size, ratio: 0.05)
       #if label != none {
         place(
           left + top,
-          dx: cx - size * 0.25,
-          dy: cy + 0.5em,
-          box(width: size * 0.5, align(center,
-            text(size: t.value-label-size, fill: t.text-color-light)[#label]))
+          dx: cx - size * 0.3,
+          dy: cy + 0.3em,
+          box(width: size * 0.6, align(center,
+            text(size: sub-label-size, fill: t.text-color-light)[#label]))
         )
       }
     ]
@@ -166,7 +173,7 @@
 ) = {
   validate-number(value, "progress-bar")
   let t = resolve-theme(theme)
-  let progress = calc.min(1, calc.max(0, value / max-val))
+  let progress = clamp(value / max-val, 0, 1)
   let bar-color = if color != none { color } else { get-color(t, 0) }
   let radius = if rounded { height / 2 } else { 0pt }
 
@@ -238,7 +245,7 @@
 ) = {
   validate-number(value, "circular-progress")
   let t = resolve-theme(theme)
-  let progress = calc.min(1, calc.max(0, value / max-val))
+  let progress = clamp(value / max-val, 0, 1)
   let bar-color = if color != none { color } else { get-color(t, 0) }
   let radius = size / 2 - stroke-width / 2
   let cx = size / 2

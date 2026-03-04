@@ -47,8 +47,8 @@
   let all-values = (..left-values, ..right-values)
   let max-val = nonzero(calc.max(..all-values))
 
-  // Layout constants
-  let label-area = 80pt        // Space for category labels on the left
+  // Layout constants — scale label area with chart width
+  let label-area = calc.min(80pt, width * 0.28)
   let right-pad = t.axis-padding-right
   let usable-width = width - label-area - right-pad
   let half-width = usable-width / 2
@@ -57,12 +57,13 @@
   let show-legend = left-label != none and right-label != none
   let extra-h = if show-legend { 50pt } else { 30pt }
 
+  let tick-area = 18pt  // Reserve space below bars for tick labels
   chart-container(width, height, title, t, extra-height: extra-h)[
-    #let chart-height = height - t.axis-padding-top - t.axis-padding-bottom
+    #let chart-height = height - t.axis-padding-top - t.axis-padding-bottom - tick-area
     #let spacing = chart-height / n
     #let actual-bar-h = spacing * bar-frac
 
-    #box(width: width, height: chart-height)[
+    #box(width: width, height: chart-height + tick-area)[
       // Center vertical axis
       #place(left + top, line(
         start: (center-x, 0pt),
@@ -70,10 +71,10 @@
         stroke: t.axis-stroke,
       ))
 
-      // Horizontal baseline
-      #place(left + bottom, line(
-        start: (label-area, 0pt),
-        end: (width - right-pad, 0pt),
+      // Horizontal baseline at bottom of bar area
+      #place(left + top, line(
+        start: (label-area, chart-height),
+        end: (width - right-pad, chart-height),
         stroke: t.axis-stroke,
       ))
 
@@ -142,7 +143,7 @@
         )
       }
 
-      // X-axis tick labels (symmetric around center) — centered on tick position
+      // X-axis tick labels (symmetric around center) — below the bar area
       #for i in array.range(t.tick-count) {
         let fraction = if t.tick-count > 1 { i / (t.tick-count - 1) } else { 0 }
         let tick-val = calc.round(max-val * fraction, digits: 0)
@@ -150,9 +151,9 @@
         // Right side ticks
         let rx = center-x + fraction * half-width
         place(
-          left + bottom,
+          left + top,
           dx: rx - 1.5em,
-          dy: -1.5em,
+          dy: chart-height + 2pt,
           box(width: 3em, height: 1.5em,
             align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#tick-val]))
         )
@@ -161,9 +162,9 @@
         if fraction > 0 {
           let lx = center-x - fraction * half-width
           place(
-            left + bottom,
+            left + top,
             dx: lx - 1.5em,
-            dy: -1.5em,
+            dy: chart-height + 2pt,
             box(width: 3em, height: 1.5em,
               align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#tick-val]))
           )

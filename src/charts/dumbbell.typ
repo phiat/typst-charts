@@ -47,11 +47,11 @@
   let min-val = calc.min(..all-values)
   let val-range = nonzero(max-val - min-val)
 
-  // Layout constants
-  let label-margin = 80pt    // space for category labels on the left
-  let right-pad = 20pt
-  let top-pad = 10pt
-  let bottom-pad = 25pt      // room for value axis labels
+  // Layout constants — scale with chart dimensions
+  let label-margin = calc.min(80pt, width * 0.28)
+  let right-pad = calc.max(10pt, width * 0.05)
+  let top-pad = calc.max(5pt, height * 0.06)
+  let bottom-pad = calc.max(15pt, height * 0.15)
   let plot-left = label-margin + dot-size
   let plot-right = width - right-pad - dot-size
   let plot-width = plot-right - plot-left

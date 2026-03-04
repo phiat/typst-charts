@@ -4,6 +4,7 @@
 #import "../primitives/container.typ": chart-container
 #import "../primitives/legend.typ": draw-legend-vertical
 #import "../primitives/polar.typ": place-polar-label
+#import "../primitives/layout.typ": font-for-space
 
 /// Renders a radar (spider) chart for comparing series across multiple axes.
 ///
@@ -29,7 +30,7 @@
   let labels = data.labels
   let series = data.series
   let n = labels.len()
-  let radius = size / 2 - calc.max(25pt, size * 0.15)  // Scale padding with size
+  let radius = size / 2 - calc.max(18pt, size * 0.22)  // Scale padding with size — more room for labels
   let cx = size / 2
   let cy = size / 2
 
@@ -74,11 +75,12 @@
           // Value label on first axis (top)
           if show-value-labels {
             let val = calc.round(max-val * level / 4, digits: 0)
+            let grid-label-size = font-for-space(size, 6pt, ratio: 0.04)
             place(
               left + top,
-              dx: cx + 3pt,
-              dy: cy - r - 4pt,
-              text(size: 6pt, fill: t.text-color-light)[#val]
+              dx: cx + 2pt,
+              dy: cy - r - 3pt,
+              text(size: grid-label-size, fill: t.text-color-light)[#val]
             )
           }
         }
@@ -100,9 +102,10 @@
           )
 
           // Label positioning - push labels outward based on angle
-          place-polar-label(cx, cy, angle.deg(), radius + 12pt,
-            text(size: t.value-label-size, fill: t.text-color, weight: "medium")[#lbl],
-            box-width: calc.max(40pt, size * 0.18))
+          let label-size = font-for-space(size, t.value-label-size, min-size: 5pt, ratio: 0.055)
+          place-polar-label(cx, cy, angle.deg(), radius + 8pt,
+            text(size: label-size, fill: t.text-color, weight: "medium")[#lbl],
+            box-width: calc.max(30pt, size * 0.22))
         }
 
         // Draw data series
@@ -120,8 +123,8 @@
           let color = get-color(t, si)
 
           // Filled area — scale stroke with chart size
-          let stroke-w = calc.max(0.5pt, size / 150)
-          let dot-r = calc.max(2pt, size / 60)
+          let stroke-w = calc.max(0.4pt, size / 250)
+          let dot-r = calc.max(1pt, size / 100)
           place(
             left + top,
             polygon(
