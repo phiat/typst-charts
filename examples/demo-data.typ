@@ -336,6 +336,7 @@
     series: (
       (name: "Striker", values: (88, 92, 75, 85, 35, 78)),
       (name: "Midfielder", values: (72, 68, 90, 82, 70, 75)),
+      (name: "Defender", values: (65, 45, 60, 52, 92, 80)),
     ),
   ),
 
