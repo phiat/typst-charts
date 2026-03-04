@@ -14,15 +14,15 @@
 
 #page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   radar-chart(two-series,
-    size: 220pt, title: "radar-chart (light)", fill-opacity: 25%, theme: lt,
+    size: 220pt, title: "radar-chart (light)", fill-opacity: 15%, theme: lt,
   ),
   radar-chart(two-series,
-    size: 220pt, title: "radar-chart (dark)", fill-opacity: 25%, theme: dk,
+    size: 220pt, title: "radar-chart (dark)", fill-opacity: 15%, theme: dk,
   ),
   radar-chart(league.player-stats,
-    size: 220pt, title: "radar-chart (3-series)", fill-opacity: 25%, theme: lt,
+    size: 220pt, title: "radar-chart (3-series)", fill-opacity: 15%, theme: lt,
   ),
   radar-chart(league.player-stats,
-    size: 220pt, title: "radar-chart (accessible)", fill-opacity: 25%, theme: themes.accessible,
+    size: 220pt, title: "radar-chart (accessible)", fill-opacity: 15%, theme: themes.accessible,
   ),
 ))

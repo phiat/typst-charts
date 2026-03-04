@@ -111,7 +111,7 @@
        (name: "net", values: (85, 70, 92, 78, 65, 80)),
        (name: "mm", values: (72, 55, 88, 90, 45, 70)),
      )),
-    size: 100pt, title: "radar-chart", fill-opacity: 25%, theme: dk,
+    size: 100pt, title: "radar-chart", fill-opacity: 15%, theme: dk,
   ),
 
   // 12. scatter-plot

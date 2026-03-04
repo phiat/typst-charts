@@ -103,34 +103,25 @@
           let label-size = if avg-half * 2 < 60pt { calc.max(5pt, t.value-label-size - 1pt) } else { t.value-label-size }
 
           // Stack label + detail vertically, centered on segment
-          let line-h = label-size * 1.4
           let has-detail = n <= 9 and detail != ""
-          let total-h = if has-detail { line-h * 2 } else { line-h }
-          let start-y = mid-y - total-h / 2
+          let detail-size = label-size * 0.85
+          let block-h = if has-detail { label-size + detail-size + 2pt } else { label-size + 2pt }
+          let start-y = mid-y - block-h / 2
 
           place(
             left + top,
             dx: center-x - inset-half,
             dy: start-y,
-            box(width: inset-half * 2, height: line-h, clip: true)[
+            box(width: inset-half * 2, height: block-h, clip: true)[
               #align(center + horizon)[
                 #text(size: label-size, fill: t.text-color-inverse, weight: "bold")[#label-text]
+                #if has-detail {
+                  linebreak()
+                  text(size: detail-size, fill: t.text-color-inverse)[#detail]
+                }
               ]
             ]
           )
-
-          if has-detail {
-            place(
-              left + top,
-              dx: center-x - inset-half,
-              dy: start-y + line-h,
-              box(width: inset-half * 2, height: line-h, clip: true)[
-                #align(center + horizon)[
-                  #text(size: label-size * 0.85, fill: t.text-color-inverse)[#detail]
-                ]
-              ]
-            )
-          }
         }
       }
     ]
