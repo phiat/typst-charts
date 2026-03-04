@@ -39,13 +39,14 @@ test:
 # Regenerate all screenshots from demos and showcase
 screenshots:
     #!/usr/bin/env bash
+    mkdir -p screenshots/demo screenshots/showcase
     for f in examples/demos/demo-*.typ; do
         base=$(basename "$f" .typ)
-        typst compile --root . "$f" "screenshots/${base}.png" || exit 1
+        typst compile --root . "$f" "screenshots/demo/${base}.png" || exit 1
     done
-    typst compile --root . examples/showcase.typ screenshots/showcase-{0p}.png
-    optipng -o2 -quiet screenshots/*.png || echo "optipng not found, skipping optimization"
-    echo "Generated $(ls screenshots/*.png | wc -l) screenshots"
+    typst compile --root . examples/showcase.typ "screenshots/showcase/page-{0p}.png"
+    optipng -o2 -quiet screenshots/demo/*.png screenshots/showcase/*.png || echo "optipng not found, skipping optimization"
+    echo "Generated $(ls screenshots/demo/*.png screenshots/showcase/*.png | wc -l) screenshots"
 
 # Compile demo + demos + showcase + tests (full CI check)
 check: demo demos showcase test
@@ -75,4 +76,4 @@ stats:
     @echo "Primitive modules: $(ls src/primitives/*.typ | wc -l)"
     @echo "Total .typ files:  $(find src/ -name '*.typ' | wc -l)"
     @echo "Demo files:        $(ls examples/demos/demo-*.typ | wc -l)"
-    @echo "Screenshots:       $(ls screenshots/*.png 2>/dev/null | wc -l)"
+    @echo "Screenshots:       $(ls screenshots/demo/*.png screenshots/showcase/*.png 2>/dev/null | wc -l)"

@@ -1,6 +1,6 @@
 // heatmap.typ - Heatmap/matrix charts
 #import "../theme.typ": resolve-theme, _resolve-ctx, get-color
-#import "../util.typ": lerp-color, heat-color, nonzero
+#import "../util.typ": lerp-color, heat-color, nonzero, day-of-week
 #import "../validate.typ": validate-heatmap-data, validate-calendar-data, validate-correlation-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/layout.typ": density-skip
@@ -40,7 +40,7 @@
   let val-range = nonzero(max-val - min-val)
 
   let row-label-width = calc.max(30pt, n-cols * cell-size * 0.2 + 20pt)
-  let col-label-height = calc.max(25pt, cell-size * 1.5)
+  let col-label-height = calc.max(30pt, cell-size * 1.8)
   let legend-width = if show-legend { 60pt } else { 0pt }
 
   let grid-width = n-cols * cell-size
@@ -55,7 +55,7 @@
           place(
             left + top,
             dx: row-label-width + j * cell-size + cell-size / 2,
-            dy: col-label-height - 2pt,
+            dy: col-label-height - 4pt,
             rotate(-45deg, origin: bottom + left, text(size: t.axis-label-size, fill: t.text-color)[#col])
           )
         }
@@ -163,17 +163,25 @@
   let values = data.values
   let n = dates.len()
 
-  // Find min/max
-  let min-val = calc.min(..values)
+  // Find min/max (excluding zeros for color scaling)
+  let non-zero-vals = values.filter(v => v > 0)
+  let min-val = if non-zero-vals.len() > 0 { calc.min(..non-zero-vals) } else { 0 }
   let max-val = calc.max(..values)
   let val-range = nonzero(max-val - min-val)
 
-  // Assume dates are in order and calculate grid
-  // For simplicity, we'll arrange in a 7-row (days of week) grid
-  let n-weeks = calc.ceil(n / 7)
+  // Compute the starting day-of-week offset (0=Mon..6=Sun)
+  let start-dow = day-of-week(dates.at(0))  // 0=Mon..6=Sun
+
+  // Total grid slots = offset + n data cells, rounded up to full weeks
+  let total-slots = start-dow + n
+  let n-weeks = calc.ceil(total-slots / 7)
 
   let day-label-width = if show-day-labels { 25pt } else { 0pt }
   let month-label-height = if show-month-labels { 20pt } else { 0pt }
+
+  // Theme-aware empty cell styling
+  let empty-fill = if t.background != none { t.background.lighten(15%) } else { luma(235) }
+  let empty-stroke = if t.background != none { 0.5pt + t.text-color-light } else { 0.5pt + luma(210) }
 
   chart-container(day-label-width + n-weeks * cell-size + 20pt, month-label-height + 7 * cell-size, title, t, extra-height: 40pt)[
     #box[
@@ -185,7 +193,9 @@
           let parts = dt.split("-")
           let month-str = if parts.len() >= 2 { parts.at(1) } else { "" }
           if month-str != prev-month and month-str != "" {
-            let week = calc.floor(i / 7)
+            // Position based on actual grid column (accounting for start offset)
+            let grid-idx = start-dow + i
+            let week = calc.floor(grid-idx / 7)
             let month-idx = int(month-str) - 1
             let label = if month-idx >= 0 and month-idx < 12 { month-names.at(month-idx) } else { month-str }
             place(left + top,
@@ -212,13 +222,28 @@
         }
       }
 
-      // Cells
+      // Empty padding cells before the first date
+      #for d in range(start-dow) {
+        place(
+          left + top,
+          dx: day-label-width,
+          dy: month-label-height + d * cell-size,
+          rect(
+            width: cell-size - 2pt,
+            height: cell-size - 2pt,
+            fill: empty-fill,
+            stroke: empty-stroke,
+            radius: 2pt,
+          )
+        )
+      }
+
+      // Data cells — positioned by actual day-of-week
       #for (i, val) in values.enumerate() {
-        let week = calc.floor(i / 7)
-        let day = calc.rem(i, 7)
-        let normalized = (val - min-val) / val-range
-        let empty-fill = if t.background != none { t.background.lighten(20%) } else { luma(240) }
-        let empty-stroke = if t.background != none { 0.5pt + t.text-color-light } else { 0.5pt + luma(220) }
+        let grid-idx = start-dow + i
+        let week = calc.floor(grid-idx / 7)
+        let day = calc.rem(grid-idx, 7)
+        let normalized = if val > 0 { (val - min-val) / val-range } else { 0 }
         let cell-color = if val == 0 { empty-fill } else { heat-color(normalized, palette: palette) }
 
         place(
@@ -233,6 +258,27 @@
             radius: 2pt,
           )
         )
+      }
+
+      // Empty padding cells after the last date (fill remaining week)
+      #let last-grid-idx = start-dow + n - 1
+      #let last-day = calc.rem(last-grid-idx, 7)
+      #if last-day < 6 {
+        let last-week = calc.floor(last-grid-idx / 7)
+        for d in range(last-day + 1, 7) {
+          place(
+            left + top,
+            dx: day-label-width + last-week * cell-size,
+            dy: month-label-height + d * cell-size,
+            rect(
+              width: cell-size - 2pt,
+              height: cell-size - 2pt,
+              fill: empty-fill,
+              stroke: empty-stroke,
+              radius: 2pt,
+            )
+          )
+        }
       }
 
       // Legend

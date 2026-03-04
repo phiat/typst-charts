@@ -14,7 +14,7 @@
     #metric-row(
       (
         (value: 12847, label: "Users", delta: 12.3, trend: (45, 52, 48, 61, 58, 72)),
-        (value: 94.2, label: "Uptime %", delta: 0.5, trend: (91, 93, 92, 94, 93, 94)),
+        (value: 94.2, label: "Uptime", delta: 0.5, suffix: "%", trend: (91, 93, 92, 94, 93, 94)),
         (value: 342, label: "Issues", delta: -8.1, trend: (380, 365, 370, 355, 350, 342)),
       ),
       width: 250pt, gap: 5pt, theme: lt,
@@ -35,7 +35,7 @@
        (text: "Reports", weight: 2),
        (text: "Insights", weight: 2),
      )),
-    width: W, height: 300pt, title: "word-cloud (dark)", theme: dk,
+    width: W, height: 300pt, title: "word-cloud (dark, circle)", shape: "circle", theme: dk,
   ),
   [
     #text(size: 9pt, weight: "bold")[sparkline / sparkbar / sparkdot]

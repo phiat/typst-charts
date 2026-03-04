@@ -15,16 +15,19 @@
         get-color(theme, i)
       }
 
-      if swatch-type == "line" {
-        box(width: 15pt, height: 2pt, fill: color, baseline: -2pt)
-      } else if swatch-type == "circle" {
-        box(width: swatch-size, height: swatch-size, baseline: 2pt,
-          circle(radius: swatch-size / 2, fill: color, stroke: white + 0.5pt))
-      } else {
-        box(width: swatch-size, height: swatch-size, fill: color, baseline: 2pt, radius: 2pt)
-      }
-      h(3pt)
-      text(size: theme.legend-size, fill: theme.text-color)[#name]
+      // Wrap each swatch+label as an atomic unit to prevent mid-entry line breaks
+      box(baseline: 2pt)[
+        #if swatch-type == "line" {
+          box(width: 15pt, height: 2pt, fill: color, baseline: -2pt)
+        } else if swatch-type == "circle" {
+          box(width: swatch-size, height: swatch-size, baseline: 2pt,
+            circle(radius: swatch-size / 2, fill: color, stroke: white + 0.5pt))
+        } else {
+          box(width: swatch-size, height: swatch-size, fill: color, baseline: 2pt, radius: 2pt)
+        }
+        #h(3pt)
+        #text(size: theme.legend-size, fill: theme.text-color)[#name]
+      ]
       h(theme.legend-gap)
     }
   ]

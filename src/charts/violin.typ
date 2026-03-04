@@ -94,8 +94,11 @@
       if v > global-max { global-max = v }
     }
   }
-  let y-min = calc.min(0, global-min)
-  let y-max = nice-ceil(global-max)
+  // Extend y-range slightly to contain KDE tails (10% padding)
+  let data-span = nonzero(global-max - global-min, fallback: 1.0)
+  let y-pad = data-span * 0.1
+  let y-min = calc.min(0, global-min - y-pad)
+  let y-max = nice-ceil(global-max + y-pad)
 
   // ── Compute KDE for each dataset ──────────────────────────────────────
   // Returns array of (value, density) pairs, plus the max density.
@@ -150,7 +153,7 @@
   // ── Drawing ───────────────────────────────────────────────────────────
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 30pt)[
+  chart-container(width, height, title, t, extra-height: 40pt)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -175,10 +178,11 @@
       // Axis titles
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2 - 20pt, origin-y / 2, t)
 
-      // Helper: map data value to y-coordinate
+      // Helper: map data value to y-coordinate, clamped to chart bounds
       #let y-range = nonzero(y-max - y-min)
       #let map-y(val) = {
-        y-start + chart-height - ((val - y-min) / y-range) * chart-height
+        let raw = y-start + chart-height - ((val - y-min) / y-range) * chart-height
+        calc.max(y-start, calc.min(origin-y, raw))
       }
 
       // Draw each violin

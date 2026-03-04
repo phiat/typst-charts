@@ -12,6 +12,7 @@
 /// - width (length): Card width
 /// - height (auto, length): Card height; `auto` sizes to content
 /// - format (none, str): Number formatting mode passed to `format-number` ("auto", "si", "comma")
+/// - suffix (none, str): Optional suffix appended to the display value (e.g., "%", "ms")
 /// - theme (none, dictionary): Theme overrides
 /// -> content
 #let metric-card(
@@ -22,6 +23,7 @@
   width: 150pt,
   height: auto,
   format: none,
+  suffix: none,
   theme: none,
 ) = context {
   let t = _resolve-ctx(theme)
@@ -35,6 +37,7 @@
   } else {
     format-number(value)
   }
+  if suffix != none { display-value = display-value + suffix }
 
   // Delta colors and symbols
   let delta-content = if delta != none {
@@ -167,6 +170,7 @@
         trend: m.at("trend", default: none),
         width: 100%,
         format: m.at("format", default: none),
+        suffix: m.at("suffix", default: none),
         theme: theme,
       )
     })

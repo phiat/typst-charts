@@ -1,6 +1,6 @@
 // dumbbell.typ - Dumbbell chart (before/after or range comparison)
 #import "../theme.typ": resolve-theme, _resolve-ctx, get-color
-#import "../util.typ": nonzero
+#import "../util.typ": nonzero, nice-floor, nice-ceil
 #import "../validate.typ": validate-dumbbell-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/legend.typ": draw-legend-auto
@@ -42,14 +42,14 @@
   let end-label = if "end-label" in data { data.end-label } else { "End" }
   let n = labels.len()
 
-  // Compute global min/max across both value sets
+  // Compute global min/max across both value sets — use nice rounding for clean axes
   let all-values = start-values + end-values
-  let max-val = calc.max(..all-values)
-  let min-val = calc.min(..all-values)
+  let min-val = nice-floor(calc.min(..all-values))
+  let max-val = nice-ceil(calc.max(..all-values))
   let val-range = nonzero(max-val - min-val)
 
-  // Layout constants — scale with chart dimensions
-  let label-margin = calc.min(80pt, width * 0.28)
+  // Layout constants — scale with chart dimensions; label area grows with width
+  let label-margin = calc.min(100pt, calc.max(60pt, width * 0.22))
   let right-pad = calc.max(10pt, width * 0.05)
   let top-pad = calc.max(5pt, height * 0.06)
   let bottom-pad = calc.max(15pt, height * 0.15)

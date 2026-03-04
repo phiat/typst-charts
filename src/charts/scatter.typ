@@ -301,22 +301,36 @@
           )
         )
 
-        // Optional label — inside bubble if it fits, otherwise outside with leader
+        // Optional label — inside bubble if it fits, otherwise above with leader
         if show-labels and labels != none and i < labels.len() {
           let lbl = labels.at(i)
           let lbl-len = if type(lbl) == str { lbl.len() } else { str(lbl).len() }
+          let lbl-w = calc.max(radius * 2, t.axis-label-size * 0.6 * lbl-len + 4pt)
           if label-fits-inside(radius * 2, radius * 2, t.axis-label-size, lbl-len) {
+            // Center label inside bubble
             place(
               left + top,
-              dx: px,
-              dy: py,
-              move(dx: -1em, dy: -0.5em,
-                text(size: t.axis-label-size, fill: t.text-color, weight: "bold")[#lbl])
+              dx: px - lbl-w / 2,
+              dy: py - t.axis-label-size * 0.7,
+              box(width: lbl-w, height: t.axis-label-size * 1.4,
+                align(center + horizon,
+                  text(size: t.axis-label-size, fill: t.text-color, weight: "bold")[#lbl]))
             )
           } else {
-            place-cartesian-label(px, py - radius,
-              text(size: t.axis-label-size, fill: t.text-color, weight: "bold")[#lbl],
-              bounds, leader: true)
+            // Place above the bubble with a leader line
+            let label-y = py - radius - t.axis-label-size * 1.6
+            let label-y = calc.max(bounds.top, label-y)
+            place(left + top,
+              line(start: (px, py - radius), end: (px, label-y + t.axis-label-size),
+                stroke: 0.5pt + luma(140)))
+            place(
+              left + top,
+              dx: calc.max(bounds.left, calc.min(bounds.right - lbl-w, px - lbl-w / 2)),
+              dy: label-y,
+              box(width: lbl-w,
+                align(center,
+                  text(size: t.axis-label-size, fill: t.text-color, weight: "bold")[#lbl]))
+            )
           }
         }
       }

@@ -231,6 +231,24 @@
   (min: lo, max: hi, range: nonzero(hi - lo))
 }
 
+/// Returns day-of-week for a "YYYY-MM-DD" string (0=Mon … 6=Sun).
+///
+/// Uses Tomohiko Sakamoto's algorithm.
+///
+/// - date-str (str): Date in "YYYY-MM-DD" format
+/// -> int
+#let day-of-week(date-str) = {
+  let parts = date-str.split("-")
+  let y = int(parts.at(0))
+  let m = int(parts.at(1))
+  let d = int(parts.at(2))
+  let offsets = (0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4)
+  let yy = if m < 3 { y - 1 } else { y }
+  let dow = calc.rem(yy + calc.div-euclid(yy, 4) - calc.div-euclid(yy, 100) + calc.div-euclid(yy, 400) + offsets.at(m - 1) + d, 7)
+  // Convert from 0=Sun to 0=Mon: Sun(0)→6, Mon(1)→0, …, Sat(6)→5
+  calc.rem(dow + 6, 7)
+}
+
 #let percent-of-total(data) = {
   let total = data.values.sum()
   if total == 0 { return data }

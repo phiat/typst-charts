@@ -84,11 +84,12 @@
         }
       }
 
-      // Time labels along the bottom — rotate when crowded, skip when very tight
+      // Time labels along the bottom — below the axis line
       #let label-font = font-for-space(col-width, t.axis-label-size)
-      // Skip labels when columns are very narrow
       #let skip-n = density-skip(time-count, timeline-width)
       #let rotate-labels = time-count > 8
+      #let axis-y = body-height - 20pt
+      #let label-y = axis-y + 4pt  // below the axis line
       #for (i, lbl) in time-labels.enumerate() {
         if i < time-count and calc.rem(i, skip-n) == 0 {
           let x = label-area + i * col-width
@@ -96,7 +97,7 @@
             place(
               left + top,
               dx: x + 2pt,
-              dy: body-height - 18pt,
+              dy: label-y,
               rotate(-45deg, origin: top + left,
                 text(size: label-font, fill: t.text-color)[#lbl]),
             )
@@ -104,7 +105,7 @@
             place(
               left + top,
               dx: x,
-              dy: body-height - 18pt,
+              dy: label-y,
               box(width: col-width,
                 align(center, text(size: label-font, fill: t.text-color)[#lbl])),
             )

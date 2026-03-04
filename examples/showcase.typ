@@ -457,7 +457,7 @@
     #metric-row(
       (
         (value: 12847, label: "Users", delta: 12.3, trend: (45, 52, 48, 61, 58, 72)),
-        (value: 94.2, label: "Uptime %", delta: 0.5, trend: (91, 93, 92, 94, 93, 94)),
+        (value: 94.2, label: "Uptime", delta: 0.5, suffix: "%", trend: (91, 93, 92, 94, 93, 94)),
         (value: 342, label: "Issues", delta: -8.1, trend: (380, 365, 370, 355, 350, 342)),
       ),
       width: 250pt, gap: 5pt, theme: dk,
@@ -506,81 +506,80 @@
     size: 130pt, arc-width: 10pt, title: "chord-diagram", theme: dk,
   ),
 
-  // 47. word-cloud
-  word-cloud(
-    (words: (
-       (text: "Typst", weight: 10),
-       (text: "Charts", weight: 8),
-       (text: "Data", weight: 7),
-       (text: "Visualization", weight: 6),
-       (text: "Graphs", weight: 5),
-       (text: "Plots", weight: 5),
-       (text: "Analytics", weight: 4),
-       (text: "Dashboard", weight: 4),
-       (text: "Metrics", weight: 3),
-       (text: "Trends", weight: 3),
-       (text: "Reports", weight: 2),
-       (text: "Insights", weight: 2),
-     )),
-    width: W, height: 130pt, title: "word-cloud", theme: dk,
-  ),
-
-  // 48. (empty cell — odd count fills naturally)
 ))
 
-// ── Page 9: Theme Comparison ──────────────────────────────────────────────────
+// ── Page 7: Full-page word cloud ─────────────────────────────────────────────
 #pagebreak()
-#set page(fill: white)
-#set text(size: 7pt, fill: black)
-
-#let sample = (labels: ("Jan", "Feb", "Mar", "Apr", "May"), values: (42, 58, 35, 71, 49))
-#let TW = 160pt
-#let TH = 110pt
-
-#{
-  let theme-list = (
-    ("default", themes.default),
-    ("minimal", themes.minimal),
-    ("dark", themes.dark),
-    ("presentation", themes.presentation),
-    ("print", themes.print),
-    ("accessible", themes.accessible),
-  )
-
-  // Bar charts across all 6 themes
-  grid(
-    columns: (1fr, 1fr, 1fr),
-    column-gutter: 8pt,
-    row-gutter: 10pt,
-    ..theme-list.map(((name, t)) => {
-      bar-chart(sample, width: TW, height: TH, title: name, theme: t)
-    })
-  )
-
-  v(8pt)
-
-  // Line charts across all 6 themes
-  grid(
-    columns: (1fr, 1fr, 1fr),
-    column-gutter: 8pt,
-    row-gutter: 10pt,
-    ..theme-list.map(((name, t)) => {
-      line-chart(sample, width: TW, height: TH, title: name, theme: t)
-    })
-  )
-
-  v(8pt)
-
-  // with-theme demo
-  text(size: 9pt, weight: "bold")[with-theme: all charts inherit dark theme]
-  v(4pt)
-  with-theme(themes.dark)[
-    #grid(
-      columns: (1fr, 1fr, 1fr),
-      column-gutter: 8pt,
-      bar-chart(sample, width: TW, height: TH, title: "bar (inherited)"),
-      line-chart(sample, width: TW, height: TH, title: "line (inherited)"),
-      pie-chart(sample, size: 90pt, title: "pie (inherited)"),
-    )
-  ]
-}
+#word-cloud(
+  (words: (
+     (text: "Typst", weight: 10),
+     (text: "Charts", weight: 9),
+     (text: "Data", weight: 8),
+     (text: "Visualization", weight: 8),
+     (text: "Graphs", weight: 7),
+     (text: "Plots", weight: 7),
+     (text: "Analytics", weight: 6),
+     (text: "Dashboard", weight: 6),
+     (text: "Metrics", weight: 5),
+     (text: "Trends", weight: 5),
+     (text: "Reports", weight: 5),
+     (text: "Insights", weight: 4),
+     (text: "KPI", weight: 4),
+     (text: "Heatmap", weight: 4),
+     (text: "Scatter", weight: 4),
+     (text: "Histogram", weight: 3),
+     (text: "Sunburst", weight: 3),
+     (text: "Funnel", weight: 3),
+     (text: "Radar", weight: 3),
+     (text: "Gauge", weight: 3),
+     (text: "Pie", weight: 3),
+     (text: "Donut", weight: 3),
+     (text: "Waterfall", weight: 3),
+     (text: "Violin", weight: 3),
+     (text: "Sankey", weight: 2),
+     (text: "Treemap", weight: 2),
+     (text: "Bubble", weight: 2),
+     (text: "Waffle", weight: 2),
+     (text: "Gantt", weight: 2),
+     (text: "Timeline", weight: 2),
+     (text: "Sparkline", weight: 2),
+     (text: "Progress", weight: 2),
+     (text: "Slope", weight: 2),
+     (text: "Bullet", weight: 2),
+     (text: "Chord", weight: 2),
+     (text: "Bump", weight: 2),
+     (text: "Lollipop", weight: 2),
+     (text: "Dumbbell", weight: 2),
+     (text: "Parliament", weight: 2),
+     (text: "Diverging", weight: 2),
+     (text: "Stacked", weight: 2),
+     (text: "Grouped", weight: 2),
+     (text: "Correlation", weight: 2),
+     (text: "Calendar", weight: 2),
+     (text: "Radial", weight: 2),
+     (text: "Ring", weight: 2),
+     (text: "Axis", weight: 1),
+     (text: "Legend", weight: 1),
+     (text: "Theme", weight: 1),
+     (text: "Grid", weight: 1),
+     (text: "Label", weight: 1),
+     (text: "Tick", weight: 1),
+     (text: "Scale", weight: 1),
+     (text: "Color", weight: 1),
+     (text: "Layout", weight: 1),
+     (text: "Density", weight: 1),
+     (text: "Distribution", weight: 1),
+     (text: "Percentage", weight: 1),
+     (text: "Comparison", weight: 1),
+     (text: "Proportion", weight: 1),
+     (text: "Hierarchy", weight: 1),
+     (text: "Flow", weight: 1),
+     (text: "Series", weight: 1),
+     (text: "Category", weight: 1),
+     (text: "Value", weight: 1),
+     (text: "Range", weight: 1),
+     (text: "Median", weight: 1),
+     (text: "Quartile", weight: 1),
+   )),
+  width: 100%, height: 100%, title: "word-cloud", shape: "circle", theme: dk,
+)

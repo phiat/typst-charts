@@ -80,20 +80,18 @@
   // Compute percentages for legend display
   let percentages = values.map(v => calc.round(v / raw-sum * 100, digits: 1))
 
-  // Build legend entries
+  // Build legend entries — compact format
   let legend-entries = ()
   if show-legend {
     for i in range(n) {
-      let label-text = labels.at(i)
-      if show-values {
-        label-text = label-text + " (" + str(percentages.at(i)) + "%)"
-      }
+      let pct = str(percentages.at(i)) + "%"
+      let label-text = if show-values { labels.at(i) + " (" + pct + ")" } else { labels.at(i) }
       legend-entries.push(label-text)
     }
   }
 
-  // Reserve enough height for legend: horizontal legend wraps ~3 entries per row
-  let legend-height = if show-legend { calc.max(35pt, calc.ceil(n / 2) * 20pt) } else { 0pt }
+  // Reserve legend height scaled to entry count — ~15pt per row, ~3 entries per row
+  let legend-height = if show-legend { calc.max(25pt, calc.ceil(n / 3) * 16pt) } else { 0pt }
 
   chart-container(size, size + legend-height, title, t)[
     // Draw grid bottom-to-top, left-to-right
