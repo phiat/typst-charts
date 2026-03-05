@@ -15,6 +15,14 @@ Pure-Typst charting library — 50+ chart types, 6 theme presets, zero dependenc
 - **Scripts:** `scripts/convert-data.py` — CLI JSON-to-chart-format converter
 - **Dev commands:** `just build` (compile all + screenshots), `just push` (build + push), `just check`, `just demos`, `just showcase`, `just test`, `just convert`
 
+## Visual Verification Rule
+
+**After ANY change to chart code or primitives**, you MUST:
+1. Run `just showcase` to compile
+2. Render screenshots: `typst compile --root . examples/showcase.typ "screenshots/showcase/showcase-{0p}.png"`
+3. Visually inspect each page for layout breakage — overlapping labels, legends clipping into adjacent cells, axis titles overlapping data
+4. The showcase uses a tight 2-col × 4-row grid on A4 with small charts (250×95pt). Changes that look fine on large standalone charts can break the compact showcase layout. Always check both.
+
 ## Issue Tracking
 
 This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.

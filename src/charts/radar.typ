@@ -41,8 +41,8 @@
   // Respect both show-legend param and theme legend-position
   let show-legend = show-legend and t.legend-position != "none"
 
-  // Calculate legend width
-  let legend-width = if show-legend and series.len() > 1 { 100pt } else { 0pt }
+  // Calculate legend width — scale with chart size to avoid oversized legends on compact charts
+  let legend-width = if show-legend and series.len() > 1 { calc.min(100pt, size * 0.6) } else { 0pt }
 
   chart-container(size + legend-width, size, title, t, extra-height: 40pt)[
     #grid(

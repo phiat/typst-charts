@@ -133,15 +133,16 @@
 /// - theme (dictionary): Resolved theme
 /// - title (none, str): Optional title (e.g., "Market Value (£M)")
 /// -> content
-#let draw-size-legend(sizes, max-radius, max-value, theme, title: none) = {
+#let draw-size-legend(sizes, max-radius, max-value, theme, title: none, max-legend-radius: 12pt) = {
+  let cap = calc.min(max-radius, max-legend-radius)
   v(3pt)
   align(center)[
     #if title != none {
       text(size: theme.legend-size, fill: theme.text-color)[#title]
-      h(8pt)
+      h(6pt)
     }
     #for (val, lbl) in sizes {
-      let r = calc.max(3pt, max-radius * calc.sqrt(val / calc.max(1, max-value)))
+      let r = calc.max(2pt, cap * calc.sqrt(val / calc.max(1, max-value)))
       let d = r * 2
       box(baseline: r - 1pt)[
         #box(width: d, height: d,
@@ -149,7 +150,7 @@
       ]
       h(2pt)
       text(size: theme.legend-size, fill: theme.text-color)[#lbl]
-      h(10pt)
+      h(8pt)
     }
   ]
 }
