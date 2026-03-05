@@ -21,39 +21,73 @@
   color.mix((c1, (1 - t-clamped) * 100%), (c2, t-clamped * 100%))
 }
 
-/// Maps a normalized 0..1 value to a color using a named palette.
+// Named palette definitions — arrays of color stops for N-stop interpolation.
+#let _named-palettes = (
+  viridis: (rgb("#440154"), rgb("#3b528b"), rgb("#21918c"), rgb("#5ec962"), rgb("#fde725")),
+  heat: (rgb("#313695"), rgb("#74add1"), rgb("#a6d96a"), rgb("#fdae61"), rgb("#a50026")),
+  blues: (rgb("#f7fbff"), rgb("#6baed6"), rgb("#08306b")),
+  greens: (rgb("#f7fcf5"), rgb("#74c476"), rgb("#00441b")),
+  reds: (rgb("#fff5f0"), rgb("#fb6a4a"), rgb("#67000d")),
+  purples: (rgb("#fcfbfd"), rgb("#9e9ac8"), rgb("#3f007d")),
+  inferno: (rgb("#000004"), rgb("#420a68"), rgb("#932667"), rgb("#dd513a"), rgb("#fcffa4")),
+  plasma: (rgb("#0d0887"), rgb("#7e03a8"), rgb("#cc4778"), rgb("#f89540"), rgb("#f0f921")),
+  coolwarm: (rgb("#3b4cc0"), rgb("#7b9ff9"), rgb("#f7f7f7"), rgb("#f4987a"), rgb("#b40426")),
+  spectral: (rgb("#9e0142"), rgb("#f46d43"), rgb("#fee08b"), rgb("#abdda4"), rgb("#5e4fa2")),
+)
+
+/// Interpolates across an array of color stops for a 0..1 value.
+///
+/// - stops (array): Array of colors (2 or more)
+/// - v (float): Normalized value 0..1
+/// -> color
+#let _interpolate-stops(stops, v) = {
+  let n = stops.len()
+  if n == 1 { return stops.at(0) }
+  let scaled = v * (n - 1)
+  let idx = calc.min(int(scaled), n - 2)
+  let t = scaled - idx
+  lerp-color(stops.at(idx), stops.at(idx + 1), t)
+}
+
+/// Maps a normalized 0..1 value to a color using a palette.
+///
+/// Palette can be a string name (`"viridis"`, `"heat"`, `"blues"`, `"greens"`,
+/// `"reds"`, `"purples"`, `"inferno"`, `"plasma"`, `"coolwarm"`, `"spectral"`,
+/// `"grayscale"`) or an array of color stops for custom palettes.
+///
+/// Append `"-r"` to any named palette to reverse it (e.g., `"viridis-r"`).
 ///
 /// - val (float): Value in the range 0 to 1
-/// - palette (str): Palette name (`"viridis"`, `"heat"`, `"grayscale"`, or default blue gradient)
+/// - palette (str, array): Palette name or array of color stops
+/// - reverse (bool): Reverse the palette direction
 /// -> color
-#let heat-color(val, palette: "viridis") = {
+#let heat-color(val, palette: "viridis", reverse: false) = {
   let v = calc.max(0, calc.min(1, val))
 
-  if palette == "viridis" {
-    if v < 0.25 {
-      lerp-color(rgb("#440154"), rgb("#3b528b"), v * 4)
-    } else if v < 0.5 {
-      lerp-color(rgb("#3b528b"), rgb("#21918c"), (v - 0.25) * 4)
-    } else if v < 0.75 {
-      lerp-color(rgb("#21918c"), rgb("#5ec962"), (v - 0.5) * 4)
-    } else {
-      lerp-color(rgb("#5ec962"), rgb("#fde725"), (v - 0.75) * 4)
-    }
-  } else if palette == "heat" {
-    if v < 0.25 {
-      lerp-color(rgb("#313695"), rgb("#74add1"), v * 4)
-    } else if v < 0.5 {
-      lerp-color(rgb("#74add1"), rgb("#a6d96a"), (v - 0.25) * 4)
-    } else if v < 0.75 {
-      lerp-color(rgb("#a6d96a"), rgb("#fdae61"), (v - 0.5) * 4)
-    } else {
-      lerp-color(rgb("#fdae61"), rgb("#a50026"), (v - 0.75) * 4)
-    }
-  } else if palette == "grayscale" {
-    luma(int((1 - v) * 255))
-  } else {
-    lerp-color(rgb("#f7fbff"), rgb("#08306b"), v)
+  // Handle array palette directly
+  if type(palette) == array {
+    let stops = if reverse { palette.rev() } else { palette }
+    return _interpolate-stops(stops, v)
   }
+
+  // Handle grayscale specially (not stop-based)
+  if palette == "grayscale" or palette == "grayscale-r" {
+    let rv = if reverse or palette == "grayscale-r" { v } else { 1 - v }
+    return luma(int(rv * 255))
+  }
+
+  // Check for -r suffix
+  let pal-name = palette
+  let rev = reverse
+  if palette.ends-with("-r") {
+    pal-name = palette.slice(0, palette.len() - 2)
+    rev = true
+  }
+
+  // Look up named palette
+  let stops = _named-palettes.at(pal-name, default: _named-palettes.at("blues"))
+  if rev { stops = stops.rev() }
+  _interpolate-stops(stops, v)
 }
 
 /// Returns the value unchanged if non-zero, otherwise returns `fallback`.

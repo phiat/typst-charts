@@ -1,6 +1,7 @@
 // legend.typ - Legend rendering primitives
 
 #import "../theme.typ": *
+#import "../util.typ": heat-color
 
 // Optional legend title rendered above entries.
 #let _legend-title(title, theme) = {
@@ -86,6 +87,42 @@
   } else {
     draw-legend(entries, theme, swatch-type: swatch-type, title: title)
   }
+}
+
+/// Gradient color bar legend for heatmaps and color-mapped charts.
+///
+/// Renders a vertical gradient bar with min/max labels. Can be placed
+/// inline or absolutely positioned by the caller.
+///
+/// - min-val (number): Minimum data value (label at bottom)
+/// - max-val (number): Maximum data value (label at top)
+/// - palette (str, array): Palette name or color stop array
+/// - theme (dictionary): Resolved theme
+/// - bar-width (length): Width of the gradient bar
+/// - bar-height (length): Height of the gradient bar
+/// - steps (int): Number of discrete color segments
+/// - reverse (bool): Reverse palette direction
+/// -> content
+#let draw-gradient-legend(min-val, max-val, palette, theme, bar-width: 15pt, bar-height: auto, steps: 30, reverse: false) = {
+  let h = if bar-height == auto { 80pt } else { bar-height }
+  let step-h = h / steps
+  box(width: bar-width + 35pt, height: h + 4pt)[
+    // Gradient bar
+    #for i in array.range(steps) {
+      let normalized = 1 - i / steps
+      let cell-color = heat-color(normalized, palette: palette, reverse: reverse)
+      place(left + top,
+        dx: 0pt,
+        dy: (i / steps) * h,
+        rect(width: bar-width, height: step-h + 0.5pt, fill: cell-color, stroke: none))
+    }
+    // Max label (top)
+    #place(left + top, dx: bar-width + 4pt, dy: 0pt,
+      move(dy: -0.5em, text(size: theme.axis-label-size, fill: theme.text-color)[#calc.round(max-val, digits: 1)]))
+    // Min label (bottom)
+    #place(left + top, dx: bar-width + 4pt, dy: h,
+      move(dy: -0.5em, text(size: theme.axis-label-size, fill: theme.text-color)[#calc.round(min-val, digits: 1)]))
+  ]
 }
 
 /// Size legend for bubble charts — shows 2-3 reference circles with labels.

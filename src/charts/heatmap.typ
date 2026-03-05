@@ -4,6 +4,7 @@
 #import "../validate.typ": validate-heatmap-data, validate-calendar-data, validate-correlation-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/layout.typ": density-skip
+#import "../primitives/legend.typ": draw-gradient-legend
 
 /// Renders a heatmap grid with color-coded cells.
 ///
@@ -11,8 +12,9 @@
 /// - cell-size (length): Width and height of each cell
 /// - title (none, content): Optional chart title
 /// - show-values (bool): Display numeric values inside cells
-/// - palette (str): Color palette name (`"viridis"`, `"heat"`, `"grayscale"`)
+/// - palette (str, array): Color palette name or array of color stops. Append `"-r"` to reverse named palettes.
 /// - show-legend (bool): Show color scale legend
+/// - reverse (bool): Reverse palette direction
 /// - theme (none, dictionary): Theme overrides
 /// -> content
 #let heatmap(
@@ -22,6 +24,7 @@
   show-values: true,
   palette: "viridis",
   show-legend: true,
+  reverse: false,
   theme: none,
 ) = context {
   validate-heatmap-data(data, "heatmap")
@@ -76,7 +79,7 @@
         // Cells for this row
         for (j, val) in values.at(i).enumerate() {
           let normalized = (val - min-val) / val-range
-          let cell-color = heat-color(normalized, palette: palette)
+          let cell-color = heat-color(normalized, palette: palette, reverse: reverse)
 
           place(
             left + top,
@@ -110,29 +113,8 @@
         let legend-x = row-label-width + grid-width + 15pt
         let legend-height = grid-height * 0.8
         let legend-y = col-label-height + (grid-height - legend-height) / 2
-
-        // Gradient bar
-        for i in array.range(20) {
-          let normalized = 1 - i / 20
-          let cell-color = heat-color(normalized, palette: palette)
-          place(
-            left + top,
-            dx: legend-x,
-            dy: legend-y + (i / 20) * legend-height,
-            rect(
-              width: 15pt,
-              height: legend-height / 20 + 1pt,
-              fill: cell-color,
-              stroke: none,
-            )
-          )
-        }
-
-        // Legend labels — vertically centered with em units
-        place(left + top, dx: legend-x + 20pt, dy: legend-y,
-          move(dy: -0.5em, text(size: t.axis-label-size, fill: t.text-color)[#calc.round(max-val, digits: 1)]))
-        place(left + top, dx: legend-x + 20pt, dy: legend-y + legend-height,
-          move(dy: -0.5em, text(size: t.axis-label-size, fill: t.text-color)[#calc.round(min-val, digits: 1)]))
+        place(left + top, dx: legend-x, dy: legend-y,
+          draw-gradient-legend(min-val, max-val, palette, t, bar-height: legend-height, reverse: reverse))
       }
     ]
   ]
@@ -143,9 +125,10 @@
 /// - data (dictionary): Dict with `dates` (array of `"YYYY-MM-DD"` strings) and `values` (array of numbers)
 /// - cell-size (length): Size of each day cell
 /// - title (none, content): Optional chart title
-/// - palette (str): Color palette name
+/// - palette (str, array): Color palette name or array of color stops
 /// - show-month-labels (bool): Display month labels above the grid
 /// - show-day-labels (bool): Display day-of-week labels on the left
+/// - reverse (bool): Reverse palette direction
 /// - theme (none, dictionary): Theme overrides
 /// -> content
 #let calendar-heatmap(
@@ -155,6 +138,7 @@
   palette: "heat",
   show-month-labels: true,
   show-day-labels: true,
+  reverse: false,
   theme: none,
 ) = context {
   validate-calendar-data(data, "calendar-heatmap")
@@ -244,7 +228,7 @@
         let week = calc.floor(grid-idx / 7)
         let day = calc.rem(grid-idx, 7)
         let normalized = if val > 0 { (val - min-val) / val-range } else { 0 }
-        let cell-color = if val == 0 { empty-fill } else { heat-color(normalized, palette: palette) }
+        let cell-color = if val == 0 { empty-fill } else { heat-color(normalized, palette: palette, reverse: reverse) }
 
         place(
           left + top,
@@ -286,7 +270,7 @@
       #place(left + top, dx: day-label-width, dy: legend-y, text(size: 6pt, fill: t.text-color)[Less])
       #for i in array.range(5) {
         let normalized = i / 4
-        let cell-color = heat-color(normalized, palette: palette)
+        let cell-color = heat-color(normalized, palette: palette, reverse: reverse)
         place(
           left + top,
           dx: day-label-width + 25pt + i * (cell-size + 2pt),
