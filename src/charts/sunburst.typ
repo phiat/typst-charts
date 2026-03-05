@@ -154,11 +154,19 @@
             let ly = cy + mid-r * calc.sin(mid-angle * 1deg)
             let label-color = if seg.depth <= 2 { t.text-color-inverse } else { t.text-color }
             let label-w = calc.max(arc-w, 20pt)
+            let pill-h = fit.size * 1.4
+            // Semi-transparent background pill for readability
+            let pill-fill = if seg.depth <= 2 {
+              seg-color.transparentize(30%)
+            } else {
+              if t.background != none { t.background.transparentize(30%) } else { white.transparentize(30%) }
+            }
             place(
               left + top,
               dx: lx - label-w / 2,
-              dy: ly - fit.size * 0.6,
-              box(width: label-w, height: fit.size * 1.2,
+              dy: ly - pill-h / 2,
+              box(width: label-w, height: pill-h,
+                fill: pill-fill, radius: 2pt,
                 align(center + horizon,
                   text(
                     size: fit.size,

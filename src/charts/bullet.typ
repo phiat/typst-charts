@@ -111,6 +111,24 @@
         rect(width: 2.5pt, height: marker-h, fill: t.text-color, stroke: none)
       )
     }
+
+    // X-axis tick labels along the bottom
+    #{
+      let tick-count = 5
+      let tick-size = 5pt
+      for ti in range(tick-count + 1) {
+        let frac = ti / tick-count
+        let tick-val = calc.round(frac * max-range, digits: 0)
+        let tx = x0 + bar-width * frac
+        place(left + top, dx: tx, dy: height,
+          line(start: (0pt, 0pt), end: (0pt, 3pt), stroke: 0.4pt + t.text-color-light))
+        place(left + top,
+          dx: tx - 10pt,
+          dy: height + 3pt,
+          box(width: 20pt, align(center,
+            text(size: tick-size, fill: t.text-color-light)[#int(tick-val)])))
+      }
+    }
   ]
 }
 
@@ -138,7 +156,18 @@
   let bullets = data.bullets
   let n = bullets.len()
 
-  let total-height = n * bar-height + (n - 1) * gap + (if title != none { 25pt } else { 0pt })
+  let bar-color = get-color(t, 0)
+  let is-dark = t.background != none and t.background != white
+  let range-fills = if is-dark {
+    (luma(100), luma(130), luma(160))
+  } else {
+    (luma(200), luma(225), luma(245))
+  }
+
+  // Extra space for tick labels + legend
+  let tick-space = 18pt
+  let legend-space = 22pt
+  let total-height = n * (bar-height + tick-space) + (n - 1) * gap + legend-space + (if title != none { 25pt } else { 0pt })
 
   box(width: width, height: total-height)[
     #if title != none {
@@ -158,9 +187,34 @@
         show-target: true,
         theme: theme,
       )
+      v(tick-space)
       if i < n - 1 {
         v(gap)
       }
     }
+
+    // Legend explaining the visual elements
+    #v(4pt)
+    #align(center)[
+      #box(baseline: 2pt, rect(width: 12pt, height: 6pt, fill: bar-color, stroke: none))
+      #h(2pt)
+      #text(size: 6pt, fill: t.text-color)[Actual]
+      #h(8pt)
+      #box(baseline: 2pt, rect(width: 2.5pt, height: 10pt, fill: t.text-color, stroke: none))
+      #h(2pt)
+      #text(size: 6pt, fill: t.text-color)[Target]
+      #h(8pt)
+      #box(baseline: 2pt, rect(width: 10pt, height: 8pt, fill: range-fills.at(0), stroke: none))
+      #h(2pt)
+      #text(size: 6pt, fill: t.text-color)[Poor]
+      #h(6pt)
+      #box(baseline: 2pt, rect(width: 10pt, height: 8pt, fill: range-fills.at(1), stroke: none))
+      #h(2pt)
+      #text(size: 6pt, fill: t.text-color)[Fair]
+      #h(6pt)
+      #box(baseline: 2pt, rect(width: 10pt, height: 8pt, fill: range-fills.at(2), stroke: none))
+      #h(2pt)
+      #text(size: 6pt, fill: t.text-color)[Good]
+    ]
   ]
 }

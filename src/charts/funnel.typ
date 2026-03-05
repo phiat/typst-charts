@@ -115,9 +115,10 @@
           if fit.fits {
             let label-size = fit.size
             let detail-size = label-size * 0.85
-            // Determine if detail also fits (combined height)
+            // Detail renders at segment midpoint where it's wider — use avg width
+            let avg-w = calc.max(0pt, avg-half * 2 - 12pt)
             let detail-len = detail.len()
-            let detail-fit = if has-detail { try-fit-label(avail-w, avail-h, detail-size, detail-len) } else { (fits: false, size: detail-size) }
+            let detail-fit = if has-detail { try-fit-label(avg-w, avail-h, detail-size, detail-len) } else { (fits: false, size: detail-size) }
             let show-detail = has-detail and detail-fit.fits
             let block-h = if show-detail { label-size + detail-size + 2pt } else { label-size + 2pt }
             let start-y = mid-y - block-h / 2
