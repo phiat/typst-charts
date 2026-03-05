@@ -49,7 +49,7 @@
   let val-range = nonzero(max-val - min-val)
 
   // Layout constants — scale with chart dimensions; label area grows with width
-  let label-margin = calc.min(100pt, calc.max(60pt, width * 0.22))
+  let label-margin = calc.min(100pt, calc.max(70pt, width * 0.25))
   let right-pad = calc.max(10pt, width * 0.05)
   let top-pad = calc.max(5pt, height * 0.06)
   let bottom-pad = calc.max(15pt, height * 0.15)
@@ -162,17 +162,17 @@
           circle(radius: dot-size, fill: end-color, stroke: white + 0.5pt)
         )
 
-        // Optional value labels
+        // Optional value labels — clamp so they don't overlap y-axis labels
         if show-values {
           // Value near start dot
-          let s-dx = if sv <= ev { x-start - 20pt } else { x-start + dot-size + 3pt }
+          let s-dx = if sv <= ev { calc.max(plot-left, x-start - 20pt) } else { x-start + dot-size + 3pt }
           place(left + top,
             dx: s-dx,
             dy: y,
             move(dy: -0.5em, text(size: t.value-label-size, fill: start-color)[#sv])
           )
           // Value near end dot
-          let e-dx = if ev >= sv { x-end + dot-size + 3pt } else { x-end - 20pt }
+          let e-dx = if ev >= sv { x-end + dot-size + 3pt } else { calc.max(plot-left, x-end - 20pt) }
           place(left + top,
             dx: e-dx,
             dy: y,

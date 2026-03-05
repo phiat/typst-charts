@@ -1,7 +1,7 @@
 // pie.typ - Pie and donut charts
 #import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": normalize-data
-#import "../primitives/layout.typ": font-for-space
+#import "../primitives/layout.typ": font-for-space, try-fit-label
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/legend.typ": draw-legend-vertical
@@ -62,8 +62,6 @@
       box(width: size, height: size)[
         #let center-x = radius
         #let center-y = radius
-        #let current-angle = 0deg
-
         #let current-deg = 0
 
         #for (i, val) in values.enumerate() {
@@ -80,22 +78,26 @@
             )
           )
 
-          // Percentage label — scale font with chart size
+          // Percentage label — try fitting into slice arc
           if show-percentages {
             let mid-deg = current-deg + slice-deg / 2
             let pct = calc.round((val / total) * 100, digits: 1)
-            let min-pct = if size < 120pt { 8 } else { 5 }
-            if pct >= min-pct {
-              let label-dist = radius * (if donut { 0.75 } else { 0.6 })
+            let pct-text = str(pct) + "%"
+            let pct-len = pct-text.len()
+            // Approximate available width from arc at label distance
+            let label-dist = radius * (if donut { 0.75 } else { 0.6 })
+            let arc-w = (label-dist / 1pt) * slice-deg / 360 * 2 * calc.pi * 1pt
+            let arc-h = radius * 0.3  // radial height available
+            let fit = try-fit-label(arc-w, arc-h, t.value-label-size, pct-len, shrink-min: 5pt)
+            if fit.fits {
               let lx = center-x + label-dist * calc.cos(mid-deg * 1deg)
               let ly = center-y + label-dist * calc.sin(mid-deg * 1deg)
-              let pct-size = font-for-space(size, t.value-label-size, ratio: 0.06)
               place(
                 left + top,
                 dx: lx,
                 dy: ly,
                 move(dx: -1em, dy: -0.5em,
-                  text(size: pct-size, fill: t.text-color-inverse, weight: "bold")[#pct%])
+                  text(size: fit.size, fill: t.text-color-inverse, weight: "bold")[#pct-text])
               )
             }
           }

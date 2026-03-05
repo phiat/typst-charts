@@ -52,6 +52,27 @@ screenshots:
 check: demo demos showcase test
     @echo "All compilations passed"
 
+# Full build: compile everything, regenerate screenshots
+build: check screenshots
+    @echo "Build complete — all artifacts up to date"
+
+# Build everything, stage screenshots, commit if dirty, push
+push: build
+    #!/usr/bin/env bash
+    set -e
+    git add screenshots/
+    if ! git diff --cached --quiet; then
+        git commit -m "Regenerate screenshots"
+    fi
+    # Check only tracked files (build generates untracked PDFs)
+    if git diff --name-only HEAD | grep -qv '\.pdf$'; then
+        echo "ERROR: uncommitted tracked changes remain — commit before pushing"
+        git diff --name-only HEAD | grep -v '\.pdf$'
+        exit 1
+    fi
+    git push
+    echo "Pushed $(git rev-parse --abbrev-ref HEAD) to origin"
+
 # Open the demo PDF
 open: demo
     xdg-open examples/demo.pdf 2>/dev/null || open examples/demo.pdf
@@ -62,12 +83,16 @@ dev:
     sleep 1
     xdg-open examples/demo.pdf 2>/dev/null || open examples/demo.pdf
 
+# Convert JSON data to chart-ready format (e.g., just convert data.json simple --pretty)
+convert *args:
+    python3 scripts/convert-data.py {{args}}
+
 # Clean generated artifacts
 clean:
     rm -f examples/*.pdf examples/demos/*.pdf tests/*.pdf
 
-# Full release prep: test, screenshots, clean build artifacts
-release: check screenshots
+# Full release prep: build everything, verify clean
+release: build
     @echo "Release artifacts ready"
 
 # Show project stats

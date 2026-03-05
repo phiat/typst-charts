@@ -1,7 +1,7 @@
 // scatter.typ - Scatter plot and bubble chart
 #import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero, clamp, nice-ceil, nice-floor, numeric-range
-#import "../primitives/layout.typ": label-fits-inside, place-cartesian-label
+#import "../primitives/layout.typ": label-fits-inside, place-cartesian-label, try-fit-label, greedy-deconflict
 #import "../validate.typ": validate-scatter-data, validate-multi-scatter-data, validate-bubble-data, validate-multi-bubble-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks
@@ -276,56 +276,107 @@
       #let effective-max-r = calc.min(max-radius, chart-height * 0.25, chart-width * 0.15)
       #let effective-min-r = calc.min(min-radius, effective-max-r * 0.3)
       #let bounds = (left: origin-x, right: origin-x + chart-width, top: pad-top, bottom: origin-y)
-      #for (i, pt) in points.enumerate() {
+
+      // Pass 0: Pre-compute all bubble positions
+      #let computed = points.enumerate().map(((i, pt)) => {
         let px = origin-x + ((pt.at(0) - x-min) / x-range) * chart-width
         let py = pad-top + chart-height - ((pt.at(1) - y-min) / y-range) * chart-height
         let radius = effective-min-r + ((pt.at(2) - size-min) / size-range) * (effective-max-r - effective-min-r)
-        // Clamp bubble center to chart bounds
         let px = clamp(px, origin-x + radius, origin-x + chart-width - radius)
         let py = clamp(py, pad-top + radius, origin-y - radius)
+        (i: i, px: px, py: py, radius: radius)
+      })
 
+      // Draw all bubbles
+      #for b in computed {
         place(
           left + top,
-          dx: px - radius,
-          dy: py - radius,
+          dx: b.px - b.radius,
+          dy: b.py - b.radius,
           circle(
-            radius: radius,
+            radius: b.radius,
             fill: bubble-color.transparentize(40%),
             stroke: bubble-color + 1.5pt
           )
         )
+      }
 
-        // Optional label — inside bubble if it fits, otherwise above with leader
-        if show-labels and labels != none and i < labels.len() {
-          let lbl = labels.at(i)
+      // Two-pass label placement
+      #if show-labels and labels != none {
+        let inside-labels = ()
+        let outside-proposals = ()
+        let lbl-size = t.axis-label-size
+        let lbl-h = lbl-size * 1.4
+
+        // Pass 1: Decide inside vs outside for each bubble
+        for b in computed {
+          if b.i >= labels.len() { continue }
+          let lbl = labels.at(b.i)
           let lbl-len = if type(lbl) == str { lbl.len() } else { str(lbl).len() }
-          let lbl-w = calc.max(radius * 2, t.axis-label-size * 0.6 * lbl-len + 4pt)
-          if label-fits-inside(radius * 2, radius * 2, t.axis-label-size, lbl-len) {
-            // Center label inside bubble
-            place(
-              left + top,
-              dx: px - lbl-w / 2,
-              dy: py - t.axis-label-size * 0.7,
-              box(width: lbl-w, height: t.axis-label-size * 1.4,
-                align(center + horizon,
-                  text(size: t.axis-label-size, fill: t.text-color, weight: "bold")[#lbl]))
-            )
+          let fit = try-fit-label(b.radius * 2, b.radius * 2, lbl-size, lbl-len)
+
+          if fit.fits {
+            inside-labels.push((px: b.px, py: b.py, radius: b.radius, lbl: lbl, size: fit.size))
           } else {
-            // Place above the bubble with a leader line
-            let label-y = py - radius - t.axis-label-size * 1.6
-            let label-y = calc.max(bounds.top, label-y)
-            place(left + top,
-              line(start: (px, py - radius), end: (px, label-y + t.axis-label-size),
-                stroke: 0.5pt + luma(140)))
-            place(
-              left + top,
-              dx: calc.max(bounds.left, calc.min(bounds.right - lbl-w, px - lbl-w / 2)),
-              dy: label-y,
-              box(width: lbl-w,
-                align(center,
-                  text(size: t.axis-label-size, fill: t.text-color, weight: "bold")[#lbl]))
-            )
+            // Propose label above bubble, quadrant-aware horizontal offset
+            let chart-cx = (bounds.left + bounds.right) / 2
+            let lbl-w = calc.max(40pt, lbl-size * 0.6 * lbl-len + 4pt)
+            let lx = if b.px >= chart-cx {
+              b.px + 4pt
+            } else {
+              b.px - lbl-w - 4pt
+            }
+            let ly = b.py - b.radius - lbl-h - 4pt
+            outside-proposals.push((
+              cx: b.px, cy: b.py, radius: b.radius,
+              lx: lx, ly: ly, w: lbl-w, h: lbl-h,
+              lbl: lbl,
+            ))
           }
+        }
+
+        // Pass 2: Deconflict outside labels
+        let deconflicted = greedy-deconflict(outside-proposals, bounds)
+
+        // Render inside labels
+        for il in inside-labels {
+          let lbl-w = il.size * 0.6 * il.lbl.len() + 4pt
+          let lbl-w = calc.max(il.radius * 2, lbl-w)
+          place(
+            left + top,
+            dx: il.px - lbl-w / 2,
+            dy: il.py - il.size * 0.7,
+            box(width: lbl-w, height: il.size * 1.4,
+              align(center + horizon,
+                text(size: il.size, fill: t.text-color, weight: "bold")[#il.lbl]))
+          )
+        }
+
+        // Render outside labels with leaders
+        for ol in deconflicted {
+          let anchor-x = ol.lx + ol.w / 2
+          let anchor-y = ol.ly + ol.h / 2
+          // Leader from bubble edge toward label center
+          let dx = anchor-x - ol.cx
+          let dy = anchor-y - ol.cy
+          // Approximate point on bubble edge toward label
+          let dx-f = dx / 1pt
+          let dy-f = dy / 1pt
+          let dist = calc.max(1.0, calc.sqrt(dx-f * dx-f + dy-f * dy-f))
+          let edge-x = ol.cx + dx-f / dist * ol.radius
+          let edge-y = ol.cy + dy-f / dist * ol.radius
+          place(left + top,
+            line(start: (edge-x, edge-y),
+                 end: (anchor-x, anchor-y),
+                 stroke: 0.5pt + luma(140)))
+          place(
+            left + top,
+            dx: ol.lx,
+            dy: ol.ly,
+            box(width: ol.w,
+              align(center,
+                text(size: lbl-size, fill: t.text-color, weight: "bold")[#ol.lbl]))
+          )
         }
       }
 

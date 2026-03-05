@@ -90,16 +90,18 @@
     }
   }
 
-  // Reserve legend height scaled to entry count — ~15pt per row, ~3 entries per row
-  let legend-height = if show-legend { calc.max(25pt, calc.ceil(n / 3) * 16pt) } else { 0pt }
+  // Compute actual grid dimensions
+  let grid-width = cell-size * cols + gap * (cols - 1)
+  let grid-height = cell-size * rows + gap * (rows - 1)
 
-  chart-container(size, size + legend-height, title, t)[
+  // Force legend to right side for waffle charts
+  let wt = (..t, legend-position: "right")
+  let legend-content = draw-legend-auto(legend-entries, wt, show-legend: show-legend)
+
+  chart-container(size, grid-height, title, wt, legend: legend-content)[
     // Draw grid bottom-to-top, left-to-right
-    #let grid-width = cell-size * cols + gap * (cols - 1)
-    #let grid-height = cell-size * rows + gap * (rows - 1)
-
-    #box(width: size, height: size)[
-      #align(center + horizon)[
+    #box(width: size, height: grid-height)[
+      #align(center + top)[
         #box(width: grid-width, height: grid-height)[
           #for row in range(rows) {
             // bottom-to-top: row 0 is the bottom row visually
@@ -128,7 +130,5 @@
       ]
     ]
 
-    // Legend
-    #draw-legend-auto(legend-entries, t, show-legend: show-legend)
   ]
 }

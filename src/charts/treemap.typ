@@ -3,6 +3,7 @@
 #import "../util.typ": normalize-data, nonzero
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
+#import "../primitives/layout.typ": try-fit-label
 
 /// Renders a treemap chart displaying hierarchical data as nested rectangles
 /// sized proportionally to their values.
@@ -187,36 +188,41 @@
           )
         )
 
-        // Label and value text (only if rectangle is large enough)
-        if rw > 20pt and rh > 14pt {
+        // Label and value text — try shrinking font before hiding
+        {
           let label-text = labels.at(i)
           let value-text = str(values.at(i))
+          let avail-w = rw - 8pt
+          let avail-h = rh - 6pt
+          let lbl-len = label-text.len()
+          let fit = try-fit-label(avail-w, avail-h, t.value-label-size, lbl-len, shrink-min: 5pt)
 
-          place(
-            left + top,
-            dx: rx + 4pt,
-            dy: ry + 3pt,
-            box(width: rw - 8pt, clip: true)[
-              #text(
-                size: calc.min(t.value-label-size, rh / 3),
-                fill: white,
-                weight: "bold",
-              )[#label-text]
-            ]
-          )
-
-          if show-values and rh > 26pt {
+          if fit.fits {
             place(
               left + top,
               dx: rx + 4pt,
-              dy: ry + 3pt + calc.min(t.value-label-size, rh / 3) + 2pt,
-              box(width: rw - 8pt, clip: true)[
-                #text(
-                  size: calc.min(t.value-label-size * 0.85, rh / 4),
-                  fill: white.transparentize(20%),
-                )[#value-text]
+              dy: ry + 3pt,
+              box(width: avail-w, clip: true)[
+                #text(size: fit.size, fill: white, weight: "bold")[#label-text]
               ]
             )
+
+            // Value text below label if it also fits
+            if show-values {
+              let val-len = value-text.len()
+              let remaining-h = avail-h - fit.size - 2pt
+              let val-fit = try-fit-label(avail-w, remaining-h, fit.size * 0.85, val-len, shrink-min: 4pt)
+              if val-fit.fits {
+                place(
+                  left + top,
+                  dx: rx + 4pt,
+                  dy: ry + 3pt + fit.size + 2pt,
+                  box(width: avail-w, clip: true)[
+                    #text(size: val-fit.size, fill: white.transparentize(20%))[#value-text]
+                  ]
+                )
+              }
+            }
           }
         }
       }

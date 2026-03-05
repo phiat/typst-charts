@@ -3,6 +3,7 @@
 #import "../util.typ": normalize-data, format-number
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
+#import "../primitives/layout.typ": label-fits-inside, try-fit-label
 
 /// Renders a funnel chart for visualizing process or conversion stages.
 ///
@@ -90,7 +91,6 @@
           } else { "" }
 
           // Build display string
-          let display = label-text
           let detail-parts = ()
           if show-values { detail-parts.push(value-text) }
           if show-percentages { detail-parts.push(pct-text) }
@@ -99,37 +99,77 @@
           // Center the text on the segment — use inset width to avoid boundary overlap
           let mid-y = y-top + seg-height / 2
           let avg-half = (top-half + bottom-half) / 2
-          let inset-half = calc.max(10pt, avg-half - 6pt)  // shrink box away from edges
+          let inset-half = calc.max(10pt, avg-half - 6pt)
           let label-size = if avg-half * 2 < 60pt { calc.max(5pt, t.value-label-size - 1pt) } else { t.value-label-size }
 
-          // Stack label + detail vertically, centered on segment
-          let line-h = label-size * 1.4
+          let lbl-len = label-text.len()
+          // Use actual narrowest width of trapezoid (bottom edge), not inflated inset
+          let min-half = calc.min(top-half, bottom-half)
+          let avail-w = calc.max(0pt, min-half * 2 - 12pt)  // 6pt padding each side
+          let avail-h = seg-height
+
+          // Check if label fits inside segment (try shrinking, but not below 6pt — unreadable)
           let has-detail = n <= 9 and detail != ""
-          let total-h = if has-detail { line-h * 2 } else { line-h }
-          let start-y = mid-y - total-h / 2
+          let fit = try-fit-label(avail-w, avail-h, label-size, lbl-len, shrink-min: 6pt)
 
-          place(
-            left + top,
-            dx: center-x - inset-half,
-            dy: start-y,
-            box(width: inset-half * 2, height: line-h, clip: true)[
-              #align(center + horizon)[
-                #text(size: label-size, fill: t.text-color-inverse, weight: "bold")[#label-text]
-              ]
-            ]
-          )
+          if fit.fits {
+            let label-size = fit.size
+            let detail-size = label-size * 0.85
+            // Detail renders at segment midpoint where it's wider — use avg width
+            let avg-w = calc.max(0pt, avg-half * 2 - 12pt)
+            let detail-len = detail.len()
+            let detail-fit = if has-detail { try-fit-label(avg-w, avail-h, detail-size, detail-len) } else { (fits: false, size: detail-size) }
+            let show-detail = has-detail and detail-fit.fits
+            let block-h = if show-detail { label-size + detail-size + 2pt } else { label-size + 2pt }
+            let start-y = mid-y - block-h / 2
 
-          if has-detail {
             place(
               left + top,
               dx: center-x - inset-half,
-              dy: start-y + line-h,
-              box(width: inset-half * 2, height: line-h, clip: true)[
+              dy: start-y,
+              box(width: inset-half * 2, height: block-h, clip: true)[
                 #align(center + horizon)[
-                  #text(size: label-size * 0.85, fill: t.text-color-inverse)[#detail]
+                  #if show-detail {
+                    stack(dir: ttb, spacing: 1pt,
+                      text(size: label-size, fill: t.text-color-inverse, weight: "bold")[#label-text],
+                      text(size: detail-size, fill: t.text-color-inverse)[#detail],
+                    )
+                  } else {
+                    text(size: label-size, fill: t.text-color-inverse, weight: "bold")[#label-text]
+                  }
                 ]
               ]
             )
+          } else {
+            // External label: place to the right with leader line
+            let ext-label-size = calc.max(5pt, label-size - 0.5pt)
+            let right-edge = center-x + top-half
+            let leader-start-x = right-edge + 2pt
+            let ext-label-x = leader-start-x + 10pt
+            let ext-label-w = width - ext-label-x - 4pt
+            if ext-label-w > 20pt {
+              let block-h = ext-label-size + 2pt
+              let label-y = mid-y - block-h / 2
+              // Leader line
+              place(left + top,
+                line(start: (leader-start-x, mid-y),
+                     end: (ext-label-x - 1pt, mid-y),
+                     stroke: 0.5pt + t.text-color-light))
+              // Label
+              place(
+                left + top,
+                dx: ext-label-x,
+                dy: label-y,
+                box(width: ext-label-w, height: block-h)[
+                  #align(left + horizon)[
+                    #text(size: ext-label-size, fill: t.text-color, weight: "bold")[#label-text]
+                    #if has-detail {
+                      text(size: ext-label-size * 0.85, fill: t.text-color)[ #detail]
+                    }
+                  ]
+                ]
+              )
+            }
           }
         }
       }

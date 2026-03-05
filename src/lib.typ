@@ -36,4 +36,5 @@
 #import "charts/wordcloud.typ": word-cloud
 #import "charts/metric.typ": metric-card, metric-row
 #import "util.typ": sort-data, top-n, aggregate, percent-of-total
+#import "data.typ": load-simple, load-series, load-scatter, load-bubble, load-hierarchy
 #import "primitives/layout.typ": page-grid

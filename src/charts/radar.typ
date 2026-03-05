@@ -22,7 +22,7 @@
   title: none,
   show-legend: true,
   show-value-labels: true,
-  fill-opacity: 30%,
+  fill-opacity: 15%,
   theme: none,
 ) = context {
   validate-series-data(data, "radar-chart")

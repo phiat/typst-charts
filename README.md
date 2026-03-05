@@ -1,11 +1,11 @@
 # Primaviz
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Typst](https://img.shields.io/badge/typst-%3E%3D0.12.0-239dad)](https://typst.app)
+[![Typst](https://img.shields.io/badge/typst-%3E%3D0.12.0-239dad)](https://github.com/typst/typst)
 [![Charts](https://img.shields.io/badge/chart_types-51-orange)](screenshots/)
 [![Pure Typst](https://img.shields.io/badge/dependencies-zero-brightgreen)]()
 
-A charting library for [Typst](https://typst.app) built entirely with native primitives (`rect`, `circle`, `line`, `polygon`, `place`). No external dependencies required.
+A charting library for [Typst](https://github.com/typst/typst) built entirely with native primitives (`rect`, `circle`, `line`, `polygon`, `place`). No external dependencies required.
 
 ## Gallery
 
@@ -43,6 +43,7 @@ just demo       # Compile the comprehensive demo
 - **51 chart types** for data visualization
 - **JSON data input** — load data directly from JSON files
 - **Theme system** — preset themes, custom overrides, and `with-theme()` for document-wide defaults
+- **Smart label placement** — automatic fit detection, font shrinking, and greedy deconfliction for overlapping labels
 - **Layout primitives** — shared utilities for label density, font scaling, and label placement
 - **Annotations** — overlay reference lines, bands, and labels on Cartesian charts
 - **Customizable** — colors, sizes, labels, legends
@@ -75,7 +76,7 @@ just demo       # Compile the comprehensive demo
 ### Scatter & Bubble
 - `scatter-plot` - X/Y point plotting
 - `multi-scatter-plot` - Multi-series scatter
-- `bubble-chart` - Scatter with size dimension
+- `bubble-chart` - Scatter with size dimension, smart label deconfliction (inside/outside with leaders)
 - `multi-bubble-chart` - Multi-series bubble chart
 
 ### Gauges & Progress
@@ -98,7 +99,7 @@ just demo       # Compile the comprehensive demo
 ### Statistical
 - `histogram` - Auto-binned frequency distribution
 - `waterfall-chart` - Bridge/waterfall chart with pos/neg/total segments
-- `funnel-chart` - Conversion funnel with percentages
+- `funnel-chart` - Conversion funnel with percentages, auto external labels for narrow sections
 - `box-plot` - Box-and-whisker distribution plot
 - `treemap` - Nested rectangles for hierarchical data
 - `slope-chart` - Two-period comparison with connecting lines
@@ -139,13 +140,13 @@ Overlay reference lines, bands, and labels on bar, line, and scatter charts:
 ## Installation
 
 ```typst
-#import "@preview/primaviz:0.2.0": *
+#import "@preview/primaviz:0.3.0": *
 ```
 
 ## Usage
 
 ```typst
-#import "@preview/primaviz:0.2.0": *
+#import "@preview/primaviz:0.3.0": *
 
 // Load data from JSON
 #let data = json("mydata.json")
@@ -192,7 +193,7 @@ Every chart function accepts an optional `theme` parameter. Themes control color
 ### Using a preset theme
 
 ```typst
-#import "@preview/primaviz:0.2.0": *
+#import "@preview/primaviz:0.3.0": *
 
 #bar-chart(data, theme: themes.dark)
 ```
@@ -280,7 +281,7 @@ Pass a dictionary with only the keys you want to change. Unspecified keys fall b
 The default theme uses Tableau 10 colors. You can access colors from any theme via the `get-color` function:
 
 ```typst
-#import "@preview/primaviz:0.2.0": get-color, themes
+#import "@preview/primaviz:0.3.0": get-color, themes
 
 // Default palette
 #get-color(themes.default, 0)  // blue
@@ -336,7 +337,7 @@ primaviz/
       wordcloud.typ          # spiral-placement word cloud
     primitives/              # Low-level drawing helpers
       axes.typ               # axis lines, ticks, labels, grid, cartesian-layout
-      layout.typ             # density-skip, font-for-space, page-grid, label placement
+      layout.typ             # density-skip, font-for-space, page-grid, label placement, deconfliction
       annotations.typ        # reference lines, bands, labels
       container.typ          # chart container wrapper
       legend.typ             # horizontal, vertical, draw-legend-auto

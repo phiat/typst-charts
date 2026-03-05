@@ -3,6 +3,7 @@
 #import "../validate.typ": validate-sunburst-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/polar.typ": annular-wedge-points, separator-stroke
+#import "../primitives/layout.typ": try-fit-label
 
 /// Computes the maximum depth of a hierarchical node tree.
 ///
@@ -138,30 +139,43 @@
           )
         )
 
-        // Label on segments that are wide enough
-        if show-labels and angle-span >= 15 {
+        // Label on segments — estimate arc width and try fitting
+        if show-labels and angle-span >= 5 {
           let mid-angle = (seg.start-angle + seg.end-angle) / 2
           let mid-r = (r-inner + r-outer) / 2
-          let lx = cx + mid-r * calc.cos(mid-angle * 1deg)
-          let ly = cy + mid-r * calc.sin(mid-angle * 1deg)
+          // Approximate available width from arc length at mid-radius
+          let arc-w = (mid-r / 1pt) * angle-span / 360 * 2 * calc.pi * 1pt
+          let arc-h = r-outer - r-inner
+          let lbl-len = seg.name.len()
+          let fit = try-fit-label(arc-w, arc-h, t.value-label-size, lbl-len, shrink-min: 5pt)
 
-          // Determine text color based on depth
-          let label-color = if seg.depth <= 2 { t.text-color-inverse } else { t.text-color }
-
-          let label-size = calc.max(t.value-label-size - 1pt, 5pt)
-          let label-w = 4em
-          place(
-            left + top,
-            dx: lx - label-w / 2,
-            dy: ly - 0.5em,
-            box(width: label-w, height: 1em,
-              align(center + horizon,
-                text(
-                  size: label-size,
-                  fill: label-color,
-                  weight: if seg.depth == 1 { "bold" } else { "regular" },
-                )[#seg.name]))
-          )
+          if fit.fits {
+            let lx = cx + mid-r * calc.cos(mid-angle * 1deg)
+            let ly = cy + mid-r * calc.sin(mid-angle * 1deg)
+            let label-color = if seg.depth <= 2 { t.text-color-inverse } else { t.text-color }
+            // Size pill to text, not arc
+            let label-w = fit.size * 0.6 * lbl-len + 6pt
+            let pill-h = fit.size * 1.4
+            // Semi-transparent background pill for readability
+            let pill-fill = if seg.depth <= 2 {
+              seg-color.transparentize(30%)
+            } else {
+              if t.background != none { t.background.transparentize(30%) } else { white.transparentize(30%) }
+            }
+            place(
+              left + top,
+              dx: lx - label-w / 2,
+              dy: ly - pill-h / 2,
+              box(width: label-w, height: pill-h,
+                fill: pill-fill, radius: 2pt,
+                align(center + horizon,
+                  text(
+                    size: fit.size,
+                    fill: label-color,
+                    weight: if seg.depth == 1 { "bold" } else { "regular" },
+                  )[#seg.name]))
+            )
+          }
         }
       }
     ]

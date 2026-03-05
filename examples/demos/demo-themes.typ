@@ -1,9 +1,10 @@
 // Theme comparison: same charts across all 6 themes + with-theme demo
 #import "../../src/lib.typ": *
+#import "../demo-data.typ": sales
 #set page(margin: 0.4cm, paper: "a4")
 #set text(size: 7pt)
 
-#let sample = (labels: ("Jan", "Feb", "Mar", "Apr"), values: (42, 58, 35, 71))
+#let sample = (labels: sales.monthly.labels.slice(0, 4), values: sales.monthly.values.slice(0, 4))
 #let W = 155pt
 #let H = 80pt
 
