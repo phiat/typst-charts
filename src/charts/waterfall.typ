@@ -115,9 +115,6 @@
       // Grid
       #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
 
-      // Axes
-      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
-
       // Y-axis ticks
       #draw-y-ticks(y-min, y-max, chart-height, pad-top, origin-x, t, digits: 0)
 
@@ -188,12 +185,16 @@
           }
         }
 
-        // X-axis label
-        place(left + top, dx: x-pos, dy: origin-y + 4pt,
-          box(width: actual-bw, align(center,
+        // X-axis label — use full slot width for longer labels
+        let slot-x = origin-x + i * spacing
+        place(left + top, dx: slot-x, dy: origin-y + 4pt,
+          box(width: spacing, align(center,
             text(size: t.axis-label-size, fill: t.text-color)[#labels.at(i)])))
 
       }
+
+      // Axes (drawn after bars so axis lines appear on top)
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // Axis titles
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t)

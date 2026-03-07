@@ -124,12 +124,12 @@
         let tick-val = calc.round(frac * max-range, digits: 0)
         let tx = x0 + bar-width * frac
         place(left + top, dx: tx, dy: height,
-          line(start: (0pt, 0pt), end: (0pt, 3pt), stroke: 0.4pt + t.text-color-light))
+          line(start: (0pt, 0pt), end: (0pt, 3pt), stroke: 0.4pt + t.text-color))
         place(left + top,
           dx: tx - 10pt,
           dy: height + 3pt,
           box(width: 20pt, align(center,
-            text(size: tick-size, fill: t.text-color-light)[#int(tick-val)])))
+            text(size: tick-size, fill: t.text-color)[#int(tick-val)])))
       }
     }
   ]

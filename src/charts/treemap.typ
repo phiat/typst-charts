@@ -1,6 +1,6 @@
 // treemap.typ - Treemap chart (squarified layout)
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": normalize-data, nonzero
+#import "../util.typ": normalize-data, nonzero, contrast-text
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/layout.typ": try-fit-label, resolve-size
@@ -192,6 +192,8 @@
 
         // Label and value text — try shrinking font before hiding
         {
+          let cell-color = get-color(t, i)
+          let txt-color = contrast-text(cell-color)
           let label-text = labels.at(i)
           let value-text = str(values.at(i))
           let avail-w = rw - 8pt
@@ -205,7 +207,7 @@
               dx: rx + 4pt,
               dy: ry + 3pt,
               box(width: avail-w, clip: true)[
-                #text(size: fit.size, fill: white, weight: "bold")[#label-text]
+                #text(size: fit.size, fill: txt-color, weight: "bold")[#label-text]
               ]
             )
 
@@ -220,7 +222,7 @@
                   dx: rx + 4pt,
                   dy: ry + 3pt + fit.size + 2pt,
                   box(width: avail-w, clip: true)[
-                    #text(size: val-fit.size, fill: white.transparentize(20%))[#value-text]
+                    #text(size: val-fit.size, fill: txt-color.transparentize(20%))[#value-text]
                   ]
                 )
               }
