@@ -20,6 +20,7 @@
     stroke: stroke,
     inset: 0pt,
     fill: fill,
+    radius: t.border-radius,
   )[
     #if title != none {
       box(inset: (x: 8pt, top: 7pt, bottom: 0pt), width: 100%)[
@@ -139,9 +140,9 @@
   let s = styles.at(variant, default: styles.default)
   box(
     fill: s.bg,
-    stroke: if variant == "outline" { 0.5pt + if t.border != none { t.border } else { luma(220) } } else { none },
+    stroke: if variant == "outline" { if t.border != none { t.border } else { 0.5pt + luma(220) } } else { none },
     inset: (x: 4pt, y: 1.5pt),
-    radius: 2pt,
+    radius: t.border-radius,
     text(size: 5pt, weight: "bold", fill: s.fg, upper(label)),
   )
 }
@@ -161,4 +162,34 @@
   v(4pt)
   line(length: 100%, stroke: thickness + color)
   v(4pt)
+}
+
+/// Lays out content blocks in a dashboard grid.
+///
+/// - cols (int, array): Number of equal columns, or array of column widths (e.g., `(2fr, 1fr)`)
+/// - rows (array): Array of arrays, where each inner array contains the content blocks for that row.
+///   Example: `((card1, card2), (card3,))` creates 2 rows.
+/// - gap (length): Gap between cells
+/// - row-gap (none, length): Vertical gap between rows; defaults to `gap` if none
+/// - theme (none, dictionary): Theme overrides
+/// -> content
+#let dashboard-layout(rows, cols: 2, gap: 6pt, row-gap: none, theme: none) = context {
+  let t = _resolve-ctx(theme)
+  let rg = if row-gap != none { row-gap } else { gap }
+  let col-spec = if type(cols) == int {
+    range(cols).map(_ => 1fr)
+  } else {
+    cols
+  }
+
+  let n-cols = col-spec.len()
+
+  for (i, row) in rows.enumerate() {
+    if i > 0 { v(rg) }
+    grid(
+      columns: col-spec,
+      column-gutter: gap,
+      ..row
+    )
+  }
 }

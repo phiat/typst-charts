@@ -119,7 +119,7 @@
     height: height,
     fill: if t.background != none { t.background } else { white },
     stroke: if t.border != none { t.border } else if t.background != none { 0.5pt + t.text-color-light } else { 0.5pt + luma(220) },
-    radius: 4pt,
+    radius: t.border-radius,
     inset: 12pt,
   )[
     #set align(center)

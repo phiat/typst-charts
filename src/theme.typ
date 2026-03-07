@@ -41,6 +41,7 @@
   text-color-inverse: white,
   background: none,
   border: none,
+  border-radius: 4pt,
 )
 
 /// Merges a user's partial theme dictionary onto the default theme.
@@ -72,6 +73,43 @@
     }
   }
   result
+}
+
+/// Builds a primaviz theme dictionary from a JSON tokens object.
+/// Expects keys: `palette` (array of hex strings), `text-color`, `text-color-light`,
+/// `text-color-inverse`, `background` (hex or null), `border-color`, `border-radius` (number in pt).
+/// Unknown keys are preserved as custom passthrough keys.
+///
+/// - tokens (dictionary): Parsed JSON tokens object
+/// -> dictionary
+#let theme-from-json(tokens) = {
+  let pal = tokens.at("palette", default: ()).map(c => rgb(c))
+  let bg = tokens.at("background", default: none)
+  let bg = if bg != none and type(bg) == str { rgb(bg) } else { none }
+  let border-hex = tokens.at("border-color", default: "#ddd")
+  let radius = tokens.at("border-radius", default: 4)
+
+  let theme = (
+    palette: if pal.len() > 0 { pal } else { default-theme.palette },
+    text-color: if "text-color" in tokens { rgb(tokens.text-color) } else { default-theme.text-color },
+    text-color-light: if "text-color-light" in tokens { rgb(tokens.at("text-color-light")) } else { default-theme.text-color-light },
+    text-color-inverse: if "text-color-inverse" in tokens { rgb(tokens.at("text-color-inverse")) } else { default-theme.text-color-inverse },
+    background: bg,
+    border: 0.75pt + rgb(border-hex),
+    axis-stroke: 0.5pt + rgb(border-hex),
+    grid-stroke: 0.3pt + rgb(border-hex),
+    show-grid: true,
+    border-radius: radius * 1pt,
+  )
+
+  // Passthrough: preserve any extra keys from tokens
+  for (key, val) in tokens {
+    if key not in theme and key != "palette" and key != "border-color" and key != "border-radius" {
+      theme.insert(key, val)
+    }
+  }
+
+  resolve-theme(theme)
 }
 
 /// Context-aware theme resolver — reads from state when user-theme is none.
@@ -214,6 +252,7 @@
   axis-padding-right: 5pt,
   show-grid: true,
   grid-stroke: 0.3pt + luma(230),
+  border-radius: 2pt,
 ))
 
 #let themes = (

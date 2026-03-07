@@ -1,7 +1,7 @@
 // primaviz - Public entrypoint
 // Re-exports all chart types from individual modules
 
-#import "theme.typ": resolve-theme, get-color, default-theme, minimal-theme, dark-theme, presentation-theme, print-theme, accessible-theme, compact-theme, themes, with-theme
+#import "theme.typ": resolve-theme, get-color, default-theme, minimal-theme, dark-theme, presentation-theme, print-theme, accessible-theme, compact-theme, themes, with-theme, theme-from-json
 #import "charts/bar.typ": bar-chart, horizontal-bar-chart, grouped-bar-chart, stacked-bar-chart, grouped-stacked-bar-chart
 #import "charts/line.typ": line-chart, multi-line-chart
 #import "charts/dual-axis.typ": dual-axis-chart
@@ -35,7 +35,7 @@
 #import "charts/sunburst.typ": sunburst-chart
 #import "charts/wordcloud.typ": word-cloud
 #import "charts/metric.typ": metric-card, metric-row
-#import "charts/dashboard.typ": card, compact-table, alert, badge, separator
+#import "charts/dashboard.typ": card, compact-table, alert, badge, separator, dashboard-layout
 #import "util.typ": sort-data, top-n, aggregate, percent-of-total
 #import "data.typ": load-simple, load-series, load-scatter, load-bubble, load-hierarchy
 #import "primitives/layout.typ": page-grid, resolve-size
