@@ -28,7 +28,7 @@
   theme: none,
 ) = context {
   layout(size => {
-  let width = resolve-size(width, 0pt, size).width
+  let width = resolve-size(width, 0pt, size, container: false).width
   let t = _resolve-ctx(theme)
   let accent = get-color(t, 0)
 

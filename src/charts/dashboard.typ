@@ -84,20 +84,15 @@
   let pal = t.palette
 
   // Map variants to palette indices and icons
+  // info=palette[0], warning=palette[1], error=palette[2], success=palette[3]
   let variants = (
     info:    (idx: 0, icon: "ℹ"),
-    warning: (idx: 2, icon: "⚠"),
+    warning: (idx: 1, icon: "⚠"),
     error:   (idx: 2, icon: "✕"),
-    success: (idx: 0, icon: "✓"),
+    success: (idx: 3, icon: "✓"),
   )
-  // info/success use palette[0], warning/error use palette[2] (or fallback)
   let vr = variants.at(variant, default: variants.info)
-  let accent = pal.at(vr.idx, default: pal.at(0))
-  // Adjust accent for specific variants to differentiate
-  let accent = if variant == "success" and pal.len() > 3 { pal.at(3) }
-    else if variant == "warning" and pal.len() > 0 { pal.at(0) }
-    else if variant == "error" and pal.len() > 2 { pal.at(2) }
-    else { accent }
+  let accent = pal.at(calc.min(vr.idx, pal.len() - 1))
 
   let bg = if has-dark-bg { accent.darken(80%) } else { accent.lighten(90%) }
 

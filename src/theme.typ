@@ -37,7 +37,7 @@
   legend-gap: 10pt,
   title-gap: 5pt,
   text-color: black,
-  text-color-light: gray,
+  text-color-light: luma(130),
   text-color-inverse: white,
   background: none,
   border: none,

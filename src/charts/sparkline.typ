@@ -24,7 +24,7 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
+  let (width, height) = resolve-size(width, height, size, container: false)
   let t = _resolve-ctx(theme)
   let c = if color != none { color } else { get-color(t, 0) }
   let n = values.len()
@@ -106,7 +106,7 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
+  let (width, height) = resolve-size(width, height, size, container: false)
   let t = _resolve-ctx(theme)
   let c = if color != none { color } else { get-color(t, 0) }
   let n = values.len()
@@ -149,7 +149,7 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
+  let (width, height) = resolve-size(width, height, size, container: false)
   let t = _resolve-ctx(theme)
   let c = if color != none { color } else { get-color(t, 0) }
   let n = values.len()

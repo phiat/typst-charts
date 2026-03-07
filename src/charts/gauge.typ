@@ -177,7 +177,7 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
+  let (width, height) = resolve-size(width, height, size, container: false)
   validate-number(value, "progress-bar")
   let t = _resolve-ctx(theme)
   let progress = clamp(value / max-val, 0, 1)
@@ -252,7 +252,7 @@
   theme: none,
 ) = context {
   layout(avail => {
-  let size = resolve-size(size, size, avail).width
+  let size = resolve-size(size, size, avail, container: false).width
   validate-number(value, "circular-progress")
   let t = _resolve-ctx(theme)
   let progress = clamp(value / max-val, 0, 1)
@@ -356,7 +356,7 @@
   theme: none,
 ) = context {
   layout(size => {
-  let width = resolve-size(width, 0pt, size).width
+  let width = resolve-size(width, 0pt, size, container: false).width
   validate-simple-data(data, "progress-bars")
   let t = _resolve-ctx(theme)
   let labels = data.labels
