@@ -177,8 +177,11 @@
   let empty-fill = if t.background != none { t.background.lighten(15%) } else { luma(235) }
   let empty-stroke = if t.background != none { 0.5pt + t.text-color-light } else { 0.5pt + luma(210) }
 
-  align(center, chart-container(day-label-width + n-weeks * cell-size + 20pt, month-label-height + 7 * cell-size, title, t, extra-height: 40pt)[
-    #box[
+  let legend-min-w = 25pt + 5 * (cell-size + 2pt) + 5pt + 25pt  // Less + boxes + More
+  let grid-w = n-weeks * cell-size
+  let body-w = day-label-width + calc.max(grid-w, legend-min-w) + 20pt
+  align(center, chart-container(body-w, month-label-height + 7 * cell-size, title, t, extra-height: 40pt)[
+    #box(width: body-w)[
       // Month labels along the top (x-axis) — skip labels that would overlap
       #if show-month-labels {
         let month-names = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
@@ -281,20 +284,23 @@
         }
       }
 
-      // Legend
+      // Legend — centered under the grid
       #let legend-y = month-label-height + 7 * cell-size + 10pt
-      #place(left + top, dx: day-label-width, dy: legend-y, text(size: 6pt, fill: t.text-color)[Less])
+      #let legend-total-w = 25pt + 5 * (cell-size + 2pt) + 5pt + 25pt  // Less + boxes + More
+      #let grid-width = n-weeks * cell-size
+      #let legend-start = day-label-width + calc.max(0pt, (grid-width - legend-total-w) / 2)
+      #place(left + top, dx: legend-start, dy: legend-y, text(size: 6pt, fill: t.text-color)[Less])
       #for i in array.range(5) {
         let normalized = i / 4
         let cell-color = heat-color(normalized, palette: palette, reverse: reverse)
         place(
           left + top,
-          dx: day-label-width + 25pt + i * (cell-size + 2pt),
+          dx: legend-start + 25pt + i * (cell-size + 2pt),
           dy: legend-y,
           rect(width: cell-size, height: cell-size, fill: cell-color, radius: 2pt)
         )
       }
-      #place(left + top, dx: day-label-width + 25pt + 5 * (cell-size + 2pt) + 5pt, dy: legend-y, text(size: 6pt, fill: t.text-color)[More])
+      #place(left + top, dx: legend-start + 25pt + 5 * (cell-size + 2pt) + 5pt, dy: legend-y, text(size: 6pt, fill: t.text-color)[More])
     ]
   ])
 }
