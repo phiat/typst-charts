@@ -48,6 +48,8 @@ just demo       # Compile the comprehensive demo
 - **Smart label placement** — automatic fit detection, font shrinking, and greedy deconfliction for overlapping labels
 - **Layout primitives** — shared utilities for label density, font scaling, and label placement
 - **Annotations** — overlay reference lines, bands, and labels on Cartesian charts
+- **Relative widths** — use `width: 100%` for responsive charts inside containers and grids
+- **Dashboard primitives** — `card()` and `compact-table()` for report layouts
 - **Customizable** — colors, sizes, labels, legends
 - **Pure Typst** — no packages or external tools needed
 
@@ -130,6 +132,11 @@ just demo       # Compile the comprehensive demo
 ### Dashboard
 - `metric-card` - KPI tile with value, delta, and sparkline
 - `metric-row` - Horizontal row of metric cards
+- `card` - Themed container with optional title and description
+- `compact-table` - Dense data table with header styling and highlight column
+- `alert` - Info/warning/error/success notification block with left border accent
+- `badge` - Inline colored pill (default/secondary/destructive/outline/success)
+- `separator` - Themed horizontal rule
 - `word-cloud` - Weighted text layout sized by importance
 
 ### Annotations
@@ -218,10 +225,22 @@ Use `with-theme()` to set a default theme for all charts in a block — no need 
 
 ### Custom overrides
 
-Pass a dictionary with only the keys you want to change. Unspecified keys fall back to the default theme:
+Pass a dictionary with only the keys you want to change. Unspecified keys fall back to the active theme (global or default). Partial overrides merge onto the global theme set by `with-theme()`, so `theme: (show-grid: true)` inside a `with-theme(themes.dark)` block gives you dark + grid:
 
 ```typst
 #bar-chart(data, theme: (show-grid: true, palette: (red, blue, green)))
+```
+
+### Custom theme keys
+
+Themes support passthrough of custom keys not in the default theme. This lets you extend the theme system for your own components:
+
+```typst
+#let my-theme = (
+  palette: (red, blue, green),
+  card-fill: rgb("#f5f5f5"),  // custom key — preserved and accessible
+)
+#show: with-theme.with(my-theme)
 ```
 
 ### Available presets
@@ -234,6 +253,7 @@ Pass a dictionary with only the keys you want to change. Unspecified keys fall b
 | `themes.presentation` | Larger font sizes across the board for slides and projectors |
 | `themes.print` | Grayscale palette with grid lines, optimized for black-and-white printing |
 | `themes.accessible` | Okabe-Ito colorblind-safe palette |
+| `themes.compact` | Smaller fonts, tighter padding for dense dashboard layouts |
 
 ## Data Formats
 
@@ -332,6 +352,7 @@ primaviz/
       radial-bar.typ         # circular bars
       sunburst.typ           # multi-level hierarchical pie
       metric.typ             # metric-card, metric-row
+      dashboard.typ          # card, compact-table
       violin.typ             # kernel density estimation
       timeline.typ           # vertical event timeline
       parliament.typ         # semicircle seat chart
