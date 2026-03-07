@@ -309,9 +309,41 @@
     size: 130pt, arc-width: 10pt, title: "chord-diagram", theme: dk,
   ),
 
+  // 47. card + compact-table — Dashboard layout
+  [
+    #text(size: 8pt, weight: "bold", fill: rgb("#e0e0e0"))[card · compact-table]
+    #v(2pt)
+    #card(title: "Revenue", desc: "Monthly", theme: dk)[
+      #compact-table(
+        ("Month", "Rev", "Cost", "Profit"),
+        (
+          ("Jan", "$12K", "$8K", "$4K"),
+          ("Feb", "$15K", "$9K", "$6K"),
+          ("Mar", "$11K", "$7K", "$4K"),
+        ),
+        highlight-col: 3,
+        theme: dk,
+      )
+    ]
+  ],
+
+  // 48. alert + badge + separator — Dashboard components
+  [
+    #text(size: 8pt, weight: "bold", fill: rgb("#e0e0e0"))[alert · badge · separator]
+    #v(2pt)
+    #alert(title: "Deployed", variant: "success", theme: dk)[Service v2.4.1 live.]
+    #v(3pt)
+    #alert(title: "Warning", variant: "warning", theme: dk)[Memory at 87%.]
+    #v(4pt)
+    #badge("Production", theme: dk) #h(3pt)
+    #badge("Staging", variant: "secondary", theme: dk) #h(3pt)
+    #badge("Failed", variant: "destructive", theme: dk)
+    #separator(theme: dk)
+  ],
+
 ))
 
-// ── Page 7: Full-page word cloud ─────────────────────────────────────────────
+// ── Page 8: Full-page word cloud ─────────────────────────────────────────────
 #pagebreak()
 #word-cloud(words,
   width: 100%, height: 100%, title: "word-cloud", shape: "circle", theme: dk,
