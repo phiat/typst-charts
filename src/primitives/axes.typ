@@ -201,8 +201,11 @@
     )
   }
   if y-label != none {
-    place(left + top, dx: 2pt, dy: y-center,
-      rotate(-90deg, text(size: theme.axis-title-size, fill: theme.text-color)[#y-label])
+    // Measure label to center it vertically along the axis
+    let lbl-content = text(size: theme.axis-title-size, fill: theme.text-color)[#y-label]
+    let lbl-w = measure(lbl-content).width
+    place(left + top, dx: 0pt, dy: y-center - lbl-w / 2,
+      rotate(-90deg, origin: top + left, lbl-content)
     )
   }
 }

@@ -52,7 +52,7 @@
   let samples-per-circle = 72
 
   // When labels are shown, expand the box to give room for perimeter text
-  let label-pad = if show-labels { calc.max(20pt, size * 0.2) } else { 0pt }
+  let label-pad = if show-labels { calc.max(25pt, size * 0.25) } else { 0pt }
   let box-size = size + label-pad * 2
   let total-width = box-size
 
@@ -102,7 +102,7 @@
 
       // ── Labels around the perimeter ───────────────────────────────
       #if show-labels {
-        let lbl-size = font-for-space(size, t.legend-size, min-size: 5pt, ratio: 0.05)
+        let lbl-size = font-for-space(size, t.legend-size, min-size: 6pt, ratio: 0.065)
         for (i, lbl) in labels.enumerate() {
           let mid-angle-deg = i * slice-deg + slice-deg / 2 - 90
           place-polar-label(cx, cy, mid-angle-deg, radius + calc.max(6pt, size * 0.06),

@@ -117,13 +117,13 @@
         place(left + top,
           dx: axis-x-left - dot-size,
           dy: y-start - dot-size,
-          circle(radius: dot-size, fill: color, stroke: white + 0.5pt)
+          circle(radius: dot-size, fill: color, stroke: t.marker-stroke)
         )
         // Right dot
         place(left + top,
           dx: axis-x-right - dot-size,
           dy: y-end - dot-size,
-          circle(radius: dot-size, fill: color, stroke: white + 0.5pt)
+          circle(radius: dot-size, fill: color, stroke: t.marker-stroke)
         )
 
         // Left label + value — right-aligned into label margin

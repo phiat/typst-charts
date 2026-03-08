@@ -66,7 +66,7 @@
           let end-deg = -180 + end-norm * 180
 
           let pts = pie-slice-points(cx, cy, radius, start-deg, end-deg)
-          place(left + top, polygon(fill: seg-color, stroke: white + 0.5pt, ..pts))
+          place(left + top, polygon(fill: seg-color, stroke: t.marker-stroke, ..pts))
 
           prev-threshold = threshold
         }
@@ -113,7 +113,7 @@
         left + top,
         dx: cx - cap-r,
         dy: cy - cap-r,
-        circle(radius: cap-r, fill: needle-color, stroke: white + 0.5pt)
+        circle(radius: cap-r, fill: needle-color, stroke: t.marker-stroke)
       )
 
       // Min/max labels — scale font with chart size

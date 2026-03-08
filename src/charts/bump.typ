@@ -103,7 +103,7 @@
             left + top,
             dx: pt.at(0) - dot-size / 2,
             dy: pt.at(1) - dot-size / 2,
-            circle(radius: dot-size / 2, fill: color, stroke: white + 1pt)
+            circle(radius: dot-size / 2, fill: color, stroke: t.marker-stroke)
           )
         }
 

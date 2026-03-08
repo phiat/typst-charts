@@ -58,7 +58,7 @@
     let sign = if is-positive { "+" } else { "" }
     let delta-str = sign + str(calc.round(delta, digits: 1)) + "%"
 
-    text(size: 9pt, fill: delta-color, weight: "semibold")[#arrow #delta-str]
+    text(size: t.axis-title-size, fill: delta-color, weight: "semibold")[#arrow #delta-str]
   }
 
   // Build the sparkline if trend data is provided
@@ -128,7 +128,7 @@
 
     // Label
     #v(2pt)
-    #text(size: 9pt, fill: t.text-color-light)[#label]
+    #text(size: t.axis-title-size, fill: t.text-color-light)[#label]
 
     // Delta indicator
     #if delta-content != none {

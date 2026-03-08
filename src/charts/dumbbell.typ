@@ -93,7 +93,7 @@
           line(
             start: (plot-left, y),
             end: (plot-right, y),
-            stroke: 0.3pt + luma(220),
+            stroke: t.grid-stroke,
           )
         )
       }
@@ -155,35 +155,56 @@
         place(left + top,
           dx: x-start - dot-size,
           dy: y - dot-size,
-          circle(radius: dot-size, fill: start-color, stroke: white + 0.5pt)
+          circle(radius: dot-size, fill: start-color, stroke: t.marker-stroke)
         )
 
         // End dot
         place(left + top,
           dx: x-end - dot-size,
           dy: y - dot-size,
-          circle(radius: dot-size, fill: end-color, stroke: white + 0.5pt)
+          circle(radius: dot-size, fill: end-color, stroke: t.marker-stroke)
         )
 
-        // Optional value labels — clamp so they don't overlap y-axis labels
+        // Optional value labels — place on the outside of each dot
         if show-values {
-          // Value near start dot — if the label would overlap the y-axis area, place it to the right
-          let s-dx = if sv <= ev {
-            if x-start - 20pt < plot-left { x-start + dot-size + 3pt } else { x-start - 20pt }
-          } else { x-start + dot-size + 3pt }
+          let label-gap = dot-size + 3pt
+          let label-w = 20pt
+
+          // Start value: place left of dot if room, else right
+          let s-dx = if x-start - label-w - 2pt >= plot-left and sv <= ev {
+            x-start - label-w - 2pt
+          } else {
+            x-start + label-gap
+          }
+          // End value: place right of dot if room, else left
+          let e-dx = if ev >= sv {
+            x-end + label-gap
+          } else {
+            if x-end - label-w - 2pt >= plot-left {
+              x-end - label-w - 2pt
+            } else {
+              x-end + label-gap
+            }
+          }
+
+          // If both labels would overlap (close values), offset vertically
+          let same-side = (s-dx >= x-start and e-dx >= x-end) or (s-dx < x-start and e-dx < x-end)
+          let s-dy-adj = 0pt
+          let e-dy-adj = 0pt
+          if calc.abs(sv - ev) <= (val-range * 0.08) {
+            s-dy-adj = -0.6em
+            e-dy-adj = 0.4em
+          }
+
           place(left + top,
             dx: s-dx,
             dy: y,
-            move(dy: -0.5em, text(size: t.value-label-size, fill: start-color)[#sv])
+            move(dy: -0.5em + s-dy-adj, text(size: t.value-label-size, fill: start-color)[#sv])
           )
-          // Value near end dot
-          let e-dx = if ev >= sv { x-end + dot-size + 3pt } else {
-            if x-end - 20pt < plot-left { x-end + dot-size + 3pt } else { x-end - 20pt }
-          }
           place(left + top,
             dx: e-dx,
             dy: y,
-            move(dy: -0.5em, text(size: t.value-label-size, fill: end-color)[#ev])
+            move(dy: -0.5em + e-dy-adj, text(size: t.value-label-size, fill: end-color)[#ev])
           )
         }
       }

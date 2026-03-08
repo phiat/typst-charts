@@ -49,7 +49,7 @@
   }
 
   // Title column width
-  let title-width = if title != none { 90pt } else { 0pt }
+  let title-width = if title != none { calc.min(90pt, width * 0.35) } else { 0pt }
   let bar-width = width - title-width
 
   box(width: width, height: height)[
@@ -59,10 +59,10 @@
         left + top,
         dy: if label != none { 0pt } else { height / 2 - 7pt },
         box(width: title-width - 8pt)[
-          #text(size: 9pt, weight: "bold", fill: t.text-color)[#title]
+          #text(size: t.axis-title-size, weight: "bold", fill: t.text-color)[#title]
           #if label != none {
             linebreak()
-            text(size: 7pt, fill: t.text-color-light)[#label]
+            text(size: t.axis-label-size, fill: t.text-color-light)[#label]
           }
         ]
       )
@@ -118,7 +118,7 @@
     // X-axis tick labels along the bottom
     #{
       let tick-count = 5
-      let tick-size = 5pt
+      let tick-size = t.axis-label-size
       for ti in range(tick-count + 1) {
         let frac = ti / tick-count
         let tick-val = calc.round(frac * max-range, digits: 0)
@@ -204,23 +204,23 @@
     #align(center)[
       #box(baseline: 2pt, rect(width: 12pt, height: 6pt, fill: bar-color, stroke: none))
       #h(2pt)
-      #text(size: 6pt, fill: t.text-color)[Actual]
+      #text(size: t.legend-size * 0.75, fill: t.text-color)[Actual]
       #h(8pt)
       #box(baseline: 2pt, rect(width: 2.5pt, height: 10pt, fill: t.text-color, stroke: none))
       #h(2pt)
-      #text(size: 6pt, fill: t.text-color)[Target]
+      #text(size: t.legend-size * 0.75, fill: t.text-color)[Target]
       #h(8pt)
       #box(baseline: 2pt, rect(width: 10pt, height: 8pt, fill: range-fills.at(0), stroke: none))
       #h(2pt)
-      #text(size: 6pt, fill: t.text-color)[Poor]
+      #text(size: t.legend-size * 0.75, fill: t.text-color)[Poor]
       #h(6pt)
       #box(baseline: 2pt, rect(width: 10pt, height: 8pt, fill: range-fills.at(1), stroke: none))
       #h(2pt)
-      #text(size: 6pt, fill: t.text-color)[Fair]
+      #text(size: t.legend-size * 0.75, fill: t.text-color)[Fair]
       #h(6pt)
       #box(baseline: 2pt, rect(width: 10pt, height: 8pt, fill: range-fills.at(2), stroke: none))
       #h(2pt)
-      #text(size: 6pt, fill: t.text-color)[Good]
+      #text(size: t.legend-size * 0.75, fill: t.text-color)[Good]
     ]
   ]
   })

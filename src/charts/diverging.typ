@@ -116,13 +116,15 @@
           )
         )
 
-        // Left value label — right-aligned box before bar end
+        // Left value label — placed just left of the bar end
         if show-values {
+          let label-w = 25pt
+          let l-label-x = calc.max(label-area, center-x - l-bar-w - label-w - 2pt)
           place(
             left + top,
-            dx: center-x - l-bar-w - 3em,
+            dx: l-label-x,
             dy: y-pos + actual-bar-h / 2,
-            box(width: 3em, align(right,
+            box(width: label-w, align(right,
               move(dy: -0.5em, text(size: t.value-label-size, fill: t.text-color)[#l-val])))
           )
         }

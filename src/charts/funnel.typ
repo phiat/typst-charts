@@ -76,7 +76,7 @@
           dy: y-top,
           polygon(
             fill: color,
-            stroke: white + 0.5pt,
+            stroke: t.marker-stroke,
             (center-x - top-half, 0pt),
             (center-x + top-half, 0pt),
             (center-x + bottom-half, seg-height),

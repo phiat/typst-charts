@@ -158,12 +158,8 @@
             // Size pill to text, not arc
             let label-w = fit.size * 0.5 * lbl-len + 4pt
             let pill-h = fit.size * 1.4
-            // Semi-transparent background pill for readability
-            let pill-fill = if seg.depth <= 2 {
-              seg-color.transparentize(30%)
-            } else {
-              if t.background != none { t.background.transparentize(30%) } else { white.transparentize(30%) }
-            }
+            // Semi-transparent background pill matching segment color
+            let pill-fill = seg-color.transparentize(20%)
             place(
               left + top,
               dx: lx - label-w / 2,

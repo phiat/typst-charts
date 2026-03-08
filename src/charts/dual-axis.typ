@@ -123,7 +123,7 @@
             left + top,
             dx: pt.at(0) - 3pt,
             dy: pt.at(1) - 3pt,
-            circle(radius: 3pt, fill: l-color, stroke: white + 0.5pt)
+            circle(radius: 3pt, fill: l-color, stroke: t.marker-stroke)
           )
         }
         for pt in r-points {
@@ -131,7 +131,7 @@
             left + top,
             dx: pt.at(0) - 3pt,
             dy: pt.at(1) - 3pt,
-            circle(radius: 3pt, fill: r-color, stroke: white + 0.5pt)
+            circle(radius: 3pt, fill: r-color, stroke: t.marker-stroke)
           )
         }
       }

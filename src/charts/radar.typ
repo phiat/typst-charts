@@ -3,7 +3,6 @@
 #import "../validate.typ": validate-series-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/legend.typ": draw-legend-vertical
-#import "../primitives/polar.typ": place-polar-label
 #import "../primitives/layout.typ": font-for-space, resolve-size
 
 /// Renders a radar (spider) chart for comparing series across multiple axes.
@@ -58,7 +57,7 @@
     total-width = size + legend-width
   }
 
-  // Recompute radius after potential resize
+  // Recompute radius after potential resize — leave margin for axis labels
   let radius = size / 2 - calc.max(16pt, size * 0.2)
   let cx = size / 2
   let cy = size / 2
@@ -120,11 +119,31 @@
             )
           )
 
-          // Label positioning - push labels outward based on angle
+          // Label positioning - push labels outward, clamped to chart bounds
           let label-size = font-for-space(size, t.value-label-size, min-size: 5pt, ratio: 0.055)
-          place-polar-label(cx, cy, angle.deg(), radius + 8pt,
-            text(size: label-size, fill: t.text-color, weight: "medium")[#lbl],
-            box-width: calc.max(30pt, size * 0.22))
+          let lbl-content = text(size: label-size, fill: t.text-color, weight: "medium")[#lbl]
+          let lbl-w = measure(lbl-content).width + 4pt
+          let lbl-h = measure(lbl-content).height
+          let label-r = radius + 8pt
+          let cos-val = calc.cos(angle)
+          let sin-val = calc.sin(angle)
+          let lx = cx + label-r * cos-val
+          let ly = cy + label-r * sin-val
+
+          // Determine alignment based on quadrant
+          let (dx-adj, h-align) = if cos-val < -0.1 { (-lbl-w, right) }
+            else if cos-val > 0.1 { (0pt, left) }
+            else { (-lbl-w / 2, center) }
+          let dy-adj = if sin-val < -0.1 { 0pt }
+            else if sin-val > 0.1 { -lbl-h }
+            else { -lbl-h / 2 }
+
+          // Clamp so label stays within the chart box
+          let final-x = calc.min(calc.max(0pt, lx + dx-adj), size - lbl-w)
+          let final-y = calc.min(calc.max(0pt, ly + dy-adj), size - lbl-h)
+
+          place(left + top, dx: final-x, dy: final-y,
+            box(width: lbl-w, align(h-align, lbl-content)))
         }
 
         // Draw data series
@@ -159,7 +178,7 @@
               left + top,
               dx: pt.at(0) - dot-r,
               dy: pt.at(1) - dot-r,
-              circle(radius: dot-r, fill: color, stroke: white + 0.5pt)
+              circle(radius: dot-r, fill: color, stroke: t.marker-stroke)
             )
 
             // Show value near point (offset based on angle to avoid overlap)

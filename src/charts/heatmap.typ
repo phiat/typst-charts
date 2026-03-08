@@ -97,7 +97,7 @@
               width: cell-size,
               height: cell-size,
               fill: cell-color,
-              stroke: white + 0.5pt,
+              stroke: t.marker-stroke,
             )
           )
 
@@ -201,7 +201,7 @@
               place(left + top,
                 dx: label-x,
                 dy: 0pt,
-                text(size: 6pt, fill: t.text-color)[#label])
+                text(size: t.axis-label-size * 0.85, fill: t.text-color)[#label])
               last-label-x = label-x
             }
             prev-month = month-str
@@ -218,7 +218,7 @@
               left + top,
               dx: 0pt,
               dy: month-label-height + i * cell-size + cell-size / 2,
-              move(dy: -0.5em, text(size: 6pt, fill: t.text-color)[#day])
+              move(dy: -0.5em, text(size: t.axis-label-size * 0.85, fill: t.text-color)[#day])
             )
           }
         }
@@ -288,7 +288,7 @@
       #let legend-total-w = 25pt + 5 * (cell-size + 2pt) + 5pt + 25pt  // Less + boxes + More
       #let grid-width = n-weeks * cell-size
       #let legend-start = day-label-width + calc.max(0pt, (grid-width - legend-total-w) / 2)
-      #place(left + top, dx: legend-start, dy: legend-y, text(size: 6pt, fill: t.text-color)[Less])
+      #place(left + top, dx: legend-start, dy: legend-y, text(size: t.axis-label-size * 0.85, fill: t.text-color)[Less])
       #for i in array.range(5) {
         let normalized = i / 4
         let cell-color = heat-color(normalized, palette: palette, reverse: reverse)
@@ -299,7 +299,7 @@
           rect(width: cell-size, height: cell-size, fill: cell-color, radius: 2pt)
         )
       }
-      #place(left + top, dx: legend-start + 25pt + 5 * (cell-size + 2pt) + 5pt, dy: legend-y, text(size: 6pt, fill: t.text-color)[More])
+      #place(left + top, dx: legend-start + 25pt + 5 * (cell-size + 2pt) + 5pt, dy: legend-y, text(size: t.axis-label-size * 0.85, fill: t.text-color)[More])
     ]
   ])
 }

@@ -33,6 +33,7 @@
       grid(
         columns: (width, 1fr),
         column-gutter: 10pt,
+        align: (auto, horizon),
         body,
         legend,
       )
@@ -40,6 +41,7 @@
       grid(
         columns: (1fr, width),
         column-gutter: 10pt,
+        align: (horizon, auto),
         legend,
         body,
       )

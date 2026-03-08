@@ -101,7 +101,7 @@
             left + top,
             dx: pt.at(0) - point-size / 2,
             dy: pt.at(1) - point-size / 2,
-            circle(radius: point-size / 2, fill: get-color(t, 0), stroke: white + 1pt)
+            circle(radius: point-size / 2, fill: get-color(t, 0), stroke: t.marker-stroke)
           )
 
           if show-values {
@@ -214,7 +214,7 @@
               left + top,
               dx: pt.at(0) - 3pt,
               dy: pt.at(1) - 3pt,
-              circle(radius: 3pt, fill: color, stroke: white + 0.5pt)
+              circle(radius: 3pt, fill: color, stroke: t.marker-stroke)
             )
           }
         }

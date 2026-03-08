@@ -138,7 +138,7 @@
     stroke: if variant == "outline" { if t.border != none { t.border } else { 0.5pt + luma(220) } } else { none },
     inset: (x: 4pt, y: 1.5pt),
     radius: t.border-radius,
-    text(size: 5pt, weight: "bold", fill: s.fg, upper(label)),
+    text(size: t.axis-label-size * 0.85, weight: "bold", fill: s.fg, upper(label)),
   )
 }
 

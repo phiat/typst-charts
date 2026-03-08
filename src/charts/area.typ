@@ -120,7 +120,7 @@
             left + top,
             dx: pt.at(0) - 3pt,
             dy: pt.at(1) - 3pt,
-            circle(radius: 3pt, fill: get-color(t, 0), stroke: white + 1pt)
+            circle(radius: 3pt, fill: get-color(t, 0), stroke: t.marker-stroke)
           )
         }
       }

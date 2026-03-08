@@ -91,7 +91,7 @@
           left + top,
           dx: px - half,
           dy: py - half,
-          circle(radius: point-size / 2, fill: point-color, stroke: white + 0.5pt)
+          circle(radius: point-size / 2, fill: point-color, stroke: t.marker-stroke)
         )
       }
 
@@ -188,7 +188,7 @@
             left + top,
             dx: px - half,
             dy: py - half,
-            circle(radius: point-size / 2, fill: color, stroke: white + 0.5pt)
+            circle(radius: point-size / 2, fill: color, stroke: t.marker-stroke)
           )
         }
       }
