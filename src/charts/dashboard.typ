@@ -12,7 +12,7 @@
 #let card(title: none, desc: none, width: 100%, theme: none, body) = context {
   let t = _resolve-ctx(theme)
   let fill = if t.background != none { t.background } else { white }
-  let stroke = if t.border != none { t.border } else { 0.75pt + luma(220) }
+  let stroke = if t.border != none { t.border } else { 0.75pt + t.text-color-light }
   let muted = t.text-color-light
 
   box(
@@ -46,9 +46,9 @@
 #let compact-table(headers, rows, highlight-col: none, col-widths: none, theme: none) = context {
   let t = _resolve-ctx(theme)
   let fill = if t.background != none { t.background } else { white }
-  let alt-fill = if t.background != none { t.background.lighten(5%) } else { luma(248) }
+  let alt-fill = if t.background != none { t.background.lighten(5%) } else { t.text-color-light.transparentize(90%) }
   let header-fill = t.palette.at(1, default: t.palette.at(0))
-  let stroke = if t.border != none { t.border } else { 0.4pt + luma(220) }
+  let stroke = if t.border != none { t.border } else { 0.4pt + t.text-color-light }
   let highlight-color = t.palette.at(0)
 
   let cols = if col-widths != none { col-widths } else { range(headers.len()).map(_ => 1fr) }
@@ -135,7 +135,7 @@
   let s = styles.at(variant, default: styles.default)
   box(
     fill: s.bg,
-    stroke: if variant == "outline" { if t.border != none { t.border } else { 0.5pt + luma(220) } } else { none },
+    stroke: if variant == "outline" { if t.border != none { t.border } else { 0.5pt + t.text-color-light } } else { none },
     inset: (x: 4pt, y: 1.5pt),
     radius: t.border-radius,
     text(size: t.axis-label-size * 0.85, weight: "bold", fill: s.fg, upper(label)),
@@ -153,8 +153,8 @@
     let b = t.border
     if type(b) == color { b }
     else if type(b) == stroke { b.paint }
-    else { luma(220) }
-  } else { luma(220) }
+    else { t.text-color-light }
+  } else { t.text-color-light }
   v(4pt)
   line(length: 100%, stroke: thickness + color)
   v(4pt)

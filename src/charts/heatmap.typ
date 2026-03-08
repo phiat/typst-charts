@@ -286,7 +286,7 @@
       // Legend — centered under the grid
       #let legend-y = month-label-height + 7 * cell-size + 10pt
       #let grid-width = n-weeks * cell-size
-      #let legend-start = day-label-width + calc.max(0pt, (grid-width - legend-total-w) / 2)
+      #let legend-start = calc.max(0pt, (body-w - legend-total-w) / 2)
       #place(left + top, dx: legend-start, dy: legend-y, text(size: t.axis-label-size * 0.85, fill: t.text-color)[Less])
       #for i in array.range(5) {
         let normalized = i / 4

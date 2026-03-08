@@ -117,7 +117,7 @@
     width: width,
     height: height,
     fill: if t.background != none { t.background } else { white },
-    stroke: if t.border != none { t.border } else if t.background != none { 0.5pt + t.text-color-light } else { 0.5pt + luma(220) },
+    stroke: if t.border != none { t.border } else { 0.5pt + t.text-color-light },
     radius: t.border-radius,
     inset: 12pt,
   )[

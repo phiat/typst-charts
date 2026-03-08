@@ -68,7 +68,7 @@
   let radius = size / 2
 
   // Compute legend height — grow container if legend is taller than pie
-  let swatch-size = 10pt
+  let swatch-size = t.legend-swatch-size
   let legend-height = if show-legend { n * (swatch-size + 4pt) + 10pt } else { 0pt }
   let extra-height = calc.max(40pt, legend-height - size + 40pt)
 

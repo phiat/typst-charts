@@ -131,20 +131,20 @@
         for (i, entry) in entries.enumerate() {
           let ring-color = colors.at(i)
           let label-x = size + margin * 2 + 8pt
-          let label-y = size / 2 + margin - (n / 2 - i) * 22pt
+          let label-y = size / 2 + margin - (n / 2 - i) * (t.legend-swatch-size + 12pt)
 
           // Colour swatch
           place(
             left + top,
             dx: label-x,
             dy: label-y,
-            rect(width: 10pt, height: 10pt, fill: ring-color, radius: 2pt)
+            rect(width: t.legend-swatch-size, height: t.legend-swatch-size, fill: ring-color, radius: 2pt)
           )
 
           // Name
           place(
             left + top,
-            dx: label-x + 14pt,
+            dx: label-x + t.legend-swatch-size + 4pt,
             dy: label-y - 1pt,
             text(size: t.legend-size, fill: t.text-color, weight: "bold")[#entry.name]
           )
@@ -154,8 +154,8 @@
             let pct = calc.round(entry.value / entry.max * 100, digits: 0)
             place(
               left + top,
-              dx: label-x + 14pt,
-              dy: label-y + 10pt,
+              dx: label-x + t.legend-swatch-size + 4pt,
+              dy: label-y + t.legend-swatch-size,
               text(size: t.value-label-size, fill: t.text-color-light)[
                 #entry.value / #entry.max (#pct%)
               ]

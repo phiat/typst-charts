@@ -21,6 +21,7 @@
 /// - bandwidth (auto, float): KDE bandwidth; `auto` uses Silverman's rule
 /// - samples (int): Number of evaluation points along the density curve
 /// - show-grid (auto, bool): Draw background grid lines; `auto` uses theme default
+/// - stroke-width (length): Stroke width for violin outlines and inner box elements
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
 /// - theme (none, dictionary): Theme overrides
@@ -34,6 +35,7 @@
   bandwidth: auto,
   samples: 30,
   show-grid: auto,
+  stroke-width: 1.2pt,
   x-label: none,
   y-label: none,
   theme: none,
@@ -226,7 +228,7 @@
         place(left + top,
           polygon(
             fill: fill-color,
-            stroke: 1.2pt + color,
+            stroke: stroke-width + color,
             ..all-pts,
           )
         )
@@ -236,7 +238,7 @@
           let ds-sorted = datasets.at(i).sorted()
           let q = quartiles(ds-sorted)
           let box-half-w = max-half-w * 0.15
-          let whisker-stroke = 1pt + t.text-color
+          let whisker-stroke = calc.max(0.5pt, stroke-width - 0.2pt) + t.text-color
 
           let y-q1 = map-y(q.q1)
           let y-med = map-y(q.median)
@@ -261,7 +263,7 @@
             line(
               start: (center-x - box-half-w, y-med),
               end: (center-x + box-half-w, y-med),
-              stroke: 2pt + t.text-color,
+              stroke: stroke-width * 1.5 + t.text-color,
             )
           )
         }
