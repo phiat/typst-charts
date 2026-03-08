@@ -109,7 +109,11 @@
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 30pt)[
+  // Extra height only for content outside the chart box (legend)
+  // Category labels + axis title fit within axis-padding-bottom
+  let extra-h = if show-legend { t.legend-size + t.legend-gap + t.legend-swatch-size } else { 0pt }
+
+  chart-container(width, height, title, t, extra-height: extra-h)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -192,8 +196,8 @@
 
         // X-axis label — use full slot width for longer labels
         let slot-x = origin-x + i * spacing
-        place(left + top, dx: slot-x, dy: origin-y + 4pt,
-          box(width: spacing, align(center,
+        place(left + top, dx: slot-x, dy: origin-y + 2pt,
+          box(width: spacing, height: 1.2em, align(center,
             text(size: t.axis-label-size, fill: t.text-color)[#labels.at(i)])))
 
       }

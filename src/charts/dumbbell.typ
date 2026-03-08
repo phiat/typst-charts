@@ -53,10 +53,11 @@
 
   // Layout constants — scale with chart dimensions; label area grows with width
   let label-margin = calc.min(100pt, calc.max(70pt, width * 0.25))
-  let right-pad = calc.max(10pt, width * 0.05)
+  let value-pad = if show-values { 24pt } else { 0pt }  // room for left value labels
+  let right-pad = calc.max(10pt + value-pad, width * 0.05 + value-pad)
   let top-pad = calc.max(5pt, height * 0.06)
   let bottom-pad = calc.max(15pt, height * 0.15)
-  let plot-left = label-margin + dot-size
+  let plot-left = label-margin + dot-size + value-pad
   let plot-right = width - right-pad - dot-size
   let plot-width = plot-right - plot-left
 
@@ -168,23 +169,20 @@
         // Optional value labels — place on the outside of each dot
         if show-values {
           let label-gap = dot-size + 3pt
-          let label-w = 20pt
+          let label-w = 22pt
 
-          // Start value: place left of dot if room, else right
-          let s-dx = if x-start - label-w - 2pt >= plot-left and sv <= ev {
-            x-start - label-w - 2pt
+          // Place labels on the outer side of each dot:
+          // whichever dot is leftmost gets its label on the left,
+          // whichever is rightmost gets its label on the right
+          let s-dx = if sv <= ev {
+            x-start - label-w - label-gap + dot-size
           } else {
             x-start + label-gap
           }
-          // End value: place right of dot if room, else left
           let e-dx = if ev >= sv {
             x-end + label-gap
           } else {
-            if x-end - label-w - 2pt >= plot-left {
-              x-end - label-w - 2pt
-            } else {
-              x-end + label-gap
-            }
+            x-end - label-w - label-gap + dot-size
           }
 
           // If both labels would overlap (close values), offset vertically

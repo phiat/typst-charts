@@ -115,7 +115,7 @@
       #draw-x-category-labels(labels, origin-x, spacing, origin-y + 4pt, t)
 
       // Axis titles
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t)
 
       // Annotations
       #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, -0.5, n - 0.5, 0, max-val, t)
@@ -228,7 +228,7 @@
       }
 
       // Axis titles
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t)
     ]
   ]
   })
