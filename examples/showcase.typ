@@ -170,7 +170,7 @@
 
   // 25. calendar-heatmap — League: match-day total goals
   calendar-heatmap(league.match-calendar,
-    cell-size: 10pt, title: "calendar-heatmap", palette: "heat", theme: dk,
+    cell-size: 12pt, title: "calendar-heatmap", palette: "heat", theme: dk,
   ),
 
   // 26. progress-bars — Sales: department targets

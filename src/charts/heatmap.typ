@@ -211,7 +211,7 @@
 
       // Day labels (Mon, Wed, Fri)
       #if show-day-labels {
-        let days = ("Mon", "", "Wed", "", "Fri", "", "Sun")
+        let days = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
         for (i, day) in days.enumerate() {
           if day != "" {
             place(
