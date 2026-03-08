@@ -147,6 +147,8 @@
   title: none,
   show-points: true,
   show-legend: true,
+  line-width: 1.5pt,
+  point-size: 3pt,
   x-label: none,
   y-label: none,
   theme: none,
@@ -203,7 +205,7 @@
             line(
               start: (p1.at(0), p1.at(1)),
               end: (p2.at(0), p2.at(1)),
-              stroke: 1.5pt + color,
+              stroke: line-width + color,
             )
           )
         }
@@ -212,9 +214,9 @@
           for pt in points {
             place(
               left + top,
-              dx: pt.at(0) - 3pt,
-              dy: pt.at(1) - 3pt,
-              circle(radius: 3pt, fill: color, stroke: t.marker-stroke)
+              dx: pt.at(0) - point-size,
+              dy: pt.at(1) - point-size,
+              circle(radius: point-size, fill: color, stroke: t.marker-stroke)
             )
           }
         }

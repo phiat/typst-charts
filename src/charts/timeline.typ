@@ -102,7 +102,7 @@
           circle(
             radius: marker-size,
             fill: marker-color,
-            stroke: 1pt + white,
+            stroke: t.marker-stroke,
           ),
         )
 

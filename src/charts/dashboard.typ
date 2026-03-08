@@ -150,9 +150,10 @@
 #let separator(thickness: 0.75pt, theme: none) = context {
   let t = _resolve-ctx(theme)
   let color = if t.border != none {
-    // Extract color from stroke if it's a stroke value
     let b = t.border
-    if type(b) == stroke { b.paint } else { luma(220) }
+    if type(b) == color { b }
+    else if type(b) == stroke { b.paint }
+    else { luma(220) }
   } else { luma(220) }
   v(4pt)
   line(length: 100%, stroke: thickness + color)
@@ -166,18 +167,14 @@
 ///   Example: `((card1, card2), (card3,))` creates 2 rows.
 /// - gap (length): Gap between cells
 /// - row-gap (none, length): Vertical gap between rows; defaults to `gap` if none
-/// - theme (none, dictionary): Theme overrides
 /// -> content
-#let dashboard-layout(rows, cols: 2, gap: 6pt, row-gap: none, theme: none) = context {
-  let t = _resolve-ctx(theme)
+#let dashboard-layout(rows, cols: 2, gap: 6pt, row-gap: none) = {
   let rg = if row-gap != none { row-gap } else { gap }
   let col-spec = if type(cols) == int {
     range(cols).map(_ => 1fr)
   } else {
     cols
   }
-
-  let n-cols = col-spec.len()
 
   for (i, row) in rows.enumerate() {
     if i > 0 { v(rg) }

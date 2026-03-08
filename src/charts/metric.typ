@@ -30,7 +30,12 @@
   layout(size => {
   let width = resolve-size(width, 0pt, size, container: false).width
   let t = _resolve-ctx(theme)
-  let accent = get-color(t, 0)
+  let has-dark-bg = t.background != none
+  // Semantic delta colors — overridable via custom theme keys
+  let positive-color = if "positive-color" in t { t.positive-color }
+    else if has-dark-bg { rgb("#4ade80") } else { rgb("#16a34a") }
+  let negative-color = if "negative-color" in t { t.negative-color }
+    else if has-dark-bg { rgb("#f87171") } else { rgb("#dc2626") }
 
   // Format the display value
   let display-value = if type(value) == str {
@@ -46,14 +51,9 @@
   let delta-content = if delta != none {
     let is-positive = delta > 0
     let is-zero = delta == 0
-    let has-dark-bg = t.background != none
-    let delta-color = if is-positive {
-      if has-dark-bg { rgb("#4ade80") } else { rgb("#2d9d3a") }
-    } else if is-zero {
-      t.text-color-light
-    } else {
-      if has-dark-bg { rgb("#f87171") } else { rgb("#d13438") }
-    }
+    let delta-color = if is-positive { positive-color }
+      else if is-zero { t.text-color-light }
+      else { negative-color }
     let arrow = if is-positive { "▲" } else if is-zero { "–" } else { "▼" }
     let sign = if is-positive { "+" } else { "" }
     let delta-str = sign + str(calc.round(delta, digits: 1)) + "%"
@@ -78,11 +78,10 @@
     }
 
     // Determine sparkline color from trend direction
-    let has-dark-bg = t.background != none
     let spark-color = if trend.last() >= trend.first() {
-      if has-dark-bg { rgb("#4ade80").transparentize(30%) } else { rgb("#2d9d3a").transparentize(30%) }
+      positive-color.transparentize(30%)
     } else {
-      if has-dark-bg { rgb("#f87171").transparentize(30%) } else { rgb("#d13438").transparentize(30%) }
+      negative-color.transparentize(30%)
     }
 
     v(6pt)
@@ -124,7 +123,7 @@
   )[
     #set align(center)
     // Big number
-    #text(size: 22pt, weight: "bold", fill: t.text-color)[#display-value]
+    #text(size: t.title-size * 2, weight: "bold", fill: t.text-color)[#display-value]
 
     // Label
     #v(2pt)
