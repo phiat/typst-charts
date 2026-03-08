@@ -1,7 +1,7 @@
 // scatter.typ - Scatter plot and bubble chart
 #import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero, clamp, nice-ceil, nice-floor, numeric-range
-#import "../primitives/layout.typ": label-fits-inside, place-cartesian-label, try-fit-label, greedy-deconflict
+#import "../primitives/layout.typ": label-fits-inside, place-cartesian-label, try-fit-label, greedy-deconflict, resolve-size
 #import "../validate.typ": validate-scatter-data, validate-multi-scatter-data, validate-bubble-data, validate-multi-bubble-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks
@@ -33,8 +33,14 @@
   show-grid: auto,
   color: none,
   annotations: none,
+  show-ticks: false,
+  show-minor-grid: false,
+  subtitle: none,
+  radius: 0pt,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-scatter-data(data, "scatter-plot")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
@@ -57,7 +63,7 @@
 
   let cl = cartesian-layout(width, height, t, extra-left: 10pt)
 
-  chart-container(width, height, title, t, extra-height: 30pt)[
+  chart-container(width, height, title, t, extra-height: 30pt, subtitle: subtitle, radius: radius)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -66,10 +72,10 @@
 
     #box(width: width, height: height)[
       // Grid lines
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid)
 
       // Axes
-      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t, show-ticks: show-ticks)
 
       // Y-axis ticks
       #draw-y-ticks(y-min, y-max, chart-height, pad-top, origin-x, t)
@@ -89,7 +95,7 @@
           left + top,
           dx: px - half,
           dy: py - half,
-          circle(radius: point-size / 2, fill: point-color, stroke: white + 0.5pt)
+          circle(radius: point-size / 2, fill: point-color, stroke: t.marker-stroke)
         )
       }
 
@@ -100,6 +106,7 @@
       #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, x-min, x-max, y-min, y-max, t)
     ]
   ]
+  })
 }
 
 /// Renders a multi-series scatter plot with color-coded point groups.
@@ -127,6 +134,8 @@
   show-legend: true,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-multi-scatter-data(data, "multi-scatter-plot")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
@@ -149,7 +158,8 @@
 
   let cl = cartesian-layout(width, height, t, extra-left: 10pt)
 
-  chart-container(width, height, title, t, extra-height: 50pt)[
+  let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "circle")
+  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -183,15 +193,15 @@
             left + top,
             dx: px - half,
             dy: py - half,
-            circle(radius: point-size / 2, fill: color, stroke: white + 0.5pt)
+            circle(radius: point-size / 2, fill: color, stroke: t.marker-stroke)
           )
         }
       }
-    ]
 
-    // Legend
-    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "circle")
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
+    ]
   ]
+  })
 }
 
 /// Renders a bubble chart where each point has an x, y, and size dimension.
@@ -226,6 +236,8 @@
   labels: none,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-bubble-data(data, "bubble-chart")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
@@ -319,15 +331,23 @@
           if fit.fits {
             inside-labels.push((px: b.px, py: b.py, radius: b.radius, lbl: lbl, size: fit.size))
           } else {
-            // Propose label above bubble, quadrant-aware horizontal offset
+            // Propose label position, quadrant-aware horizontal offset
             let chart-cx = (bounds.left + bounds.right) / 2
+            let chart-cy = (bounds.top + bounds.bottom) / 2
             let lbl-w = calc.max(40pt, lbl-size * 0.6 * lbl-len + 4pt)
             let lx = if b.px >= chart-cx {
               b.px + 4pt
             } else {
               b.px - lbl-w - 4pt
             }
-            let ly = b.py - b.radius - lbl-h - 4pt
+            // Place label above or below bubble based on vertical position:
+            // bubbles in the upper half get labels below, lower half get labels above.
+            // This naturally separates labels for vertically-close bubbles.
+            let ly = if b.py <= chart-cy {
+              b.py + b.radius + 4pt                   // below bubble
+            } else {
+              b.py - b.radius - lbl-h - 4pt           // above bubble
+            }
             outside-proposals.push((
               cx: b.px, cy: b.py, radius: b.radius,
               lx: lx, ly: ly, w: lbl-w, h: lbl-h,
@@ -369,7 +389,7 @@
           place(left + top,
             line(start: (edge-x, edge-y),
                  end: (anchor-x, anchor-y),
-                 stroke: 0.5pt + luma(140)))
+                 stroke: 0.5pt + t.text-color-light))
           place(
             left + top,
             dx: ol.lx,
@@ -395,6 +415,7 @@
       draw-size-legend(ref-sizes, max-radius, size-max, t, title: size-label)
     }
   ]
+  })
 }
 
 /// Renders a multi-series bubble chart with color-coded point groups and
@@ -427,6 +448,8 @@
   show-legend: true,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-multi-bubble-data(data, "multi-bubble-chart")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
@@ -454,7 +477,8 @@
 
   let cl = cartesian-layout(width, height, t, extra-left: 10pt)
 
-  chart-container(width, height, title, t, extra-height: 50pt)[
+  let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "circle")
+  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -501,9 +525,6 @@
       }
     ]
 
-    // Legend
-    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "circle")
-
     // Size legend
     #if size-label != none {
       let ref-sizes = (
@@ -514,4 +535,5 @@
       draw-size-legend(ref-sizes, max-radius, size-max, t, title: size-label)
     }
   ]
+  })
 }

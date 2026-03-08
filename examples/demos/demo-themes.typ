@@ -5,8 +5,8 @@
 #set text(size: 7pt)
 
 #let sample = (labels: sales.monthly.labels.slice(0, 4), values: sales.monthly.values.slice(0, 4))
-#let W = 155pt
-#let H = 80pt
+#let W = 170pt
+#let H = 100pt
 
 #let theme-list = (
   ("default", themes.default),
@@ -23,7 +23,7 @@
   column-gutter: 6pt,
   row-gutter: 6pt,
   ..theme-list.map(((name, t)) => {
-    bar-chart(sample, width: W, height: H, title: name, theme: t)
+    bar-chart(sample, width: W, height: H, title: name, y-label: "Value", theme: t)
   })
 )
 
@@ -35,7 +35,7 @@
   column-gutter: 6pt,
   row-gutter: 6pt,
   ..theme-list.map(((name, t)) => {
-    line-chart(sample, width: W, height: H, title: name, theme: t)
+    line-chart(sample, width: W, height: H, title: name, y-label: "Value", theme: t)
   })
 )
 

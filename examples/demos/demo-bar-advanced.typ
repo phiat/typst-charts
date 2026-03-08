@@ -11,17 +11,17 @@
 
 #page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   grouped-stacked-bar-chart(sales.channels,
-    width: W, height: H, title: "grouped-stacked (light)", theme: lt,
+    width: W, height: H, title: "grouped-stacked (light)", x-label: "Quarter", y-label: "Revenue ($K)", theme: lt,
   ),
   grouped-stacked-bar-chart(sales.channels,
-    width: W, height: H, title: "grouped-stacked (dark)", theme: dk,
+    width: W, height: H, title: "grouped-stacked (dark)", x-label: "Quarter", y-label: "Revenue ($K)", theme: dk,
   ),
   diverging-bar-chart(
     (..sales.satisfaction, left-label: "Detractors", right-label: "Promoters"),
-    width: W, height: H, title: "diverging-bar (light)", theme: lt,
+    width: W, height: H, title: "diverging-bar (light)", x-label: "Responses", theme: lt,
   ),
   diverging-bar-chart(
     (..sales.satisfaction, left-label: "Detractors", right-label: "Promoters"),
-    width: W, height: H, title: "diverging-bar (dark)", theme: dk,
+    width: W, height: H, title: "diverging-bar (dark)", x-label: "Responses", theme: dk,
   ),
 ))

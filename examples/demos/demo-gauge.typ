@@ -9,7 +9,7 @@
 
 #page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   [
-    #text(size: 9pt, weight: "bold")[gauge-chart (light)]
+    #align(center, text(size: 9pt, weight: "bold")[gauge-chart (light)])
     #v(4pt)
     #grid(columns: (1fr, 1fr, 1fr),
       gauge-chart(sales.conversion-rate, size: 80pt, title: "Conversion", label: "rate", theme: lt),
@@ -27,7 +27,7 @@
     )
   ],
   [
-    #text(size: 9pt, weight: "bold")[progress-bar]
+    #align(center, text(size: 9pt, weight: "bold")[progress-bar])
     #v(4pt)
     #progress-bar(sales.targets.values.at(0), width: 230pt, title: "Sales", theme: lt)
     #v(6pt)
@@ -36,7 +36,7 @@
     #progress-bar(sales.targets.values.at(2), width: 230pt, title: "Marketing", color: rgb("#e15759"), theme: lt)
   ],
   [
-    #text(size: 9pt, weight: "bold")[circular-progress]
+    #align(center, text(size: 9pt, weight: "bold")[circular-progress])
     #v(4pt)
     #grid(columns: (1fr, 1fr, 1fr),
       circular-progress(sales.targets.values.at(0), size: 80pt, title: "Sales", theme: lt),

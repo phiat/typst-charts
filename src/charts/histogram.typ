@@ -4,6 +4,7 @@
 #import "../validate.typ": validate-histogram-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-y-ticks, draw-x-ticks, draw-axis-titles
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a histogram showing the frequency distribution of numeric data.
 ///
@@ -34,8 +35,12 @@
   density: false,
   x-label: none,
   y-label: none,
+  show-ticks: false,
+  show-minor-grid: false,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-histogram-data(values, "histogram")
   let t = _resolve-ctx(theme)
 
@@ -98,10 +103,10 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid)
 
       // Axes
-      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t, show-ticks: show-ticks)
 
       // Draw bars (no gaps — contiguous)
       #let bar-w = chart-width / num-bins
@@ -121,7 +126,7 @@
             width: bar-w,
             height: bar-h,
             fill: fill-color,
-            stroke: (if t.background != none { t.background } else { white }) + 0.5pt,
+            stroke: t.marker-stroke,
           )
         )
 
@@ -147,4 +152,5 @@
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t)
     ]
   ]
+  })
 }

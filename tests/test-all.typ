@@ -36,3 +36,11 @@
 #include "test-options.typ"
 #pagebreak()
 #include "test-color.typ"
+#pagebreak()
+#include "test-dashboard.typ"
+#pagebreak()
+#include "test-data.typ"
+#pagebreak()
+#include "test-theme-json.typ"
+#pagebreak()
+#include "test-resolve-size.typ"

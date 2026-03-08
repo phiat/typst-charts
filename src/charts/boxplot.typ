@@ -4,6 +4,7 @@
 #import "../validate.typ": validate-boxplot-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-y-ticks, draw-x-category-labels, draw-grid, draw-axis-titles
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a box-and-whisker plot for comparing distributions.
 ///
@@ -14,6 +15,7 @@
 /// - box-width (float): Box width as fraction of slot (0 to 1)
 /// - show-values (bool): Display five-number summary labels beside each box
 /// - show-grid (auto, bool): Draw background grid lines; `auto` uses theme default
+/// - stroke-width (length): Stroke width for box outlines and whiskers
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
 /// - theme (none, dictionary): Theme overrides
@@ -26,10 +28,13 @@
   box-width: 0.5,
   show-values: false,
   show-grid: auto,
+  stroke-width: 1pt,
   x-label: none,
   y-label: none,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-boxplot-data(data, "box-plot")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
@@ -71,7 +76,7 @@
 
       // X-axis category labels
       #let spacing = chart-width / n
-      #draw-x-category-labels(labels, origin-x, spacing, origin-y + 4pt, t, center-offset: spacing / 2 - 10pt)
+      #draw-x-category-labels(labels, origin-x, spacing, origin-y + 4pt, t)
 
       // Axis titles
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
@@ -86,8 +91,8 @@
 
         let color = get-color(t, i)
         let fill-color = color.transparentize(20%)
-        let whisker-stroke = 1pt + t.text-color
-        let median-stroke = 2pt + t.text-color-inverse
+        let whisker-stroke = stroke-width + t.text-color
+        let median-stroke = stroke-width * 2 + t.text-color-inverse
 
         // Helper: map a data value to y-coordinate
         // y = y-start + chart-height - ((val - y-min) / (y-max - y-min)) * chart-height
@@ -132,7 +137,7 @@
             width: actual-box-w,
             height: box-height,
             fill: fill-color,
-            stroke: 1pt + color,
+            stroke: stroke-width + color,
           )
         )
 
@@ -157,4 +162,5 @@
       }
     ]
   ]
+  })
 }

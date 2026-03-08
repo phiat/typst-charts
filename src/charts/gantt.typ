@@ -2,7 +2,7 @@
 #import "../theme.typ": _resolve-ctx, get-color
 #import "../validate.typ": validate-gantt-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/layout.typ": density-skip, font-for-space
+#import "../primitives/layout.typ": density-skip, font-for-space, resolve-size
 #import "../primitives/legend.typ": draw-legend
 
 /// Renders a Gantt chart — a timeline bar chart for project scheduling.
@@ -27,13 +27,16 @@
   width: 400pt,
   height: auto,
   title: none,
-  bar-height: 18pt,
+  bar-height: 14pt,
   gap: 4pt,
   show-grid: true,
+  x-label: none,
   show-legend: false,
   today: none,
   theme: none,
 ) = context {
+  layout(size => {
+  let width = resolve-size(width, 0pt, size).width
   validate-gantt-data(data, "gantt-chart")
   let t = _resolve-ctx(theme)
   let tasks = data.tasks
@@ -61,7 +64,7 @@
   let has-groups = group-names.len() > 0
 
   // Label area width for task names — scale with chart width
-  let label-area = calc.min(100pt, width * 0.35)
+  let label-area = calc.min(80pt, width * 0.25)
   let timeline-width = width - label-area - 10pt
   let col-width = timeline-width / time-count
 
@@ -88,8 +91,8 @@
 
       // Time labels along the bottom — below the axis line
       #let label-font = font-for-space(col-width, t.axis-label-size)
-      #let skip-n = density-skip(time-count, timeline-width)
       #let rotate-labels = time-count > 8
+      #let skip-n = density-skip(time-count, timeline-width, min-spacing: if rotate-labels { 18pt } else { 12pt })
       #let axis-y = body-height - 20pt
       #let label-y = axis-y + 4pt  // below the axis line
       #for (i, lbl) in time-labels.enumerate() {
@@ -144,12 +147,12 @@
           i
         }
 
-        // Task name label
+        // Task name label — right-aligned into label area
         place(
           left + top,
-          dx: 4pt,
+          dx: 0pt,
           dy: y-pos + 1pt,
-          text(size: t.axis-label-size, fill: t.text-color)[#task.name],
+          box(width: label-area - 6pt, align(right, text(size: t.axis-label-size, fill: t.text-color)[#task.name])),
         )
 
         // Task bar
@@ -167,6 +170,12 @@
         )
       }
 
+      // X-axis label
+      #if x-label != none {
+        place(left + top, dx: label-area + timeline-width / 2, dy: body-height,
+          move(dx: -3em, box(width: 6em, align(center, text(size: t.axis-title-size, fill: t.text-color)[#x-label]))))
+      }
+
       // "Today" marker line
       #if today != none {
         let today-x = label-area + today * col-width
@@ -177,7 +186,7 @@
           line(
             start: (0pt, 0pt),
             end: (0pt, body-height - 20pt),
-            stroke: 1.5pt + rgb("#e15759"),
+            stroke: 1.5pt + get-color(t, calc.max(group-names.len(), 1)),
           ),
         )
       }
@@ -191,4 +200,5 @@
       )
     }
   ]
+  })
 }

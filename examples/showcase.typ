@@ -2,8 +2,8 @@
 #import "../src/lib.typ": *
 #import "demo-data.typ": sales, codebase, league, rpg, words
 
-#set page(margin: (x: 0.6cm, y: 0.6cm), paper: "a4", fill: rgb("#1a1a2e"))
-#set text(size: 7pt, fill: rgb("#e0e0e0"))
+#set page(margin: (x: 0.6cm, y: 0.6cm), paper: "a4", fill: themes.dark.background)
+#set text(size: 7pt, fill: themes.dark.text-color)
 
 #let dk = themes.dark
 #let gk = (..dk, title-size: 7pt)
@@ -30,32 +30,32 @@
 
   // 3. grouped-bar-chart — League: goals/assists/cards by team
   grouped-bar-chart(league.team-stats,
-    width: W, height: H, title: "grouped-bar-chart", theme: dk,
+    width: W, height: H, title: "grouped-bar-chart", y-label: "Count", theme: dk,
   ),
 
   // 4. stacked-bar-chart — Sales: quarterly revenue by product
   stacked-bar-chart(sales.quarterly,
-    width: W, height: H, title: "stacked-bar-chart", theme: dk,
+    width: W, height: H, title: "stacked-bar-chart", y-label: "Revenue ($K)", theme: dk,
   ),
 
   // 5. line-chart — RPG: party gold over sessions
   line-chart(rpg.party-gold,
-    width: W, height: Hs, title: "line-chart", show-points: true, y-label: "Gold", theme: dk,
+    width: W, height: Hs, title: "line-chart", show-points: true, x-label: "Session", y-label: "Gold", theme: dk,
   ),
 
   // 6. multi-line-chart — League: goals per gameweek
   multi-line-chart(league.weekly-goals,
-    width: W, height: Hs, title: "multi-line-chart", theme: dk,
+    width: W, height: Hs, title: "multi-line-chart", x-label: "Gameweek", y-label: "Goals", theme: dk,
   ),
 
   // 7. area-chart — Sales: monthly revenue
   area-chart(sales.monthly,
-    width: W, height: Hs, title: "area-chart", fill-opacity: 40%, y-label: "Revenue ($K)", theme: dk,
+    width: W, height: Hs, title: "area-chart", fill-opacity: 40%, x-label: "Month", y-label: "Revenue ($K)", theme: dk,
   ),
 
   // 8. stacked-area-chart — Codebase: commits by language
   stacked-area-chart(codebase.commits-by-lang,
-    width: W, height: Hs, title: "stacked-area-chart", theme: dk,
+    width: W, height: Hs, title: "stacked-area-chart", x-label: "Month", y-label: "Commits", theme: dk,
   ),
 
   // ── page 2 ──
@@ -67,7 +67,7 @@
 
   // 10. pie-chart (donut) — RPG: loot breakdown
   pie-chart(rpg.loot-breakdown,
-    size: 85pt, title: "pie-chart (donut)", donut: true, donut-ratio: 0.5, theme: dk,
+    size: 85pt, title: "pie-chart (donut)", donut: true, donut-ratio: 0.35, theme: dk,
   ),
 
   // 11. radar-chart — League: player skill profiles
@@ -98,7 +98,8 @@
 
   // 15. gauge-chart — Sales: conversion/uptime/NPS
   [
-    #text(size: 8pt, weight: "bold", fill: rgb("#e0e0e0"))[gauge-chart]
+    #v(10pt)
+    #align(center, text(size: dk.title-size, weight: dk.title-weight, fill: dk.text-color)[gauge-chart])
     #v(2pt)
     #grid(
       columns: (1fr, 1fr, 1fr),
@@ -110,15 +111,16 @@
 
   // 16. progress-bar + circular-progress — RPG: quest progress
   [
-    #text(size: 8pt, weight: "bold", fill: rgb("#e0e0e0"))[progress-bar · circular-progress]
+    #v(10pt)
+    #align(center, text(size: dk.title-size, weight: dk.title-weight, fill: dk.text-color)[progress-bar · circular-progress])
     #v(3pt)
     #progress-bar(rpg.quest-completion, width: 230pt, title: "Main Quest", theme: dk)
     #v(3pt)
     #grid(
       columns: (1fr, 1fr, 1fr),
       circular-progress(rpg.quest-completion, size: 50pt, title: "Quest", theme: dk),
-      circular-progress(rpg.xp-progress, size: 50pt, title: "XP", color: rgb("#ff6b6b"), theme: dk),
-      circular-progress(rpg.party-health, size: 50pt, title: "Health", color: rgb("#0be881"), theme: dk),
+      circular-progress(rpg.xp-progress, size: 50pt, title: "XP", color: get-color(dk, 1), theme: dk),
+      circular-progress(rpg.party-health, size: 50pt, title: "Health", color: get-color(dk, 4), theme: dk),
     )
   ],
 
@@ -136,12 +138,12 @@
 
   // 19. histogram — League: goals per match distribution
   histogram(league.goals-per-match,
-    width: W, height: Hs, title: "histogram", bins: 12, theme: dk,
+    width: W, height: Hs, title: "histogram", bins: 12, x-label: "Goals/Match", y-label: "Frequency", theme: dk,
   ),
 
   // 20. waterfall-chart — RPG: dungeon loot P&L
   waterfall-chart(rpg.dungeon-loot,
-    width: W, height: Hs, title: "waterfall-chart", show-legend: true, theme: dk,
+    width: W, height: Hs, title: "waterfall-chart", show-legend: true, x-label: "Stage", y-label: "Gold", theme: dk,
   ),
 
   // 21. funnel-chart — Sales: pipeline
@@ -151,7 +153,7 @@
 
   // 22. box-plot — League: minutes played by position
   box-plot(league.minutes-played,
-    width: W, height: 110pt, title: "box-plot", show-grid: true, theme: dk,
+    width: W, height: 110pt, title: "box-plot", show-grid: true, x-label: "Position", y-label: "Minutes", theme: dk,
   ),
 
   // 23. heatmap — RPG: skill usage by character
@@ -168,29 +170,35 @@
 
   // 25. calendar-heatmap — League: match-day total goals
   calendar-heatmap(league.match-calendar,
-    cell-size: 10pt, title: "calendar-heatmap", palette: "heat", theme: dk,
+    cell-size: 12pt, title: "calendar-heatmap", palette: "heat", theme: dk,
   ),
 
   // 26. progress-bars — Sales: department targets
   progress-bars(sales.targets,
-    width: W, title: "progress-bars", theme: dk,
+    width: W, title: "progress-bars", max-val: 100, theme: dk,
   ),
 
   // 27. sparklines — Sales: server metrics
   [
-    #text(size: 8pt, weight: "bold", fill: rgb("#e0e0e0"))[sparkline · sparkbar · sparkdot]
+    #let c0 = get-color(dk, 0)
+    #let c1 = get-color(dk, 1)
+    #let c2 = get-color(dk, 5)
+    #let sw = 50pt
+    #let sh = 12pt
+    #v(10pt)
+    #align(center, text(size: dk.title-size, weight: dk.title-weight, fill: dk.text-color)[sparkline · sparkbar · sparkdot])
     #v(2pt)
-    #table(
+    #align(center, table(
       columns: (auto, auto, auto, auto),
       align: (left, center, center, center),
       inset: 3pt,
-      stroke: rgb("#333355"),
-      fill: rgb("#1a1a2e"),
+      stroke: dk.grid-stroke,
+      fill: dk.background,
       [*Metric*], [*sparkline*], [*sparkbar*], [*sparkdot*],
-      [Networking], [#sparkline(sales.sparklines.networking, color: rgb("#00d2ff"), width: 50pt, height: 12pt)], [#sparkbar(sales.sparklines.networking, color: rgb("#ff9f43"), width: 50pt, height: 12pt)], [#sparkdot(sales.sparklines.networking, color: rgb("#ff6b6b"), width: 50pt, height: 12pt)],
-      [Memory], [#sparkline(sales.sparklines.memory, color: rgb("#00d2ff"), width: 50pt, height: 12pt)], [#sparkbar(sales.sparklines.memory, color: rgb("#ff9f43"), width: 50pt, height: 12pt)], [#sparkdot(sales.sparklines.memory, color: rgb("#0be881"), width: 50pt, height: 12pt)],
-      [Storage], [#sparkline(sales.sparklines.storage, color: rgb("#00d2ff"), width: 50pt, height: 12pt)], [#sparkbar(sales.sparklines.storage, color: rgb("#ff9f43"), width: 50pt, height: 12pt)], [#sparkdot(sales.sparklines.storage, color: rgb("#0be881"), width: 50pt, height: 12pt)],
-    )
+      [Networking], [#sparkline(sales.sparklines.networking, color: c0, width: sw, height: sh)], [#sparkbar(sales.sparklines.networking, color: c2, width: sw, height: sh)], [#sparkdot(sales.sparklines.networking, color: c1, width: sw, height: sh)],
+      [Memory], [#sparkline(sales.sparklines.memory, color: c0, width: sw, height: sh)], [#sparkbar(sales.sparklines.memory, color: c2, width: sw, height: sh)], [#sparkdot(sales.sparklines.memory, color: c1, width: sw, height: sh)],
+      [Storage], [#sparkline(sales.sparklines.storage, color: c0, width: sw, height: sh)], [#sparkbar(sales.sparklines.storage, color: c2, width: sw, height: sh)], [#sparkdot(sales.sparklines.storage, color: c1, width: sw, height: sh)],
+    ))
   ],
 
   // 28. treemap — League: squad value by team
@@ -198,25 +206,25 @@
     width: W, height: 110pt, title: "treemap", theme: dk,
   ),
 
-  // 29. sankey-chart — League: transfer flows
-  sankey-chart(league.transfers,
+  // 29. sankey-chart — Sales: budget allocation flow
+  sankey-chart(sales.budget-flow,
     width: W, height: 110pt, title: "sankey-chart", show-labels: true, theme: dk,
   ),
 
   // 30. lollipop-chart — RPG: damage dealt
   lollipop-chart(rpg.damage-dealt,
-    width: W, height: Hs, title: "lollipop-chart", theme: dk,
+    width: W, height: Hs, title: "lollipop-chart", x-label: "Character", y-label: "Damage", theme: dk,
   ),
 
   // 31. horizontal-lollipop-chart — Codebase: PR merge time
   horizontal-lollipop-chart(codebase.pr-merge-time,
-    width: W, height: Hs, title: "horizontal-lollipop-chart", theme: dk,
+    width: W, height: Hs, title: "horizontal-lollipop-chart", x-label: "Days", theme: dk,
   ),
 
   // 32. diverging-bar-chart — League: home vs away win rate
   diverging-bar-chart(
     (..league.home-vs-away-pct, left-label: "Away %", right-label: "Home %"),
-    width: W, height: Hs, title: "diverging-bar-chart", theme: dk,
+    width: W, height: Hs, title: "diverging-bar-chart", x-label: "Win Rate", theme: dk,
   ),
 
   // ── page 5 ──
@@ -229,7 +237,8 @@
 
   // 34. bullet-chart — Sales: revenue/satisfaction/customers
   [
-    #text(size: 8pt, weight: "bold", fill: rgb("#e0e0e0"))[bullet-chart]
+    #v(10pt)
+    #align(center, text(size: dk.title-size, weight: dk.title-weight, fill: dk.text-color)[bullet-chart])
     #v(2pt)
     #bullet-chart(sales.revenue-target.actual, sales.revenue-target.target, sales.revenue-target.ranges, width: 230pt, height: 22pt, title: "Revenue", theme: dk)
     #v(2pt)
@@ -240,12 +249,13 @@
 
   // 35. grouped-stacked-bar-chart — Sales: product × channel
   grouped-stacked-bar-chart(sales.channels,
-    width: W, height: H, title: "grouped-stacked-bar-chart", theme: dk,
+    width: W, height: H, title: "grouped-stacked-bar-chart", y-label: "Revenue ($K)", theme: dk,
   ),
 
   // 36. gantt-chart — RPG: campaign arc schedule
   [
-    #text(size: 8pt, weight: "bold", fill: rgb("#e0e0e0"))[gantt-chart]
+    #v(10pt)
+    #align(center, text(size: dk.title-size, weight: dk.title-weight, fill: dk.text-color)[gantt-chart])
     #v(2pt)
     #gantt-chart(rpg.campaign-arcs,
       width: 230pt, bar-height: 10pt, gap: 2pt, today: 7, show-legend: true, title: none, theme: dk,
@@ -282,7 +292,8 @@
 
   // 42. metric-card + metric-row — Sales: KPIs
   [
-    #text(size: 8pt, weight: "bold", fill: rgb("#e0e0e0"))[metric-card · metric-row]
+    #v(10pt)
+    #align(center, text(size: dk.title-size, weight: dk.title-weight, fill: dk.text-color)[metric-card · metric-row])
     #v(3pt)
     #metric-row(sales.kpis,
       width: 250pt, gap: 5pt, theme: dk,
@@ -291,7 +302,7 @@
 
   // 43. violin-plot — League: player ratings by position
   violin-plot(league.ratings,
-    width: W, height: 115pt, title: "violin-plot", theme: dk,
+    width: W, height: 115pt, title: "violin-plot", x-label: "Position", y-label: "Rating", theme: dk,
   ),
 
   // 44. timeline-chart — League: season milestones
@@ -309,9 +320,43 @@
     size: 130pt, arc-width: 10pt, title: "chord-diagram", theme: dk,
   ),
 
+  // 47. card + compact-table — Dashboard layout
+  [
+    #v(10pt)
+    #align(center, text(size: dk.title-size, weight: dk.title-weight, fill: dk.text-color)[card · compact-table])
+    #v(2pt)
+    #card(title: "Revenue", desc: "Monthly", theme: dk)[
+      #compact-table(
+        ("Month", "Rev", "Cost", "Profit"),
+        (
+          ("Jan", "$12K", "$8K", "$4K"),
+          ("Feb", "$15K", "$9K", "$6K"),
+          ("Mar", "$11K", "$7K", "$4K"),
+        ),
+        highlight-col: 3,
+        theme: dk,
+      )
+    ]
+  ],
+
+  // 48. alert + badge + separator — Dashboard components
+  [
+    #v(10pt)
+    #align(center, text(size: dk.title-size, weight: dk.title-weight, fill: dk.text-color)[alert · badge · separator])
+    #v(2pt)
+    #alert(title: "Deployed", variant: "success", theme: dk)[Service v2.4.1 live.]
+    #v(3pt)
+    #alert(title: "Warning", variant: "warning", theme: dk)[Memory at 87%.]
+    #v(4pt)
+    #badge("Production", theme: dk) #h(3pt)
+    #badge("Staging", variant: "secondary", theme: dk) #h(3pt)
+    #badge("Failed", variant: "destructive", theme: dk)
+    #separator(theme: dk)
+  ],
+
 ))
 
-// ── Page 7: Full-page word cloud ─────────────────────────────────────────────
+// ── Page 8: Full-page word cloud ─────────────────────────────────────────────
 #pagebreak()
 #word-cloud(words,
   width: 100%, height: 100%, title: "word-cloud", shape: "circle", theme: dk,

@@ -4,6 +4,7 @@
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/legend.typ": draw-legend-vertical
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a parliament (hemicycle) chart — a semicircle of dots showing seat distribution.
 ///
@@ -27,6 +28,8 @@
   show-legend: true,
   theme: none,
 ) = context {
+  layout(avail => {
+  let size = resolve-size(size, size, avail).width
   validate-simple-data(data, "parliament-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
@@ -128,9 +131,11 @@
   }
 
   let chart-height = radius + dot-r
-  let legend-height = if show-legend { calc.ceil(n-parties / 3) * 16pt + 10pt } else { 0pt }
+  let swatch-size = t.legend-swatch-size
+  let legend-row-h = swatch-size + 8pt
+  let legend-height = if show-legend { calc.ceil(n-parties / 3) * legend-row-h + 10pt } else { 0pt }
 
-  chart-container(size, chart-height + legend-height, title, t, extra-height: 40pt)[
+  align(center, chart-container(size, chart-height + legend-height, title, t, extra-height: 40pt)[
     // Hemicycle
     #box(width: size, height: chart-height)[
       #for (i, pos) in dots.enumerate() {
@@ -153,7 +158,7 @@
         #for (i, lbl) in labels.enumerate() {
           if values.at(i) > 0 {
             box(baseline: 2pt, inset: (x: 4pt, y: 1pt))[
-              #box(width: 8pt, height: 8pt, fill: get-color(t, i), radius: 2pt, baseline: 1pt)
+              #box(width: swatch-size, height: swatch-size, fill: get-color(t, i), radius: 2pt, baseline: 1pt)
               #h(3pt)
               #lbl (#{ str(values.at(i)) })
             ]
@@ -161,5 +166,6 @@
         }
       ]
     }
-  ]
+  ])
+  })
 }

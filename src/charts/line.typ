@@ -6,6 +6,7 @@
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-category-labels, draw-x-even-labels
 #import "../primitives/legend.typ": draw-legend-auto
 #import "../primitives/annotations.typ": draw-annotations
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a single-series line chart.
 ///
@@ -36,8 +37,14 @@
   x-label: none,
   y-label: none,
   annotations: none,
+  show-ticks: false,
+  show-minor-grid: false,
+  subtitle: none,
+  radius: 0pt,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "line-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
@@ -52,7 +59,7 @@
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 30pt)[
+  chart-container(width, height, title, t, extra-height: 30pt, subtitle: subtitle, radius: radius)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -61,10 +68,10 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid)
 
       // Axes
-      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t, show-ticks: show-ticks)
 
       // Y-axis ticks
       #draw-y-ticks(min-val, max-val, chart-height, pad-top, origin-x, t)
@@ -98,7 +105,7 @@
             left + top,
             dx: pt.at(0) - point-size / 2,
             dy: pt.at(1) - point-size / 2,
-            circle(radius: point-size / 2, fill: get-color(t, 0), stroke: white + 1pt)
+            circle(radius: point-size / 2, fill: get-color(t, 0), stroke: t.marker-stroke)
           )
 
           if show-values {
@@ -122,6 +129,7 @@
       #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, 0, calc.max(n - 1, 1), min-val, max-val, t)
     ]
   ]
+  })
 }
 
 /// Renders a multi-series line chart with a shared axis.
@@ -143,10 +151,14 @@
   title: none,
   show-points: true,
   show-legend: true,
+  line-width: 1.5pt,
+  point-size: 3pt,
   x-label: none,
   y-label: none,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-series-data(data, "multi-line-chart")
   let t = _resolve-ctx(theme)
   let labels = data.labels
@@ -161,7 +173,8 @@
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 50pt)[
+  let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "line")
+  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -197,7 +210,7 @@
             line(
               start: (p1.at(0), p1.at(1)),
               end: (p2.at(0), p2.at(1)),
-              stroke: 1.5pt + color,
+              stroke: line-width + color,
             )
           )
         }
@@ -206,9 +219,9 @@
           for pt in points {
             place(
               left + top,
-              dx: pt.at(0) - 3pt,
-              dy: pt.at(1) - 3pt,
-              circle(radius: 3pt, fill: color, stroke: white + 0.5pt)
+              dx: pt.at(0) - point-size,
+              dy: pt.at(1) - point-size,
+              circle(radius: point-size, fill: color, stroke: t.marker-stroke)
             )
           }
         }
@@ -220,7 +233,6 @@
       // Axis titles
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
     ]
-
-    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "line")
   ]
+  })
 }

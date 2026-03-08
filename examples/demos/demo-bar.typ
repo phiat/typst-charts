@@ -11,10 +11,10 @@
 
 #page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   bar-chart(codebase.subsystems,
-    width: W, height: H, title: "bar-chart (light)", y-label: "LoC", theme: lt,
+    width: W, height: H, title: "bar-chart (light)", x-label: "Subsystem", y-label: "LoC", theme: lt,
   ),
   bar-chart(codebase.subsystems,
-    width: W, height: H, title: "bar-chart (dark)", y-label: "LoC", theme: dk,
+    width: W, height: H, title: "bar-chart (dark)", x-label: "Subsystem", y-label: "LoC", theme: dk,
   ),
   horizontal-bar-chart(codebase.patches,
     width: W, height: H, title: "horizontal-bar-chart (light)", x-label: "Patches", theme: lt,

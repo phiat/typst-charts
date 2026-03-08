@@ -3,6 +3,7 @@
 #import "../validate.typ": validate-chord-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/polar.typ": arc-points as polar-arc-points, place-polar-label
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a chord diagram showing relationships and flows between entities
 /// arranged around a circular ring.
@@ -32,6 +33,8 @@
   gap: 2,
   theme: none,
 ) = context {
+  layout(avail => {
+  let size = resolve-size(size, size, avail).width
   validate-chord-data(data, "chord-diagram")
   let t = _resolve-ctx(theme)
 
@@ -51,18 +54,22 @@
 
   // Guard: nothing to draw if all flows are zero
   if grand-total == 0 {
-    return chart-container(size, size, title, t)[
+    return align(center, chart-container(size, size, title, t)[
       #box(width: size, height: size)[
-        #place(center + horizon, text(size: 9pt, fill: t.text-color)[No flow data])
+        #place(center + horizon, text(size: t.axis-label-size, fill: t.text-color)[No flow data])
       ]
-    ]
+    ])
   }
 
-  let radius = size / 2
+  // Reserve margin for labels so they don't get clipped at the edges.
+  // Labels sit 12pt outside the outer arc in a ~4em box; reserve enough
+  // space on each side for the label offset plus half the box width.
+  let label-margin = if show-labels { 40pt } else { 0pt }
+  let radius = (size - 2 * label-margin) / 2
   let outer-r = radius - 2pt          // outer edge of arcs
   let inner-r = outer-r - arc-width   // inner edge of arcs (chord attachment)
-  let center-x = radius
-  let center-y = radius
+  let center-x = size / 2
+  let center-y = size / 2
 
   // ── Compute arc spans in degrees ─────────────────────────────────────
   let total-gap = gap * n             // total degrees consumed by gaps
@@ -113,7 +120,7 @@
   let cursor = array.range(n).map(_ => 0.0)
 
   // ── Render ───────────────────────────────────────────────────────────
-  chart-container(size, size, title, t, extra-height: 30pt)[
+  align(center, chart-container(size, size, title, t, extra-height: 30pt)[
     #box(width: size, height: size)[
       // --- Draw chords first (behind arcs) ---
       #for i in array.range(n) {
@@ -213,9 +220,10 @@
           let label-r = outer-r + 12pt
 
           place-polar-label(center-x, center-y, mid-angle, label-r,
-            text(size: 7pt, fill: t.text-color, str(labels.at(i))))
+            text(size: t.axis-label-size, fill: t.text-color, str(labels.at(i))))
         }
       }
     ]
-  ]
+  ])
+  })
 }

@@ -4,6 +4,7 @@
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/legend.typ": draw-legend-auto
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a waffle chart — a grid of squares where each square represents
 /// a unit or percentage of the total. Commonly used in infographics to
@@ -35,8 +36,19 @@
   show-values: true,
   theme: none,
 ) = context {
+  layout(avail => {
+  let size = resolve-size(size, size, avail).width
   validate-simple-data(data, "waffle-chart")
   let t = _resolve-ctx(theme)
+
+  // Shrink grid size if total width (grid + legend + padding) exceeds available space
+  let legend-overhead = if show-legend { 120pt + 10pt } else { 0pt }
+  let pad2 = 16pt  // 2 * container-inset
+  let avail-w = if type(avail.width) == length and avail.width > 0pt { avail.width } else { none }
+  if avail-w != none and size + legend-overhead + pad2 > avail-w {
+    size = avail-w - legend-overhead - pad2
+  }
+
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values
@@ -98,7 +110,7 @@
   let wt = (..t, legend-position: "right")
   let legend-content = draw-legend-auto(legend-entries, wt, show-legend: show-legend)
 
-  chart-container(size, grid-height, title, wt, legend: legend-content)[
+  align(center, chart-container(size, grid-height, title, wt, legend: legend-content)[
     // Draw grid bottom-to-top, left-to-right
     #box(width: size, height: grid-height)[
       #align(center + top)[
@@ -130,5 +142,6 @@
       ]
     ]
 
-  ]
+  ])
+  })
 }

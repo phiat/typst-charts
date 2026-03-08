@@ -2,6 +2,7 @@
 #import "../theme.typ": _resolve-ctx, get-color
 #import "../validate.typ": validate-timeline-data
 #import "../primitives/container.typ": chart-container
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a vertical event timeline — a series of dated events along a
 /// central vertical line, alternating left and right for visual variety.
@@ -25,6 +26,8 @@
   marker-size: 6pt,
   theme: none,
 ) = context {
+  layout(size => {
+  let width = resolve-size(width, 0pt, size).width
   validate-timeline-data(data, "timeline-chart")
   let t = _resolve-ctx(theme)
   let events = data.events
@@ -99,7 +102,7 @@
           circle(
             radius: marker-size,
             fill: marker-color,
-            stroke: 1pt + white,
+            stroke: t.marker-stroke,
           ),
         )
 
@@ -151,4 +154,5 @@
       }
     ]
   ]
+  })
 }

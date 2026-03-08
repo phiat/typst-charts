@@ -5,6 +5,7 @@
 #import "../primitives/axes.typ": cartesian-layout, draw-grid, draw-axis-titles, draw-x-even-labels, draw-y-ticks
 #import "../primitives/legend.typ": draw-legend-auto
 #import "../util.typ": nonzero, nice-ceil
+#import "../primitives/layout.typ": resolve-size
 
 #let dual-axis-chart(
   data,
@@ -12,6 +13,8 @@
   height: 250pt,
   title: none,
   show-points: true,
+  line-width: 1.5pt,
+  point-size: 3pt,
   left-color: none,
   right-color: none,
   left-label: none,
@@ -20,6 +23,8 @@
   show-grid: auto,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-dual-axis-data(data, "dual-axis-chart")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
@@ -94,7 +99,7 @@
           line(
             start: (p1.at(0), p1.at(1)),
             end: (p2.at(0), p2.at(1)),
-            stroke: 1.5pt + l-color,
+            stroke: line-width + l-color,
           )
         )
       }
@@ -108,7 +113,7 @@
           line(
             start: (p1.at(0), p1.at(1)),
             end: (p2.at(0), p2.at(1)),
-            stroke: 1.5pt + r-color,
+            stroke: line-width + r-color,
           )
         )
       }
@@ -118,17 +123,17 @@
         for pt in l-points {
           place(
             left + top,
-            dx: pt.at(0) - 3pt,
-            dy: pt.at(1) - 3pt,
-            circle(radius: 3pt, fill: l-color, stroke: white + 0.5pt)
+            dx: pt.at(0) - point-size,
+            dy: pt.at(1) - point-size,
+            circle(radius: point-size, fill: l-color, stroke: t.marker-stroke)
           )
         }
         for pt in r-points {
           place(
             left + top,
-            dx: pt.at(0) - 3pt,
-            dy: pt.at(1) - 3pt,
-            circle(radius: 3pt, fill: r-color, stroke: white + 0.5pt)
+            dx: pt.at(0) - point-size,
+            dy: pt.at(1) - point-size,
+            circle(radius: point-size, fill: r-color, stroke: t.marker-stroke)
           )
         }
       }
@@ -160,4 +165,5 @@
       t, swatch-type: "line",
     )
   ]
+  })
 }

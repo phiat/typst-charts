@@ -158,7 +158,7 @@
 
   // Minor grid lines (drawn first, behind major)
   if show-minor-grid and tick-count > 1 {
-    let minor-stroke = theme.at("minor-grid-stroke", default: 0.25pt + luma(240))
+    let minor-stroke = theme.at("minor-grid-stroke", default: 0.25pt + theme.text-color-light.transparentize(60%))
     for i in array.range(tick-count - 1) {
       for j in array.range(1, minor-count) {
         let fraction = (i + j / minor-count) / (tick-count - 1)
@@ -193,16 +193,29 @@
 
 // Draw axis title labels (x below axis, y rotated on left).
 // y-center is the vertical midpoint of the chart area (used for y-label rotation).
-// x-label is placed at 2 × y-center + 18pt (i.e. below the x-axis tick labels).
+// x-label is placed below the x-axis tick labels.
+// y-label is rotated and centered vertically along the y-axis.
+// Parameters: x-center (horizontal center of chart area),
+//   y-center (origin-y / 2, used for backward compat — origin-y = y-center * 2),
+//   theme (resolved theme).
 #let draw-axis-titles(x-label, y-label, x-center, y-center, theme) = {
+  let origin-y = y-center * 2
+  let pad-top = theme.axis-padding-top
+  let chart-mid-y = (pad-top + origin-y) / 2
+
   if x-label != none {
-    place(left + top, dx: x-center, dy: y-center * 2 + 18pt,
-      align(center, text(size: theme.axis-title-size, fill: theme.text-color)[#x-label])
+    let lbl-content = text(size: theme.axis-title-size, fill: theme.text-color)[#x-label]
+    let lbl-w = measure(lbl-content).width
+    let box-w = lbl-w + 8pt
+    place(left + top, dx: x-center, dy: origin-y + 18pt,
+      move(dx: -box-w / 2, box(width: box-w, align(center, lbl-content)))
     )
   }
   if y-label != none {
-    place(left + top, dx: 2pt, dy: y-center,
-      rotate(-90deg, text(size: theme.axis-title-size, fill: theme.text-color)[#y-label])
+    let lbl-content = text(size: theme.axis-title-size, fill: theme.text-color)[#y-label]
+    let lbl-w = measure(lbl-content).width
+    place(left + top, dx: 0pt, dy: chart-mid-y - lbl-w / 2,
+      rotate(-90deg, origin: top + left, lbl-content)
     )
   }
 }

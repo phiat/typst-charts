@@ -42,7 +42,7 @@ screenshots:
     mkdir -p screenshots/demo screenshots/showcase
     for f in examples/demos/demo-*.typ; do
         base=$(basename "$f" .typ)
-        typst compile --root . "$f" "screenshots/demo/${base}.png" || exit 1
+        typst compile --root . "$f" "screenshots/demo/${base}-{0p}.png" || exit 1
     done
     typst compile --root . examples/showcase.typ "screenshots/showcase/showcase-{0p}.png"
     optipng -o2 -quiet screenshots/demo/*.png screenshots/showcase/*.png || echo "optipng not found, skipping optimization"
@@ -87,9 +87,29 @@ dev:
 convert *args:
     python3 scripts/convert-data.py {{args}}
 
+# Extract theme from CSS file (e.g., just extract-theme src/index.css --name shadcn)
+extract-theme *args:
+    uv run scripts/extract-theme.py {{args}}
+
+# Extract theme from CSS file using Bun/TS (e.g., just extract-theme-ts src/index.css --name shadcn)
+extract-theme-ts *args:
+    bun run scripts/extract-theme.ts {{args}}
+
+# Compile a single demo by name (e.g., just compile-demo pie)
+compile-demo name:
+    typst compile --root . examples/demos/demo-{{name}}.typ
+
+# Diff screenshots against last commit (requires git)
+diff-screenshots:
+    @git diff --stat HEAD -- screenshots/ || echo "No screenshot changes"
+
 # Clean generated artifacts
 clean:
     rm -f examples/*.pdf examples/demos/*.pdf tests/*.pdf
+
+# Clean screenshots too (for full regeneration)
+clean-all: clean
+    rm -f screenshots/demo/*.png screenshots/showcase/*.png
 
 # Full release prep: build everything, verify clean
 release: build
@@ -101,4 +121,7 @@ stats:
     @echo "Primitive modules: $(ls src/primitives/*.typ | wc -l)"
     @echo "Total .typ files:  $(find src/ -name '*.typ' | wc -l)"
     @echo "Demo files:        $(ls examples/demos/demo-*.typ | wc -l)"
+    @echo "Test files:        $(ls tests/test-*.typ | wc -l)"
     @echo "Screenshots:       $(ls screenshots/demo/*.png screenshots/showcase/*.png 2>/dev/null | wc -l)"
+    @echo "Data files:        $(ls data/*.json 2>/dev/null | wc -l)"
+    @echo "Scripts:           $(ls scripts/*.py scripts/*.ts 2>/dev/null | wc -l)"

@@ -11,15 +11,15 @@
 
 #page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   area-chart(sales.monthly,
-    width: W, height: H, title: "area-chart (light)", fill-opacity: 40%, y-label: "Revenue ($K)", theme: lt,
+    width: W, height: H, title: "area-chart (light)", fill-opacity: 40%, x-label: "Month", y-label: "Revenue ($K)", theme: lt,
   ),
   area-chart(sales.monthly,
-    width: W, height: H, title: "area-chart (dark)", fill-opacity: 40%, y-label: "Revenue ($K)", theme: dk,
+    width: W, height: H, title: "area-chart (dark)", fill-opacity: 40%, x-label: "Month", y-label: "Revenue ($K)", theme: dk,
   ),
   stacked-area-chart(sales.monthly-series,
-    width: W, height: H, title: "stacked-area-chart (light)", theme: lt,
+    width: W, height: H, title: "stacked-area-chart (light)", x-label: "Month", y-label: "Commits", theme: lt,
   ),
   stacked-area-chart(sales.monthly-series,
-    width: W, height: H, title: "stacked-area-chart (dark)", theme: dk,
+    width: W, height: H, title: "stacked-area-chart (dark)", x-label: "Month", y-label: "Commits", theme: dk,
   ),
 ))

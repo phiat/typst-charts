@@ -7,6 +7,7 @@
 #import "../primitives/legend.typ": draw-legend-auto
 #import "../primitives/annotations.typ": draw-annotations
 #import "../primitives/polar.typ": separator-stroke
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a horizontal bar chart with category labels on the y-axis.
 ///
@@ -31,6 +32,8 @@
   y-label: none,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "horizontal-bar-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
@@ -52,9 +55,6 @@
     #box(width: width, height: height)[
       // Grid
       #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
-
-      // Axes
-      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // X-axis ticks (numeric values along bottom)
       #draw-x-ticks(0, max-val, chart-width, origin-x, origin-y + 4pt, t, digits: 0)
@@ -93,10 +93,14 @@
         draw-y-label(labels.at(i), y-pos + actual-bar-height / 2, origin-x, t)
       }
 
+      // Axes (drawn after bars so axis lines appear on top)
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
+
       // Axis titles
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
     ]
   ]
+  })
 }
 
 /// Renders a vertical bar chart with one bar per category.
@@ -122,8 +126,14 @@
   x-label: none,
   y-label: none,
   annotations: none,
+  show-ticks: false,
+  show-minor-grid: false,
+  subtitle: none,
+  radius: 0pt,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "bar-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
@@ -135,7 +145,7 @@
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 30pt)[
+  chart-container(width, height, title, t, extra-height: 30pt, subtitle: subtitle, radius: radius)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -144,10 +154,7 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
-
-      // Axes
-      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid)
 
       // Y-axis ticks
       #draw-y-ticks(0, max-val, chart-height, pad-top, origin-x, t)
@@ -182,6 +189,9 @@
         }
       }
 
+      // Axes (drawn after bars so axis lines appear on top)
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t, show-ticks: show-ticks)
+
       // X-axis category labels
       #draw-x-category-labels(labels, origin-x, spacing, origin-y + 4pt, t)
 
@@ -192,6 +202,7 @@
       #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, -0.5, n - 0.5, 0, max-val, t)
     ]
   ]
+  })
 }
 
 /// Renders a grouped bar chart with multiple series side by side.
@@ -215,6 +226,8 @@
   y-label: none,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-series-data(data, "grouped-bar-chart")
   let t = _resolve-ctx(theme)
   let labels = data.labels
@@ -227,7 +240,8 @@
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 50pt)[
+  let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
+  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -237,9 +251,6 @@
     #box(width: width, height: height)[
       // Grid
       #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
-
-      // Axes
-      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // Y-axis ticks
       #draw-y-ticks(0, max-val, chart-height, pad-top, origin-x, t)
@@ -267,15 +278,17 @@
         }
       }
 
+      // Axes (drawn after bars so axis lines appear on top)
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
+
       // X-axis category labels
       #draw-x-category-labels(labels, origin-x, group-width, origin-y + 4pt, t)
 
       // Axis titles
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
     ]
-
-    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
   ]
+  })
 }
 
 /// Renders a stacked bar chart with series values stacked vertically.
@@ -299,6 +312,8 @@
   y-label: none,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-series-data(data, "stacked-bar-chart")
   let t = _resolve-ctx(theme)
   let labels = data.labels
@@ -314,7 +329,8 @@
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 50pt)[
+  let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
+  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -324,9 +340,6 @@
     #box(width: width, height: height)[
       // Grid
       #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
-
-      // Axes
-      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // Y-axis ticks
       #draw-y-ticks(0, max-val, chart-height, pad-top, origin-x, t)
@@ -358,15 +371,17 @@
         }
       }
 
+      // Axes (drawn after bars so axis lines appear on top)
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
+
       // X-axis category labels
       #draw-x-category-labels(labels, origin-x, bar-spacing, origin-y + 4pt, t)
 
       // Axis titles
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
     ]
-
-    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
   ]
+  })
 }
 
 /// Renders a grouped-stacked bar chart combining side-by-side groups with
@@ -395,6 +410,8 @@
   annotations: none,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-grouped-stacked-data(data, "grouped-stacked-bar-chart")
   let t = _resolve-ctx(theme)
   let labels = data.labels
@@ -433,7 +450,9 @@
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 50pt)[
+  // Legend shows segment names (consistent colors across groups)
+  let legend-content = draw-legend-auto(segment-names, t, show-legend: show-legend)
+  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -443,9 +462,6 @@
     #box(width: width, height: height)[
       // Grid
       #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
-
-      // Axes
-      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // Y-axis ticks
       #draw-y-ticks(0, max-val, chart-height, pad-top, origin-x, t)
@@ -486,6 +502,9 @@
         }
       }
 
+      // Axes (drawn after bars so axis lines appear on top)
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
+
       // X-axis category labels
       #draw-x-category-labels(labels, origin-x, slot-width, origin-y + 4pt, t)
 
@@ -495,8 +514,6 @@
       // Annotations
       #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, -0.5, n-labels - 0.5, 0, max-val, t)
     ]
-
-    // Legend shows segment names (consistent colors across groups)
-    #draw-legend-auto(segment-names, t, show-legend: show-legend)
   ]
+  })
 }

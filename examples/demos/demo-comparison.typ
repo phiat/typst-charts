@@ -19,7 +19,7 @@
     width: W, height: H, title: "dumbbell-chart", show-values: true, theme: dk,
   ),
   lollipop-chart(codebase.subsystems,
-    width: W, height: H, title: "lollipop-chart", theme: lt,
+    width: W, height: H, title: "lollipop-chart", x-label: "Stat", y-label: "Value", theme: lt,
   ),
   box(fill: rgb("#1a1a2e"), inset: 8pt, radius: 4pt)[
     #text(size: 9pt, weight: "bold", fill: rgb("#e0e0e0"))[bullet-chart (dark)]

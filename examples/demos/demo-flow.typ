@@ -13,13 +13,9 @@
   sankey-chart(sales.budget-flow,
     width: W, height: H, title: "sankey-chart", show-labels: true, theme: lt,
   ),
-  box(fill: rgb("#1a1a2e"), inset: 8pt, radius: 4pt)[
-    #text(size: 9pt, weight: "bold", fill: rgb("#e0e0e0"))[gantt-chart (dark)]
-    #v(4pt)
-    #gantt-chart(sales.schedule,
-      width: 214pt, bar-height: 14pt, gap: 3pt, today: 7, title: none, theme: dk,
-    )
-  ],
+  gantt-chart(sales.schedule,
+    width: W, bar-height: 14pt, gap: 3pt, today: 7, title: "gantt-chart (dark)", x-label: "Week", theme: dk,
+  ),
   timeline-chart(sales.milestones,
     width: W, event-gap: 45pt, title: "timeline-chart", theme: lt,
   ),

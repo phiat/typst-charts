@@ -1,7 +1,8 @@
 // rings.typ - Donut progress / fitness rings chart (Apple Watch style)
 #import "../theme.typ": _resolve-ctx, get-color
 #import "../validate.typ": validate-ring-data
-#import "../primitives/container.typ": chart-container
+#import "../primitives/container.typ": chart-container, container-inset
+#import "../primitives/layout.typ": resolve-size
 
 /// Concentric ring progress chart (fitness rings).
 /// Outermost ring = first entry, innermost = last.
@@ -16,32 +17,50 @@
   show-values: true,
   theme: none,
 ) = context {
+  layout(avail => {
+  let size = resolve-size(size, size, avail).width
   validate-ring-data(entries, "ring-progress")
   let t = _resolve-ctx(theme)
   let n = entries.len()
 
-  // Total width needed for labels column
-  let label-col-width = if show-labels { 90pt } else { 0pt }
+  // Total width needed for labels column — scale with ring size
+  let label-col-width = if show-labels { calc.max(70pt, size * 0.5) } else { 0pt }
+
+  // Margin to prevent ring strokes from clipping at the container edge
+  let margin = ring-width / 2 + 2pt
+
+  // Shrink if total width exceeds available space
+  let container-inset = 2 * container-inset
+  let avail-w = if type(avail.width) == length and avail.width > 0pt { avail.width } else { none }
+  let total-w = size + margin * 2 + label-col-width
+  if avail-w != none and total-w + container-inset > avail-w {
+    size = avail-w - container-inset - margin * 2 - label-col-width
+    if size < 80pt {
+      size = (avail-w - container-inset - margin * 2) * 0.6
+      label-col-width = (avail-w - container-inset - margin * 2) - size
+    }
+  }
 
   // Pre-compute ring colours (one per entry from the palette)
   let colors = array.range(n).map(i => get-color(t, i))
 
-  // Dimmed background colour helper — mix with white at 20 % opacity
+  // Dimmed background colour helper — mix with background at 20 % opacity
+  let bg = if t.background != none { t.background } else { white }
   let dim = (c) => {
-    color.mix((c, 20%), (white, 80%))
+    color.mix((c, 20%), (bg, 80%))
   }
 
   // Number of line-segment samples per full circle
   let samples-per-circle = 72
 
-  chart-container(size + label-col-width, size, title, t)[
-    #box(width: size + label-col-width, height: size)[
+  align(center, chart-container(size + margin * 2 + label-col-width, size + margin * 2, title, t)[
+    #box(width: size + margin * 2 + label-col-width, height: size + margin * 2)[
       // ── Draw rings ───────────────────────────────────────────────
       #for (i, entry) in entries.enumerate() {
         let radius = size / 2 - ring-width / 2 - i * (ring-width + gap)
         if radius < ring-width / 2 { /* skip if too small */ } else {
-          let cx = size / 2
-          let cy = size / 2
+          let cx = size / 2 + margin
+          let cy = size / 2 + margin
           let ring-color = colors.at(i)
           let bg-color = dim(ring-color)
 
@@ -111,21 +130,21 @@
       #if show-labels {
         for (i, entry) in entries.enumerate() {
           let ring-color = colors.at(i)
-          let label-x = size + 8pt
-          let label-y = size / 2 - (n / 2 - i) * 22pt
+          let label-x = size + margin * 2 + 8pt
+          let label-y = size / 2 + margin - (n / 2 - i) * (t.legend-swatch-size + 12pt)
 
           // Colour swatch
           place(
             left + top,
             dx: label-x,
             dy: label-y,
-            rect(width: 10pt, height: 10pt, fill: ring-color, radius: 2pt)
+            rect(width: t.legend-swatch-size, height: t.legend-swatch-size, fill: ring-color, radius: 2pt)
           )
 
           // Name
           place(
             left + top,
-            dx: label-x + 14pt,
+            dx: label-x + t.legend-swatch-size + 4pt,
             dy: label-y - 1pt,
             text(size: t.legend-size, fill: t.text-color, weight: "bold")[#entry.name]
           )
@@ -135,8 +154,8 @@
             let pct = calc.round(entry.value / entry.max * 100, digits: 0)
             place(
               left + top,
-              dx: label-x + 14pt,
-              dy: label-y + 10pt,
+              dx: label-x + t.legend-swatch-size + 4pt,
+              dy: label-y + t.legend-swatch-size,
               text(size: t.value-label-size, fill: t.text-color-light)[
                 #entry.value / #entry.max (#pct%)
               ]
@@ -145,5 +164,6 @@
         }
       }
     ]
-  ]
+  ])
+  })
 }

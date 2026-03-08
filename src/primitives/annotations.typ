@@ -51,7 +51,7 @@
       )
       if ann-label != none {
         place(left + top, dx: x-start + chart-width + 3pt, dy: py - 5pt,
-          text(size: 6pt, fill: ann-color)[#ann-label]
+          text(size: theme.axis-label-size * 0.85, fill: ann-color)[#ann-label]
         )
       }
     } else if ann-type == "v-line" {
@@ -62,7 +62,7 @@
       )
       if ann-label != none {
         place(left + top, dx: px - 10pt, dy: y-start - 12pt,
-          text(size: 6pt, fill: ann-color)[#ann-label]
+          text(size: theme.axis-label-size * 0.85, fill: ann-color)[#ann-label]
         )
       }
     } else if ann-type == "h-band" {
@@ -78,14 +78,14 @@
       )
       if ann-label != none {
         place(left + top, dx: x-start + 3pt, dy: band-y + 2pt,
-          text(size: 6pt, fill: ann-color)[#ann-label]
+          text(size: theme.axis-label-size * 0.85, fill: ann-color)[#ann-label]
         )
       }
     } else if ann-type == "label" {
       let (px, py) = to-px(ann.x, ann.y)
       let label-text = ann.text
       place(left + top, dx: px + 3pt, dy: py - 8pt,
-        text(size: 7pt, fill: ann-color, weight: "bold")[#label-text]
+        text(size: theme.axis-label-size, fill: ann-color, weight: "bold")[#label-text]
       )
       // Small dot at the point
       place(left + top, dx: px - 2pt, dy: py - 2pt,

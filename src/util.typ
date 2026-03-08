@@ -1,5 +1,19 @@
 // util.typ - Shared utilities for primaviz
 
+/// Returns white or black depending on the perceived luminance of a color.
+/// Uses the W3C relative luminance formula for good contrast.
+///
+/// - c (color): Input color
+/// -> color
+#let contrast-text(c) = {
+  let comps = rgb(c).components()
+  let r = comps.at(0) / 100%
+  let g = comps.at(1) / 100%
+  let b = comps.at(2) / 100%
+  let lum = 0.299 * r + 0.587 * g + 0.114 * b
+  if lum > 0.55 { black } else { white }
+}
+
 /// Normalizes data input to a `(labels: array, values: array)` dictionary.
 ///
 /// - data (dictionary, array): Dict with `labels`/`values` keys, or array of `(label, value)` tuples
