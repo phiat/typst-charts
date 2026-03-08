@@ -56,7 +56,7 @@
   if grand-total == 0 {
     return align(center, chart-container(size, size, title, t)[
       #box(width: size, height: size)[
-        #place(center + horizon, text(size: 9pt, fill: t.text-color)[No flow data])
+        #place(center + horizon, text(size: t.axis-label-size, fill: t.text-color)[No flow data])
       ]
     ])
   }
@@ -216,7 +216,7 @@
           let label-r = outer-r + 12pt
 
           place-polar-label(center-x, center-y, mid-angle, label-r,
-            text(size: 7pt, fill: t.text-color, str(labels.at(i))))
+            text(size: t.axis-label-size, fill: t.text-color, str(labels.at(i))))
         }
       }
     ]

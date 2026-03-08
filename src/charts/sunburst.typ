@@ -154,7 +154,8 @@
           if fit.fits {
             let lx = cx + mid-r * calc.cos(mid-angle * 1deg)
             let ly = cy + mid-r * calc.sin(mid-angle * 1deg)
-            let label-color = if seg.depth <= 2 { t.text-color-inverse } else { t.text-color }
+            // All labels sit on colored pill backgrounds — use inverse text for contrast
+            let label-color = t.text-color-inverse
             // Size pill to text, not arc
             let label-w = fit.size * 0.5 * lbl-len + 4pt
             let pill-h = fit.size * 1.4

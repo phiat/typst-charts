@@ -77,7 +77,7 @@
   }
 
   // ── Layout geometry ───────────────────────────────────────────────────
-  let label-size = calc.min(8pt, calc.max(5pt, height / 25))
+  let label-size = calc.min(t.axis-label-size, calc.max(5pt, height / 25))
   // Scale pad-x with chart width — enough room for labels
   let max-label-len = nodes.fold(0, (acc, lbl) => calc.max(acc, str(lbl).len()))
   let pad-x = calc.max(30pt, calc.min(60pt, label-size * 0.6 * max-label-len + 8pt))

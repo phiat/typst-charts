@@ -13,6 +13,8 @@
   height: 250pt,
   title: none,
   show-points: true,
+  line-width: 1.5pt,
+  point-size: 3pt,
   left-color: none,
   right-color: none,
   left-label: none,
@@ -97,7 +99,7 @@
           line(
             start: (p1.at(0), p1.at(1)),
             end: (p2.at(0), p2.at(1)),
-            stroke: 1.5pt + l-color,
+            stroke: line-width + l-color,
           )
         )
       }
@@ -111,7 +113,7 @@
           line(
             start: (p1.at(0), p1.at(1)),
             end: (p2.at(0), p2.at(1)),
-            stroke: 1.5pt + r-color,
+            stroke: line-width + r-color,
           )
         )
       }
@@ -121,17 +123,17 @@
         for pt in l-points {
           place(
             left + top,
-            dx: pt.at(0) - 3pt,
-            dy: pt.at(1) - 3pt,
-            circle(radius: 3pt, fill: l-color, stroke: t.marker-stroke)
+            dx: pt.at(0) - point-size,
+            dy: pt.at(1) - point-size,
+            circle(radius: point-size, fill: l-color, stroke: t.marker-stroke)
           )
         }
         for pt in r-points {
           place(
             left + top,
-            dx: pt.at(0) - 3pt,
-            dy: pt.at(1) - 3pt,
-            circle(radius: 3pt, fill: r-color, stroke: t.marker-stroke)
+            dx: pt.at(0) - point-size,
+            dy: pt.at(1) - point-size,
+            circle(radius: point-size, fill: r-color, stroke: t.marker-stroke)
           )
         }
       }

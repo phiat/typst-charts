@@ -17,6 +17,7 @@
 /// - show-points (bool): Draw data point markers
 /// - fill-opacity (ratio): Opacity of the filled area
 /// - line-width (length): Stroke width of the line
+/// - point-size (length): Radius of point markers
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
 /// - theme (none, dictionary): Theme overrides
@@ -30,6 +31,7 @@
   show-points: false,
   fill-opacity: 40%,
   line-width: 1.5pt,
+  point-size: 3pt,
   x-label: none,
   y-label: none,
   theme: none,
@@ -118,9 +120,9 @@
         for pt in points {
           place(
             left + top,
-            dx: pt.at(0) - 3pt,
-            dy: pt.at(1) - 3pt,
-            circle(radius: 3pt, fill: get-color(t, 0), stroke: t.marker-stroke)
+            dx: pt.at(0) - point-size,
+            dy: pt.at(1) - point-size,
+            circle(radius: point-size, fill: get-color(t, 0), stroke: t.marker-stroke)
           )
         }
       }
@@ -143,6 +145,7 @@
 /// - title (none, content): Optional chart title
 /// - show-lines (bool): Draw boundary lines between series
 /// - fill-opacity (ratio): Opacity of each filled area
+/// - line-width (length): Stroke width of boundary lines
 /// - show-legend (bool): Show series legend
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
@@ -155,6 +158,7 @@
   title: none,
   show-lines: true,
   fill-opacity: 70%,
+  line-width: 1pt,
   show-legend: true,
   x-label: none,
   y-label: none,
@@ -231,7 +235,7 @@
           left + top,
           polygon(
             fill: color.transparentize(100% - fill-opacity),
-            stroke: if show-lines { color + 1pt } else { none },
+            stroke: if show-lines { color + line-width } else { none },
             ..area-pts.map(p => (p.at(0), p.at(1)))
           )
         )

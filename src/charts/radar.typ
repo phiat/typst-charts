@@ -93,7 +93,7 @@
           // Value label on first axis (top)
           if show-value-labels {
             let val = calc.round(max-val * level / 4, digits: 0)
-            let grid-label-size = font-for-space(size, 6pt, ratio: 0.04)
+            let grid-label-size = font-for-space(size, t.axis-label-size * 0.85, ratio: 0.04)
             place(
               left + top,
               dx: cx + 2pt,
