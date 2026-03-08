@@ -48,9 +48,14 @@
   let values = norm.values
   let n = values.len()
 
-  // Resolve colors
-  let pos-color = if positive-color != none { positive-color } else { rgb("#59a14f") }
-  let neg-color = if negative-color != none { negative-color } else { rgb("#e15759") }
+  // Resolve colors — check theme passthrough keys, then params, then defaults
+  let has-dark-bg = t.background != none
+  let pos-color = if positive-color != none { positive-color }
+    else if "positive-color" in t { t.positive-color }
+    else if has-dark-bg { rgb("#4ade80") } else { rgb("#16a34a") }
+  let neg-color = if negative-color != none { negative-color }
+    else if "negative-color" in t { t.negative-color }
+    else if has-dark-bg { rgb("#f87171") } else { rgb("#dc2626") }
   let tot-color = if total-color != none { total-color } else { get-color(t, 0) }
 
   // Determine types: auto-detect if not provided

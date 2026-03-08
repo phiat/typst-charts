@@ -173,8 +173,8 @@
   let month-label-height = if show-month-labels { 20pt } else { 0pt }
 
   // Theme-aware empty cell styling
-  let empty-fill = if t.background != none { t.background.lighten(15%) } else { luma(235) }
-  let empty-stroke = if t.background != none { 0.5pt + t.text-color-light } else { 0.5pt + luma(210) }
+  let empty-fill = if t.background != none { t.background.lighten(15%) } else { t.text-color-light.transparentize(80%) }
+  let empty-stroke = 0.5pt + t.text-color-light.transparentize(40%)
 
   let legend-min-w = 25pt + 5 * (cell-size + 2pt) + 5pt + 25pt  // Less + boxes + More
   let grid-w = n-weeks * cell-size

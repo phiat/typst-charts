@@ -251,7 +251,7 @@
             rect(
               width: box-half-w * 2,
               height: box-h,
-              fill: white.transparentize(40%),
+              fill: (if t.background != none { t.background } else { white }).transparentize(40%),
               stroke: whisker-stroke,
             )
           )

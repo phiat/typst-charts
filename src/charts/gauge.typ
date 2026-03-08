@@ -77,10 +77,13 @@
           let end-deg = -180 + ((i + 1) / 36) * 180
 
           let seg-progress = i / 36
+          let gauge-low = if "gauge-low-color" in t { t.gauge-low-color } else { get-color(t, 4) }
+          let gauge-mid = if "gauge-mid-color" in t { t.gauge-mid-color } else { get-color(t, 5) }
+          let gauge-high = if "gauge-high-color" in t { t.gauge-high-color } else { get-color(t, 2) }
           let seg-color = if seg-progress < 0.5 {
-            color.mix((rgb("#59a14f"), 100% - seg-progress * 200%), (rgb("#edc948"), seg-progress * 200%))
+            color.mix((gauge-low, 100% - seg-progress * 200%), (gauge-mid, seg-progress * 200%))
           } else {
-            color.mix((rgb("#edc948"), 100% - (seg-progress - 0.5) * 200%), (rgb("#e15759"), (seg-progress - 0.5) * 200%))
+            color.mix((gauge-mid, 100% - (seg-progress - 0.5) * 200%), (gauge-high, (seg-progress - 0.5) * 200%))
           }
 
           let pts = pie-slice-points(cx, cy, radius, start-deg, end-deg)
@@ -172,7 +175,7 @@
   title: none,
   show-value: true,
   color: none,
-  background: luma(230),
+  background: auto,
   rounded: true,
   theme: none,
 ) = context {
@@ -182,6 +185,7 @@
   let t = _resolve-ctx(theme)
   let progress = clamp(value / max-val, 0, 1)
   let bar-color = if color != none { color } else { get-color(t, 0) }
+  let background = if background != auto { background } else if t.background != none { t.background.lighten(20%) } else { luma(230) }
   let radius = if rounded { height / 2 } else { 0pt }
 
   box(width: width, height: height + (if title != none { 20pt } else { 0pt }))[
@@ -248,7 +252,7 @@
   show-value: true,
   stroke-width: 8pt,
   color: none,
-  background: luma(230),
+  background: auto,
   theme: none,
 ) = context {
   layout(avail => {
@@ -257,6 +261,7 @@
   let t = _resolve-ctx(theme)
   let progress = clamp(value / max-val, 0, 1)
   let bar-color = if color != none { color } else { get-color(t, 0) }
+  let background = if background != auto { background } else if t.background != none { t.background.lighten(20%) } else { luma(230) }
   let radius = size / 2 - stroke-width / 2
   let cx = size / 2
   let cy = size / 2
@@ -352,13 +357,14 @@
   title: none,
   show-values: true,
   max-val: auto,
-  background: luma(230),
+  background: auto,
   theme: none,
 ) = context {
   layout(size => {
   let width = resolve-size(width, 0pt, size, container: false).width
   validate-simple-data(data, "progress-bars")
   let t = _resolve-ctx(theme)
+  let background = if background != auto { background } else if t.background != none { t.background.lighten(20%) } else { luma(230) }
   let labels = data.labels
   let values = data.values
   let n = labels.len()

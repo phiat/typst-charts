@@ -44,9 +44,10 @@
   // Pre-compute ring colours (one per entry from the palette)
   let colors = array.range(n).map(i => get-color(t, i))
 
-  // Dimmed background colour helper — mix with white at 20 % opacity
+  // Dimmed background colour helper — mix with background at 20 % opacity
+  let bg = if t.background != none { t.background } else { white }
   let dim = (c) => {
-    color.mix((c, 20%), (white, 80%))
+    color.mix((c, 20%), (bg, 80%))
   }
 
   // Number of line-segment samples per full circle

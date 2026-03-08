@@ -41,11 +41,12 @@
   let max-range = nonzero(ranges.last())
 
   // Qualitative range shades (darkest = poor, lightest = good)
-  let is-dark = t.background != none and t.background != white
+  let is-dark = t.background != none
   let range-fills = if is-dark {
-    (luma(100), luma(130), luma(160))
+    let bg = t.background
+    (bg.lighten(15%), bg.lighten(25%), bg.lighten(35%))
   } else {
-    (luma(200), luma(225), luma(245))
+    (t.text-color-light.transparentize(50%), t.text-color-light.transparentize(70%), t.text-color-light.transparentize(85%))
   }
 
   // Title column width
@@ -117,7 +118,7 @@
 
     // X-axis tick labels along the bottom
     #{
-      let tick-count = 5
+      let tick-count = t.tick-count
       let tick-size = t.axis-label-size
       for ti in range(tick-count + 1) {
         let frac = ti / tick-count
@@ -163,11 +164,12 @@
   let n = bullets.len()
 
   let bar-color = get-color(t, 0)
-  let is-dark = t.background != none and t.background != white
+  let is-dark = t.background != none
   let range-fills = if is-dark {
-    (luma(100), luma(130), luma(160))
+    let bg = t.background
+    (bg.lighten(15%), bg.lighten(25%), bg.lighten(35%))
   } else {
-    (luma(200), luma(225), luma(245))
+    (t.text-color-light.transparentize(50%), t.text-color-light.transparentize(70%), t.text-color-light.transparentize(85%))
   }
 
   // Extra space for tick labels + legend
@@ -177,7 +179,7 @@
 
   box(width: width, height: total-height)[
     #if title != none {
-      align(center, text(size: 11pt, weight: "bold", fill: t.text-color)[#title])
+      align(center, text(size: t.title-size, weight: t.title-weight, fill: t.text-color)[#title])
       v(8pt)
     }
 
