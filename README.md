@@ -410,7 +410,8 @@ primaviz/
     demo/                    # Per-chart demo screenshots (demo-*.png)
     showcase/                # Showcase page screenshots (showcase-*.png)
   scripts/
-    extract-theme.py         # CSS → JSON token extractor (uv script)
+    extract-theme.py         # CSS → JSON token extractor (uv script, zero-install)
+    extract-theme.ts         # CSS → JSON token extractor (bun script, auto-installs culori)
   justfile                   # Common dev commands
 ```
 
@@ -431,7 +432,8 @@ just open            # Compile and open the demo PDF
 just dev             # Watch with live-reload and open PDF
 just clean           # Clean generated artifacts
 just release         # Full release prep (check + screenshots)
-just extract-theme   # Extract CSS tokens → JSON theme (e.g., just extract-theme src/index.css)
+just extract-theme   # Extract CSS tokens → JSON theme via Python (e.g., just extract-theme src/index.css)
+just extract-theme-ts # Extract CSS tokens → JSON theme via Bun/TS (same options)
 just stats           # Show project stats
 ```
 

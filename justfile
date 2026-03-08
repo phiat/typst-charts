@@ -91,6 +91,10 @@ convert *args:
 extract-theme *args:
     uv run scripts/extract-theme.py {{args}}
 
+# Extract theme from CSS file using Bun/TS (e.g., just extract-theme-ts src/index.css --name shadcn)
+extract-theme-ts *args:
+    bun run scripts/extract-theme.ts {{args}}
+
 # Compile a single demo by name (e.g., just compile-demo pie)
 compile-demo name:
     typst compile --root . examples/demos/demo-{{name}}.typ
