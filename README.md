@@ -151,13 +151,13 @@ Overlay reference lines, bands, and labels on bar, line, and scatter charts:
 ## Installation
 
 ```typst
-#import "@preview/primaviz:0.4.1": *
+#import "@preview/primaviz:0.5.0": *
 ```
 
 ## Usage
 
 ```typst
-#import "@preview/primaviz:0.4.1": *
+#import "@preview/primaviz:0.5.0": *
 
 // Load data from JSON
 #let data = json("mydata.json")
@@ -204,7 +204,7 @@ Every chart function accepts an optional `theme` parameter. Themes control color
 ### Using a preset theme
 
 ```typst
-#import "@preview/primaviz:0.4.1": *
+#import "@preview/primaviz:0.5.0": *
 
 #bar-chart(data, theme: themes.dark)
 ```
@@ -349,7 +349,7 @@ Themes support passthrough of custom keys not in the default theme. This lets yo
 The default theme uses Tableau 10 colors. You can access colors from any theme via the `get-color` function:
 
 ```typst
-#import "@preview/primaviz:0.4.1": get-color, themes
+#import "@preview/primaviz:0.5.0": get-color, themes
 
 // Default palette
 #get-color(themes.default, 0)  // blue
