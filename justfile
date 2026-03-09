@@ -40,6 +40,7 @@ test:
 screenshots:
     #!/usr/bin/env bash
     mkdir -p screenshots/demo screenshots/showcase
+    rm -f screenshots/demo/*.png screenshots/showcase/*.png
     for f in examples/demos/demo-*.typ; do
         base=$(basename "$f" .typ)
         typst compile --root . "$f" "screenshots/demo/${base}-{0p}.png" || exit 1
@@ -103,9 +104,10 @@ compile-demo name:
 diff-screenshots:
     @git diff --stat HEAD -- screenshots/ || echo "No screenshot changes"
 
-# Clean generated artifacts
+# Clean generated artifacts and stale temp screenshots
 clean:
     rm -f examples/*.pdf examples/demos/*.pdf tests/*.pdf
+    rm -f screenshots/showcase-*.png screenshots/demo-*-check*.png
 
 # Clean screenshots too (for full regeneration)
 clean-all: clean

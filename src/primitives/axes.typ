@@ -49,7 +49,7 @@
   // Tick marks
   if show-ticks {
     let tick-count = theme.tick-count
-    let tick-len = 4pt
+    let tick-len = theme.at("tick-length", default: 4pt)
     for i in array.range(tick-count) {
       let fraction = if tick-count > 1 { i / (tick-count - 1) } else { 0 }
       // Y-axis ticks (left side)

@@ -34,9 +34,9 @@
   theme: none,
 ) = context {
   layout(avail => {
-  let size = resolve-size(size, size, avail).width
   validate-chord-data(data, "chord-diagram")
   let t = _resolve-ctx(theme)
+  let size = resolve-size(size, size, avail).width
 
   let labels = data.labels
   let matrix = data.matrix

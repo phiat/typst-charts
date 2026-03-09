@@ -9,8 +9,8 @@
 
 #let dual-axis-chart(
   data,
-  width: 400pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   show-points: true,
   line-width: 1.5pt,
@@ -24,10 +24,10 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-dual-axis-data(data, "dual-axis-chart")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
+  let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
 
   let labels = data.labels
   let left-series = data.left

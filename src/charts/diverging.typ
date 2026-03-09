@@ -26,8 +26,8 @@
 /// -> content
 #let diverging-bar-chart(
   data,
-  width: 400pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   title: none,
   show-values: true,
   bar-height: auto,
@@ -35,9 +35,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-diverging-data(data, "diverging-bar-chart")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
 
   let labels = data.labels
   let left-values = data.left-values

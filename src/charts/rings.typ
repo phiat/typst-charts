@@ -18,9 +18,9 @@
   theme: none,
 ) = context {
   layout(avail => {
-  let size = resolve-size(size, size, avail).width
   validate-ring-data(entries, "ring-progress")
   let t = _resolve-ctx(theme)
+  let size = resolve-size(size, size, avail).width
   let n = entries.len()
 
   // Total width needed for labels column — scale with ring size

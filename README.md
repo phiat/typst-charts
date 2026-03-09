@@ -11,14 +11,16 @@ A charting library for [Typst](https://github.com/typst/typst) built entirely wi
 
 All 50+ chart types across 8 pages — see [`examples/showcase.typ`](examples/showcase.typ) for the source:
 
-![Showcase Page 1](screenshots/showcase/showcase-1.png)
-![Showcase Page 2](screenshots/showcase/showcase-2.png)
-![Showcase Page 3](screenshots/showcase/showcase-3.png)
-![Showcase Page 4](screenshots/showcase/showcase-4.png)
-![Showcase Page 5](screenshots/showcase/showcase-5.png)
-![Showcase Page 6](screenshots/showcase/showcase-6.png)
-![Showcase Page 7](screenshots/showcase/showcase-7.png)
-![Showcase Page 8](screenshots/showcase/showcase-8.png)
+![Showcase Page 1](screenshots/showcase/showcase-01.png)
+![Showcase Page 2](screenshots/showcase/showcase-02.png)
+![Showcase Page 3](screenshots/showcase/showcase-03.png)
+![Showcase Page 4](screenshots/showcase/showcase-04.png)
+![Showcase Page 5](screenshots/showcase/showcase-05.png)
+![Showcase Page 6](screenshots/showcase/showcase-06.png)
+![Showcase Page 7](screenshots/showcase/showcase-07.png)
+![Showcase Page 8](screenshots/showcase/showcase-08.png)
+![Showcase Page 9](screenshots/showcase/showcase-09.png)
+![Showcase Page 10](screenshots/showcase/showcase-10.png)
 
 ## Examples
 

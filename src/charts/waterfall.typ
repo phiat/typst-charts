@@ -25,8 +25,8 @@
 /// -> content
 #let waterfall-chart(
   data,
-  width: 400pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   show-values: true,
   show-connectors: true,
@@ -40,13 +40,13 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "waterfall-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values
   let n = values.len()
+  let (width, height) = resolve-size(width, height, size, n: n, theme: t)
 
   // Resolve colors — check theme passthrough keys, then params, then defaults
   let has-dark-bg = t.background != none

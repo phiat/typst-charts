@@ -25,8 +25,8 @@
 /// -> content
 #let word-cloud(
   data,
-  width: 300pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   min-size: 8pt,
   max-size: 36pt,
   title: none,
@@ -35,9 +35,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-wordcloud-data(data, "word-cloud")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: 10, theme: t)
   let words = data.words
 
   if words.len() == 0 { return }

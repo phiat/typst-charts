@@ -29,9 +29,9 @@
   theme: none,
 ) = context {
   layout(avail => {
-  let size = resolve-size(size, size, avail).width
   validate-simple-data(data, "parliament-chart")
   let t = _resolve-ctx(theme)
+  let size = resolve-size(size, size, avail).width
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values

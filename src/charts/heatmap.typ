@@ -1,5 +1,5 @@
 // heatmap.typ - Heatmap/matrix charts
-#import "../theme.typ": _resolve-ctx, get-color
+#import "../theme.typ": _resolve-ctx, get-color, _phi
 #import "../util.typ": lerp-color, heat-color, nonzero, day-of-week, contrast-text
 #import "../validate.typ": validate-heatmap-data, validate-calendar-data, validate-correlation-data
 #import "../primitives/container.typ": chart-container, container-inset
@@ -19,7 +19,7 @@
 /// -> content
 #let heatmap(
   data,
-  cell-size: 30pt,
+  cell-size: auto,
   title: none,
   show-values: true,
   palette: "viridis",
@@ -32,6 +32,10 @@
   layout(avail => {
   validate-heatmap-data(data, "heatmap")
   let t = _resolve-ctx(theme)
+
+  // Default cell-size scales from seeds: base-gap × φ³ ≈ 25pt at default
+  let cell-size = if cell-size == auto { t.cell-size } else { cell-size }
+
   let rows = data.rows
   let cols = data.cols
   let values = data.values
@@ -45,12 +49,13 @@
   let max-val = calc.max(..all-vals)
   let val-range = nonzero(max-val - min-val)
 
-  let row-label-width = calc.max(30pt, n-cols * cell-size * 0.15 + 15pt)
-  let col-label-height = calc.max(30pt, cell-size * 1.5)
-  let legend-width = if show-legend { 40pt } else { 0pt }
+  let row-label-width = calc.max(t.axis-padding-left, n-cols * cell-size * 0.15 + t.axis-padding-bottom / 2)
+  let col-label-height = calc.max(t.axis-padding-left, cell-size * 1.5)
+  let legend-width = if show-legend { t.axis-padding-left } else { 0pt }
 
   // Shrink cell-size if total width exceeds available space
-  let overhead = row-label-width + legend-width + 20pt + 2 * container-inset
+  let ci = t.at("container-inset", default: container-inset)
+  let overhead = row-label-width + legend-width + t.legend-gap + 2 * ci
   let avail-w = if type(avail.width) == length and avail.width > 0pt { avail.width } else { none }
   let cell-size = if avail-w != none and n-cols * cell-size + overhead > avail-w {
     (avail-w - overhead) / n-cols
@@ -59,7 +64,7 @@
   let grid-width = n-cols * cell-size
   let grid-height = n-rows * cell-size
 
-  chart-container(row-label-width + grid-width + legend-width + 20pt, col-label-height + grid-height, title, t, extra-height: 40pt, subtitle: subtitle, radius: radius)[
+  chart-container(row-label-width + grid-width + legend-width + t.legend-gap, col-label-height + grid-height, title, t, extra-height: t.axis-padding-left, subtitle: subtitle, radius: radius)[
     #box[
       // Column labels (rotated) — skip when columns are narrow
       #let col-skip = density-skip(n-cols, n-cols * cell-size)
@@ -68,7 +73,7 @@
           place(
             left + top,
             dx: row-label-width + j * cell-size + cell-size / 2,
-            dy: col-label-height - 4pt,
+            dy: col-label-height - t.label-offset,
             rotate(-45deg, origin: bottom + left, text(size: t.axis-label-size, fill: t.text-color)[#col])
           )
         }
@@ -81,7 +86,7 @@
           left + top,
           dx: 0pt,
           dy: col-label-height + i * cell-size + cell-size / 2,
-          box(width: row-label-width - 4pt, height: 0pt,
+          box(width: row-label-width - t.label-offset, height: 0pt,
             align(right, move(dy: -0.5em,
               text(size: t.axis-label-size, fill: t.text-color)[#row])))
         )
@@ -120,7 +125,7 @@
 
       // Color legend
       #if show-legend {
-        let legend-x = row-label-width + grid-width + 15pt
+        let legend-x = row-label-width + grid-width + t.legend-gap
         let legend-height = grid-height * 0.8
         let legend-y = col-label-height + (grid-height - legend-height) / 2
         place(left + top, dx: legend-x, dy: legend-y,
@@ -171,24 +176,24 @@
   let total-slots = start-dow + n
   let n-weeks = calc.ceil(total-slots / 7)
 
-  let day-label-width = if show-day-labels { 25pt } else { 0pt }
-  let month-label-height = if show-month-labels { 20pt } else { 0pt }
+  let day-label-width = if show-day-labels { t.axis-padding-bottom } else { 0pt }
+  let month-label-height = if show-month-labels { t.axis-padding-bottom } else { 0pt }
 
   // Theme-aware empty cell styling
   let empty-fill = if t.background != none { t.background.lighten(15%) } else { t.text-color-light.transparentize(80%) }
-  let empty-stroke = 0.5pt + t.text-color-light.transparentize(40%)
+  let empty-stroke = t.stroke-thin + t.text-color-light.transparentize(40%)
 
-  let legend-total-w = 25pt + 5 * (cell-size + 2pt) + 5pt + 25pt  // Less + boxes + More
+  let legend-total-w = t.axis-padding-bottom + 5 * (cell-size + t.cell-gap) + t.label-offset + t.axis-padding-bottom  // Less + boxes + More
   let grid-w = n-weeks * cell-size
   let body-w = day-label-width + grid-w
-  align(center, chart-container(body-w, month-label-height + 7 * cell-size, title, t, extra-height: 40pt)[
+  align(center, chart-container(body-w, month-label-height + 7 * cell-size, title, t, extra-height: t.axis-padding-left)[
     #box(width: body-w)[
       // Month labels along the top (x-axis) — skip labels that would overlap
       #if show-month-labels {
         let month-names = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
         let prev-month = ""
         let last-label-x = -100pt  // track last placed label x to prevent overlap
-        let min-label-gap = 20pt   // minimum horizontal gap between month labels
+        let min-label-gap = t.axis-padding-bottom   // minimum horizontal gap between month labels
         for (i, dt) in dates.enumerate() {
           let parts = dt.split("-")
           let month-str = if parts.len() >= 2 { parts.at(1) } else { "" }
@@ -233,11 +238,11 @@
           dx: day-label-width,
           dy: month-label-height + d * cell-size,
           rect(
-            width: cell-size - 2pt,
-            height: cell-size - 2pt,
+            width: cell-size - t.cell-gap,
+            height: cell-size - t.cell-gap,
             fill: empty-fill,
             stroke: empty-stroke,
-            radius: 2pt,
+            radius: t.cell-gap,
           )
         )
       }
@@ -255,11 +260,11 @@
           dx: day-label-width + week * cell-size,
           dy: month-label-height + day * cell-size,
           rect(
-            width: cell-size - 2pt,
-            height: cell-size - 2pt,
+            width: cell-size - t.cell-gap,
+            height: cell-size - t.cell-gap,
             fill: cell-color,
             stroke: if val == 0 { empty-stroke } else { none },
-            radius: 2pt,
+            radius: t.cell-gap,
           )
         )
       }
@@ -279,14 +284,14 @@
               height: cell-size - 2pt,
               fill: empty-fill,
               stroke: empty-stroke,
-              radius: 2pt,
+              radius: t.cell-gap,
             )
           )
         }
       }
 
       // Legend — centered under the grid
-      #let legend-y = month-label-height + 7 * cell-size + 10pt
+      #let legend-y = month-label-height + 7 * cell-size + t.legend-gap
       #let grid-width = n-weeks * cell-size
       #let legend-start = calc.max(0pt, (body-w - legend-total-w) / 2)
       #place(left + top, dx: legend-start, dy: legend-y, text(size: t.axis-label-size * 0.85, fill: t.text-color)[Less])
@@ -295,12 +300,12 @@
         let cell-color = heat-color(normalized, palette: palette, reverse: reverse)
         place(
           left + top,
-          dx: legend-start + 25pt + i * (cell-size + 2pt),
+          dx: legend-start + t.axis-padding-bottom + i * (cell-size + t.cell-gap),
           dy: legend-y,
-          rect(width: cell-size, height: cell-size, fill: cell-color, radius: 2pt)
+          rect(width: cell-size, height: cell-size, fill: cell-color, radius: t.cell-gap)
         )
       }
-      #place(left + top, dx: legend-start + 25pt + 5 * (cell-size + 2pt) + 5pt, dy: legend-y, text(size: t.axis-label-size * 0.85, fill: t.text-color)[More])
+      #place(left + top, dx: legend-start + t.axis-padding-bottom + 5 * (cell-size + t.cell-gap) + t.label-offset, dy: legend-y, text(size: t.axis-label-size * 0.85, fill: t.text-color)[More])
     ]
   ])
 }
@@ -318,7 +323,7 @@
 /// -> content
 #let correlation-matrix(
   data,
-  cell-size: 35pt,
+  cell-size: auto,
   title: none,
   show-values: true,
   palette: "coolwarm",
@@ -329,15 +334,17 @@
   layout(avail => {
   validate-correlation-data(data, "correlation-matrix")
   let t = _resolve-ctx(theme)
+  let cell-size = if cell-size == auto { t.cell-size * _phi } else { cell-size }
   let labels = data.labels
   let values = data.values
   let n = labels.len()
 
-  let label-area = 50pt
-  let legend-width = if show-legend { 40pt } else { 0pt }
+  let label-area = t.axis-padding-left + t.axis-label-gap
+  let legend-width = if show-legend { t.axis-padding-left } else { 0pt }
 
   // Shrink cell-size if total width exceeds available space
-  let overhead = label-area + legend-width + 20pt + 2 * container-inset
+  let ci = t.at("container-inset", default: container-inset)
+  let overhead = label-area + legend-width + t.legend-gap + 2 * ci
   let avail-w = if type(avail.width) == length and avail.width > 0pt { avail.width } else { none }
   let cell-size = if avail-w != none and n * cell-size + overhead > avail-w {
     (avail-w - overhead) / n
@@ -346,7 +353,7 @@
   let grid-width = n * cell-size
   let grid-height = n * cell-size
 
-  chart-container(label-area + grid-width + legend-width + 20pt, label-area + grid-height, title, t, extra-height: 40pt)[
+  chart-container(label-area + grid-width + legend-width + t.legend-gap, label-area + grid-height, title, t, extra-height: t.axis-padding-left)[
     #box[
       // Column labels — skip when columns are narrow
       #let col-skip = density-skip(n, n * cell-size)
@@ -355,7 +362,7 @@
           place(
             left + top,
             dx: label-area + j * cell-size + cell-size / 2,
-            dy: label-area - 12pt,
+            dy: label-area - t.legend-gap,
             rotate(-45deg, origin: bottom + left, text(size: t.axis-label-size, fill: t.text-color)[#lbl])
           )
         }
@@ -368,7 +375,7 @@
           left + top,
           dx: 0pt,
           dy: label-area + i * cell-size + cell-size / 2,
-          box(width: label-area - 4pt, height: 0pt,
+          box(width: label-area - t.label-offset, height: 0pt,
             align(right, move(dy: -0.5em,
               text(size: t.axis-label-size, fill: t.text-color)[#row-lbl])))
         )
@@ -408,7 +415,7 @@
 
       // Color legend
       #if show-legend {
-        let legend-x = label-area + grid-width + 15pt
+        let legend-x = label-area + grid-width + t.legend-gap
         let legend-height = grid-height * 0.8
         let legend-y = label-area + (grid-height - legend-height) / 2
         place(left + top, dx: legend-x, dy: legend-y,

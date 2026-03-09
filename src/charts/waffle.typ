@@ -37,9 +37,9 @@
   theme: none,
 ) = context {
   layout(avail => {
-  let size = resolve-size(size, size, avail).width
   validate-simple-data(data, "waffle-chart")
   let t = _resolve-ctx(theme)
+  let size = resolve-size(size, size, avail).width
 
   // Shrink grid size if total width (grid + legend + padding) exceeds available space
   let legend-overhead = if show-legend { 120pt + 10pt } else { 0pt }

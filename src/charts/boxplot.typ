@@ -22,8 +22,8 @@
 /// -> content
 #let box-plot(
   data,
-  width: 350pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   box-width: 0.5,
   show-values: false,
@@ -34,10 +34,10 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-boxplot-data(data, "box-plot")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
+  let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
 
   let labels = data.labels
   let boxes = data.boxes
@@ -76,7 +76,7 @@
 
       // X-axis category labels
       #let spacing = chart-width / n
-      #draw-x-category-labels(labels, origin-x, spacing, origin-y + 4pt, t)
+      #draw-x-category-labels(labels, origin-x, spacing, origin-y + t.label-offset, t)
 
       // Axis titles
       #let y-tw = measure-y-tick-width(y-min, y-max, t, digits: 0)

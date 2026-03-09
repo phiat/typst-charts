@@ -88,9 +88,9 @@
   theme: none,
 ) = context {
   layout(avail => {
-  let size = resolve-size(size, size, avail).width
   validate-sunburst-data(data, "sunburst-chart")
   let t = _resolve-ctx(theme)
+  let size = resolve-size(size, size, avail).width
 
   // Compute depth (excluding root) to determine how many rings we need
   let total-depth = _max-depth(data) - 1  // rings = depth levels below root

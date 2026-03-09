@@ -20,16 +20,16 @@
 /// -> content
 #let timeline-chart(
   data,
-  width: 350pt,
+  width: auto,
   event-gap: 60pt,
   title: none,
   marker-size: 6pt,
   theme: none,
 ) = context {
   layout(size => {
-  let width = resolve-size(width, 0pt, size).width
   validate-timeline-data(data, "timeline-chart")
   let t = _resolve-ctx(theme)
+  let width = resolve-size(width, 0pt, size, n: 10, theme: t).width
   let events = data.events
 
   // Auto-compute height from event count

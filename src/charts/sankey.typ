@@ -22,8 +22,8 @@
 /// -> content
 #let sankey-chart(
   data,
-  width: 400pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   node-width: 15pt,
   show-labels: true,
@@ -31,9 +31,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-sankey-data(data, "sankey-chart")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: data.nodes.len(), theme: t)
 
   let nodes = data.nodes
   let flows = data.flows

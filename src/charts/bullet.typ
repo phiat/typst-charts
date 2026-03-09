@@ -33,9 +33,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size, container: false)
   validate-bullet-data((value: value, target: target, ranges: ranges), "bullet-chart")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, container: false)
   let bar-color = get-color(t, 0)
 
   let max-range = nonzero(ranges.last())
@@ -157,9 +157,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let width = resolve-size(width, 0pt, size, container: false).width
   validate-bullet-charts-data(data, "bullet-charts")
   let t = _resolve-ctx(theme)
+  let width = resolve-size(width, 0pt, size, container: false).width
   let bullets = data.bullets
   let n = bullets.len()
 

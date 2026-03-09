@@ -23,8 +23,8 @@
 /// -> content
 #let horizontal-bar-chart(
   data,
-  width: 350pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   bar-height: 0.6,
   title: none,
   show-values: true,
@@ -33,19 +33,19 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "horizontal-bar-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values
+  let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
   let max-val = nice-ceil(nonzero(calc.max(..values)))
   let n = values.len()
 
-  let cl = cartesian-layout(width, height, t, extra-left: 40pt)
+  let cl = cartesian-layout(width, height, t, extra-left: t.axis-padding-left)
 
-  chart-container(width, height, title, t, extra-height: 30pt)[
+  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -57,7 +57,7 @@
       #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
 
       // X-axis ticks (numeric values along bottom)
-      #draw-x-ticks(0, max-val, chart-width, origin-x, origin-y + 4pt, t, digits: 0)
+      #draw-x-ticks(0, max-val, chart-width, origin-x, origin-y + t.label-offset, t, digits: 0)
 
       #let spacing = chart-height / n
       #let actual-bar-height = spacing * bar-height
@@ -83,7 +83,7 @@
         if show-values {
           place(
             left + top,
-            dx: origin-x + bar-w + 5pt,
+            dx: origin-x + bar-w + t.label-offset,
             dy: y-pos + actual-bar-height / 2,
             move(dy: -0.5em, text(size: t.value-label-size, fill: t.text-color)[#val])
           )
@@ -119,8 +119,8 @@
 /// -> content
 #let bar-chart(
   data,
-  width: 300pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   bar-width: 0.6,
   title: none,
   show-values: true,
@@ -134,19 +134,19 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "bar-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values
+  let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
   let max-val = nice-ceil(nonzero(calc.max(..values)))
   let n = values.len()
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 30pt, subtitle: subtitle, radius: radius)[
+  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom, subtitle: subtitle, radius: radius)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -194,7 +194,7 @@
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t, show-ticks: show-ticks)
 
       // X-axis category labels
-      #draw-x-category-labels(labels, origin-x, spacing, origin-y + 4pt, t)
+      #draw-x-category-labels(labels, origin-x, spacing, origin-y + t.label-offset, t)
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, max-val, t)
@@ -220,8 +220,8 @@
 /// -> content
 #let grouped-bar-chart(
   data,
-  width: 350pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   title: none,
   show-legend: true,
   x-label: none,
@@ -229,9 +229,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-series-data(data, "grouped-bar-chart")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
   let labels = data.labels
   let series = data.series
   let n-groups = labels.len()
@@ -243,7 +243,7 @@
   let cl = cartesian-layout(width, height, t)
 
   let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
-  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
+  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom + t.legend-gap, legend: legend-content)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -271,7 +271,7 @@
             dx: x-pos,
             dy: origin-y - bar-h,
             rect(
-              width: bw - 2pt,
+              width: bw - t.bar-gap,
               height: bar-h,
               fill: get-color(t, si),
               stroke: none,
@@ -284,7 +284,7 @@
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // X-axis category labels
-      #draw-x-category-labels(labels, origin-x, group-width, origin-y + 4pt, t)
+      #draw-x-category-labels(labels, origin-x, group-width, origin-y + t.label-offset, t)
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, max-val, t)
@@ -307,8 +307,8 @@
 /// -> content
 #let stacked-bar-chart(
   data,
-  width: 300pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   title: none,
   show-legend: true,
   x-label: none,
@@ -316,9 +316,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-series-data(data, "stacked-bar-chart")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
   let labels = data.labels
   let series = data.series
   let n = labels.len()
@@ -333,7 +333,7 @@
   let cl = cartesian-layout(width, height, t)
 
   let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
-  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
+  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom + t.legend-gap, legend: legend-content)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -366,7 +366,7 @@
               width: bw,
               height: bar-h,
               fill: get-color(t, si),
-              stroke: separator-stroke(t, thickness: 0.5pt),
+              stroke: separator-stroke(t, thickness: t.stroke-thin),
             )
           )
 
@@ -378,7 +378,7 @@
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // X-axis category labels
-      #draw-x-category-labels(labels, origin-x, bar-spacing, origin-y + 4pt, t)
+      #draw-x-category-labels(labels, origin-x, bar-spacing, origin-y + t.label-offset, t)
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, max-val, t)
@@ -405,8 +405,8 @@
 /// -> content
 #let grouped-stacked-bar-chart(
   data,
-  width: 400pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   show-legend: true,
   x-label: none,
@@ -415,9 +415,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-grouped-stacked-data(data, "grouped-stacked-bar-chart")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
   let labels = data.labels
   let groups = data.groups
   let n-labels = labels.len()
@@ -456,7 +456,7 @@
 
   // Legend shows segment names (consistent colors across groups)
   let legend-content = draw-legend-auto(segment-names, t, show-legend: show-legend)
-  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
+  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom + t.legend-gap, legend: legend-content)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -480,7 +480,7 @@
 
         for (gi, g) in groups.enumerate() {
           let bar-x = group-start-x + gi * group-bar-width
-          let bw = group-bar-width - 2pt
+          let bw = group-bar-width - t.bar-gap
           let y-offset = 0pt
 
           // Stack segments within this group bar
@@ -497,7 +497,7 @@
                 width: bw,
                 height: bar-h,
                 fill: get-color(t, ci),
-                stroke: separator-stroke(t, thickness: 0.5pt),
+                stroke: separator-stroke(t, thickness: t.stroke-thin),
               )
             )
 
@@ -510,7 +510,7 @@
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // X-axis category labels
-      #draw-x-category-labels(labels, origin-x, slot-width, origin-y + 4pt, t)
+      #draw-x-category-labels(labels, origin-x, slot-width, origin-y + t.label-offset, t)
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, max-val, t)

@@ -24,8 +24,8 @@
 /// -> content
 #let histogram(
   values,
-  width: 350pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   bins: auto,
   min-val: auto,
@@ -40,9 +40,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-histogram-data(values, "histogram")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: 10, theme: t)
 
   let n = values.len()
 
@@ -146,7 +146,7 @@
       #draw-y-ticks(0, y-max, chart-height, pad-top, origin-x, t, digits: if density { 3 } else { 1 })
 
       // X-axis ticks (numeric)
-      #draw-x-ticks(data-min, data-max, chart-width, origin-x, origin-y + 4pt, t, digits: 1)
+      #draw-x-ticks(data-min, data-max, chart-width, origin-x, origin-y + t.label-offset, t, digits: 1)
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, y-max, t, digits: if density { 3 } else { 1 })

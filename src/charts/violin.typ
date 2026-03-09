@@ -28,8 +28,8 @@
 /// -> content
 #let violin-plot(
   data,
-  width: 350pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   show-box: true,
   bandwidth: auto,
@@ -41,10 +41,10 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-violin-data(data, "violin-plot")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
+  let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
 
   let labels = data.labels
   let datasets = data.datasets
@@ -178,7 +178,7 @@
 
       // X-axis category labels
       #let spacing = chart-width / n
-      #draw-x-category-labels(labels, origin-x, spacing, origin-y + 12pt, t)
+      #draw-x-category-labels(labels, origin-x, spacing, origin-y + t.label-offset, t)
 
       // Axis titles
       #let y-tw = measure-y-tick-width(y-min, y-max, t, digits: 1)

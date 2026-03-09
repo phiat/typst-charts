@@ -356,7 +356,34 @@
 
 ))
 
-// ── Page 8: Full-page word cloud ─────────────────────────────────────────────
+// ── Page 8: φ-scaling demo ───────────────────────────────────────────────────
+#pagebreak()
+#let scale-data = (labels: sales.monthly.labels.slice(0, 3), values: sales.monthly.values.slice(0, 3))
+#align(center, text(size: dk.title-size, weight: dk.title-weight, fill: dk.text-color)[φ-Scaling: same data, different seeds])
+#v(4pt)
+#align(center, text(size: dk.axis-label-size, fill: dk.text-color)[No manual width, height, or cell-size — charts self-size from `base-size` and `base-gap`])
+#v(6pt)
+
+#let scales = (
+  (name: "0.5×  (4pt / 3pt)", bs: 4pt, bg: 3pt),
+  (name: "1× default  (8pt / 6pt)", bs: 8pt, bg: 6pt),
+  (name: "2×  (16pt / 12pt)", bs: 16pt, bg: 12pt),
+)
+
+// 2-column grid: bar (left) × line (right), 3 rows (0.5×, 1×, 2×)
+#grid(
+  columns: (1fr, 1fr),
+  column-gutter: 8pt,
+  row-gutter: 6pt,
+  ..scales.map(s => (
+    bar-chart(scale-data, title: s.name, y-label: "Rev",
+      theme: (..dk, base-size: s.bs, base-gap: s.bg, show-grid: true)),
+    line-chart(scale-data, title: s.name, y-label: "Rev",
+      theme: (..dk, base-size: s.bs, base-gap: s.bg, show-grid: true)),
+  )).flatten()
+)
+
+// ── Page 9: Full-page word cloud ─────────────────────────────────────────────
 #pagebreak()
 #word-cloud(words,
   width: 100%, height: 100%, title: "word-cloud", shape: "circle", theme: dk,

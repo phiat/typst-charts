@@ -18,8 +18,8 @@
 /// -> content
 #let funnel-chart(
   data,
-  width: 300pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   show-values: true,
   show-percentages: true,
@@ -27,12 +27,12 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "funnel-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values
+  let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
   let n = values.len()
   let max-val = calc.max(..values)

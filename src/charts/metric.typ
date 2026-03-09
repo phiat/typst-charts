@@ -28,8 +28,8 @@
   theme: none,
 ) = context {
   layout(size => {
-  let width = resolve-size(width, 0pt, size, container: false).width
   let t = _resolve-ctx(theme)
+  let width = resolve-size(width, 0pt, size, container: false).width
   let has-dark-bg = t.background != none
   // Semantic delta colors — overridable via custom theme keys
   let positive-color = if "positive-color" in t { t.positive-color }

@@ -22,8 +22,8 @@
 /// -> content
 #let slope-chart(
   data,
-  width: 300pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   dot-size: 3pt,
   line-width: 1.5pt,
@@ -31,9 +31,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-slope-data(data, "slope-chart")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
 
   let labels = data.labels
   let start-values = data.start-values

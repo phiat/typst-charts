@@ -26,8 +26,8 @@
 /// -> content
 #let line-chart(
   data,
-  width: 300pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   title: none,
   show-points: true,
   show-values: false,
@@ -44,12 +44,12 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "line-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values
+  let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
   let max-val = nice-ceil(calc.max(..values))
   let min-val = nice-floor(calc.min(..values))
@@ -147,8 +147,8 @@
 /// -> content
 #let multi-line-chart(
   data,
-  width: 300pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   title: none,
   show-points: true,
   show-legend: true,
@@ -159,9 +159,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-series-data(data, "multi-line-chart")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
   let labels = data.labels
   let series = data.series
 

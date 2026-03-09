@@ -26,8 +26,8 @@
 /// -> content
 #let bump-chart(
   data,
-  width: 400pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   dot-size: 5pt,
   line-width: 2.5pt,
@@ -36,9 +36,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-series-data(data, "bump-chart")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
   let labels = data.labels
   let series = data.series
 

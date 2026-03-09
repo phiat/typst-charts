@@ -19,17 +19,27 @@
 ///   φ^1    = 1.62×  title-size
 ///
 /// Spacing scale (base-gap × φ^power):
-///   φ^0    = 1.00×  axis-label-gap
-///   φ^0.5  = 1.27×  title-gap
+///   φ^-1   = 0.62×  bar-gap, cell-gap
+///   φ^-0.5 = 0.79×  tick-length, label-offset
+///   φ^0    = 1.00×  axis-label-gap, element-size
+///   φ^0.5  = 1.27×  title-gap, container-inset
 ///   φ^1    = 1.62×  legend-gap
 ///   φ^1.5  = 2.06×  legend-swatch-size
 ///   φ^2    = 2.62×  axis-padding-top, axis-padding-right
 ///   φ^3    = 4.24×  axis-padding-bottom
 ///   φ^4    = 6.85×  axis-padding-left
+///
+/// Stroke scale (base-size × ratio):
+///   ×0.0625  stroke-thin  (0.5pt @ 8pt) — axes, grid, markers
+///   ×0.125   stroke-mid   (1.0pt @ 8pt) — separators, annotations
+///   ×0.1875  stroke-thick (1.5pt @ 8pt) — lines, stems, arms
+///   ×0.3125  stroke-heavy (2.5pt @ 8pt) — bump lines, emphasis
 #let _derive-theme(base-size, base-gap) = {
   let phi2 = _phi * _phi
   let phi3 = phi2 * _phi
   let phi4 = phi3 * _phi
+  let inv-phi = 1.0 / _phi
+  let inv-sqrt-phi = 1.0 / _sqrt-phi
   (
     // Seeds
     base-size: base-size,
@@ -51,7 +61,14 @@
     title-weight: "bold",
 
     // Spacing scale — golden ratio from base-gap
+    bar-gap: base-gap * inv-phi,               // gap between grouped bars
+    cell-gap: base-gap * inv-phi,               // heatmap/waffle cell gap
+    cell-size: base-gap * phi3,                 // heatmap cell size (≈25pt @ 6pt)
+    tick-length: base-gap * inv-sqrt-phi,       // axis tick mark length
+    label-offset: base-gap * inv-sqrt-phi,      // label-to-element spacing
     axis-label-gap: base-gap,
+    element-size: base-gap,                     // base dot/marker size
+    container-inset: base-gap * _sqrt-phi,      // chart container padding
     title-gap: base-gap * _sqrt-phi,
     legend-gap: base-gap * _phi,
     legend-swatch-size: base-gap * _phi * _sqrt-phi,
@@ -59,6 +76,12 @@
     axis-padding-right: base-gap * phi2,
     axis-padding-bottom: base-gap * phi3,
     axis-padding-left: base-gap * phi4,
+
+    // Stroke scale — proportional to base-size
+    stroke-thin: base-size * 0.0625,            // 0.5pt @ 8pt
+    stroke-mid: base-size * 0.125,              // 1.0pt @ 8pt
+    stroke-thick: base-size * 0.1875,           // 1.5pt @ 8pt
+    stroke-heavy: base-size * 0.3125,           // 2.5pt @ 8pt
 
     // Non-scaled properties
     tick-count: 5,
@@ -85,6 +108,8 @@
   "axis-label-size", "axis-title-size", "value-label-size", "legend-size", "title-size",
   "axis-label-gap", "title-gap", "legend-gap", "legend-swatch-size",
   "axis-padding-top", "axis-padding-right", "axis-padding-bottom", "axis-padding-left",
+  "bar-gap", "cell-gap", "cell-size", "tick-length", "label-offset", "element-size", "container-inset",
+  "stroke-thin", "stroke-mid", "stroke-thick", "stroke-heavy",
   "border-radius",
 )
 

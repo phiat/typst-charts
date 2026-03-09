@@ -24,8 +24,8 @@
 /// -> content
 #let scatter-plot(
   data,
-  width: 300pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   x-label: none,
   y-label: none,
@@ -40,10 +40,10 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-scatter-data(data, "scatter-plot")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
+  let (width, height) = resolve-size(width, height, size, n: 10, theme: t)
   // Normalize data format
   let points = if type(data) == dictionary {
     data.x.zip(data.y)
@@ -81,7 +81,7 @@
       #draw-y-ticks(y-min, y-max, chart-height, pad-top, origin-x, t)
 
       // X-axis ticks
-      #draw-x-ticks(x-min, x-max, chart-width, origin-x, origin-y + 4pt, t)
+      #draw-x-ticks(x-min, x-max, chart-width, origin-x, origin-y + t.label-offset, t)
 
       // Plot points — clamp to chart bounds
       #let half = point-size / 2
@@ -125,8 +125,8 @@
 /// -> content
 #let multi-scatter-plot(
   data,
-  width: 300pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   x-label: none,
   y-label: none,
@@ -136,10 +136,10 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-multi-scatter-data(data, "multi-scatter-plot")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
+  let (width, height) = resolve-size(width, height, size, n: 10, theme: t)
   let series = data.series
 
   // Get all points to find ranges
@@ -178,7 +178,7 @@
       #draw-y-ticks(y-min, y-max, chart-height, pad-top, origin-x, t)
 
       // X-axis ticks
-      #draw-x-ticks(x-min, x-max, chart-width, origin-x, origin-y + 4pt, t)
+      #draw-x-ticks(x-min, x-max, chart-width, origin-x, origin-y + t.label-offset, t)
 
       // Plot points for each series — clamp to chart bounds
       #let half = point-size / 2
@@ -224,8 +224,8 @@
 /// -> content
 #let bubble-chart(
   data,
-  width: 300pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   x-label: none,
   y-label: none,
@@ -239,10 +239,10 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-bubble-data(data, "bubble-chart")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
+  let (width, height) = resolve-size(width, height, size, n: 10, theme: t)
   // Normalize data format
   let points = if type(data) == dictionary {
     let zipped = data.x.zip(data.y).zip(data.size)
@@ -285,7 +285,7 @@
       #draw-y-ticks(y-min, y-max, chart-height, pad-top, origin-x, t)
 
       // X-axis ticks
-      #draw-x-ticks(x-min, x-max, chart-width, origin-x, origin-y + 4pt, t)
+      #draw-x-ticks(x-min, x-max, chart-width, origin-x, origin-y + t.label-offset, t)
 
       // Plot bubbles — clamp max-radius to chart dimensions
       #let effective-max-r = calc.min(max-radius, chart-height * 0.25, chart-width * 0.15)
@@ -439,8 +439,8 @@
 /// -> content
 #let multi-bubble-chart(
   data,
-  width: 350pt,
-  height: 250pt,
+  width: auto,
+  height: auto,
   title: none,
   x-label: none,
   y-label: none,
@@ -452,10 +452,10 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-multi-bubble-data(data, "multi-bubble-chart")
   let grid-overrides = if show-grid != auto { (show-grid: show-grid) } else { none }
   let t = _resolve-ctx(theme, overrides: grid-overrides)
+  let (width, height) = resolve-size(width, height, size, n: 10, theme: t)
   let series = data.series
 
   // Collect all x, y, size values across all series for axis/size scaling
@@ -499,7 +499,7 @@
       #draw-y-ticks(y-min, y-max, chart-height, pad-top, origin-x, t)
 
       // X-axis ticks
-      #draw-x-ticks(x-min, x-max, chart-width, origin-x, origin-y + 4pt, t)
+      #draw-x-ticks(x-min, x-max, chart-width, origin-x, origin-y + t.label-offset, t)
 
       // Plot bubbles for each series — clamp to chart bounds
       #let effective-max-r = calc.min(max-radius, chart-height * 0.25, chart-width * 0.15)

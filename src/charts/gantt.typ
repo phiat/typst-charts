@@ -24,7 +24,7 @@
 /// -> content
 #let gantt-chart(
   data,
-  width: 400pt,
+  width: auto,
   height: auto,
   title: none,
   bar-height: 14pt,
@@ -36,9 +36,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let width = resolve-size(width, 0pt, size).width
   validate-gantt-data(data, "gantt-chart")
   let t = _resolve-ctx(theme)
+  let width = resolve-size(width, 0pt, size, n: 10, theme: t).width
   let tasks = data.tasks
 
   // Determine time range

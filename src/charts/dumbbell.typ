@@ -25,8 +25,8 @@
 /// -> content
 #let dumbbell-chart(
   data,
-  width: 400pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   title: none,
   dot-size: 5pt,
   line-width: 1.5pt,
@@ -34,9 +34,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-dumbbell-data(data, "dumbbell-chart")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
 
   let labels = data.labels
   let start-values = data.start-values

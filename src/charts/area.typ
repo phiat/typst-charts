@@ -24,8 +24,8 @@
 /// -> content
 #let area-chart(
   data,
-  width: 300pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   title: none,
   show-line: true,
   show-points: false,
@@ -39,12 +39,12 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "area-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values
+  let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
   let max-val = nice-ceil(calc.max(..values))
   let min-val = calc.min(0, ..values)  // Include 0 for area charts
@@ -156,8 +156,8 @@
 /// -> content
 #let stacked-area-chart(
   data,
-  width: 350pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   title: none,
   show-lines: true,
   fill-opacity: 70%,
@@ -168,9 +168,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-series-data(data, "stacked-area-chart")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
   let labels = data.labels
   let series = data.series
   let n = labels.len()

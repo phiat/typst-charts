@@ -27,8 +27,8 @@
 /// -> content
 #let lollipop-chart(
   data,
-  width: 300pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   dot-size: 8pt,
   stem-width: 1.5pt,
   title: none,
@@ -39,12 +39,12 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "lollipop-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values
+  let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
   let max-val = nice-ceil(nonzero(if values.len() > 0 { calc.max(..values) } else { 0 }))
   let n = values.len()
@@ -112,7 +112,7 @@
       }
 
       // X-axis category labels
-      #draw-x-category-labels(labels, origin-x, spacing, origin-y + 4pt, t)
+      #draw-x-category-labels(labels, origin-x, spacing, origin-y + t.label-offset, t)
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, max-val, t)
@@ -143,8 +143,8 @@
 /// -> content
 #let horizontal-lollipop-chart(
   data,
-  width: 350pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   dot-size: 8pt,
   stem-width: 1.5pt,
   title: none,
@@ -154,12 +154,12 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "horizontal-lollipop-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values
+  let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
   let max-val = nice-ceil(nonzero(if values.len() > 0 { calc.max(..values) } else { 0 }))
   let n = values.len()
@@ -182,7 +182,7 @@
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // X-axis ticks (numeric values along bottom)
-      #draw-x-ticks(0, max-val, chart-width, origin-x, origin-y + 4pt, t, digits: 0)
+      #draw-x-ticks(0, max-val, chart-width, origin-x, origin-y + t.label-offset, t, digits: 0)
 
       #let spacing = chart-height / n
 

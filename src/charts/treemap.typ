@@ -20,17 +20,17 @@
 /// -> content
 #let treemap(
   data,
-  width: 300pt,
-  height: 200pt,
+  width: auto,
+  height: auto,
   title: none,
   show-values: true,
   gap: 1.5pt,
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "treemap")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, n: 8, theme: t)
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values

@@ -32,9 +32,9 @@
   theme: none,
 ) = context {
   layout(avail => {
-  let size = resolve-size(size, size, avail).width
   validate-number(value, "gauge-chart")
   let t = _resolve-ctx(theme)
+  let size = resolve-size(size, size, avail).width
   let needle-color = if needle-color == auto { t.text-color } else { needle-color }
   let margin = calc.max(3pt, size * 0.07)
   let radius = size / 2 - margin
@@ -180,9 +180,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let (width, height) = resolve-size(width, height, size, container: false)
   validate-number(value, "progress-bar")
   let t = _resolve-ctx(theme)
+  let (width, height) = resolve-size(width, height, size, container: false)
   let progress = clamp(value / max-val, 0, 1)
   let bar-color = if color != none { color } else { get-color(t, 0) }
   let background = if background != auto { background } else if t.background != none { t.background.lighten(20%) } else { luma(230) }
@@ -256,9 +256,9 @@
   theme: none,
 ) = context {
   layout(avail => {
-  let size = resolve-size(size, size, avail, container: false).width
   validate-number(value, "circular-progress")
   let t = _resolve-ctx(theme)
+  let size = resolve-size(size, size, avail, container: false).width
   let progress = clamp(value / max-val, 0, 1)
   let bar-color = if color != none { color } else { get-color(t, 0) }
   let background = if background != auto { background } else if t.background != none { t.background.lighten(20%) } else { luma(230) }
@@ -361,9 +361,9 @@
   theme: none,
 ) = context {
   layout(size => {
-  let width = resolve-size(width, 0pt, size, container: false).width
   validate-simple-data(data, "progress-bars")
   let t = _resolve-ctx(theme)
+  let width = resolve-size(width, 0pt, size, container: false).width
   let background = if background != auto { background } else if t.background != none { t.background.lighten(20%) } else { luma(230) }
   let labels = data.labels
   let values = data.values
