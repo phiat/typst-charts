@@ -1,5 +1,6 @@
 // sparkline.typ - Tiny inline charts for tables and running text
 #import "../theme.typ": _resolve-ctx, get-color
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a tiny inline line chart (sparkline) suitable for tables and running text.
 ///
@@ -22,6 +23,8 @@
   stroke-width: 1pt,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size, container: false)
   let t = _resolve-ctx(theme)
   let c = if color != none { color } else { get-color(t, 0) }
   let n = values.len()
@@ -82,6 +85,7 @@
       }
     ]
   }
+  })
 }
 
 /// Renders a tiny inline bar chart suitable for tables and running text.
@@ -101,6 +105,8 @@
   gap: 1pt,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size, container: false)
   let t = _resolve-ctx(theme)
   let c = if color != none { color } else { get-color(t, 0) }
   let n = values.len()
@@ -122,6 +128,7 @@
       }
     ]
   }
+  })
 }
 
 /// Renders a tiny inline dot chart suitable for tables and running text.
@@ -141,6 +148,8 @@
   dot-size: 2.5pt,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size, container: false)
   let t = _resolve-ctx(theme)
   let c = if color != none { color } else { get-color(t, 0) }
   let n = values.len()
@@ -167,4 +176,5 @@
       }
     ]
   }
+  })
 }

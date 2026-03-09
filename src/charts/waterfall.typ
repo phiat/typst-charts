@@ -3,8 +3,9 @@
 #import "../util.typ": normalize-data, format-number, nonzero, nice-ceil
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-category-labels
+#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-category-labels, measure-y-tick-width
 #import "../primitives/legend.typ": draw-legend
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a waterfall (bridge) chart showing cumulative effect of positive and negative values.
 ///
@@ -38,6 +39,8 @@
   y-label: none,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "waterfall-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
@@ -45,9 +48,14 @@
   let values = norm.values
   let n = values.len()
 
-  // Resolve colors
-  let pos-color = if positive-color != none { positive-color } else { rgb("#59a14f") }
-  let neg-color = if negative-color != none { negative-color } else { rgb("#e15759") }
+  // Resolve colors — check theme passthrough keys, then params, then defaults
+  let has-dark-bg = t.background != none
+  let pos-color = if positive-color != none { positive-color }
+    else if "positive-color" in t { t.positive-color }
+    else if has-dark-bg { rgb("#4ade80") } else { rgb("#16a34a") }
+  let neg-color = if negative-color != none { negative-color }
+    else if "negative-color" in t { t.negative-color }
+    else if has-dark-bg { rgb("#f87171") } else { rgb("#dc2626") }
   let tot-color = if total-color != none { total-color } else { get-color(t, 0) }
 
   // Determine types: auto-detect if not provided
@@ -101,7 +109,11 @@
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 30pt)[
+  // Extra height only for content outside the chart box (legend)
+  // Category labels + axis title fit within axis-padding-bottom
+  let extra-h = if show-legend { t.legend-size + t.legend-gap + t.legend-swatch-size } else { 0pt }
+
+  chart-container(width, height, title, t, extra-height: extra-h)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -111,9 +123,6 @@
     #box(width: width, height: height)[
       // Grid
       #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
-
-      // Axes
-      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // Y-axis ticks
       #draw-y-ticks(y-min, y-max, chart-height, pad-top, origin-x, t, digits: 0)
@@ -157,7 +166,7 @@
         // Value label
         if show-values {
           let val = values.at(i)
-          let label-y = bar-top-px - 12pt
+          let label-y = bar-top-px - t.value-label-size * 1.5
           place(left + top, dx: x-pos, dy: label-y,
             box(width: actual-bw, align(center,
               text(size: t.value-label-size, fill: t.text-color)[#format-number(val, digits: 0, mode: t.number-format)])))
@@ -179,21 +188,26 @@
               line(
                 start: (x-end, connector-y-px),
                 end: (x-next-start, connector-y-px),
-                stroke: 0.5pt + luma(180),
+                stroke: t.grid-stroke,
               )
             )
           }
         }
 
-        // X-axis label
-        place(left + top, dx: x-pos, dy: origin-y + 4pt,
-          box(width: actual-bw, align(center,
+        // X-axis label — use full slot width for longer labels
+        let slot-x = origin-x + i * spacing
+        place(left + top, dx: slot-x, dy: origin-y + t.axis-label-size * 0.3,
+          box(width: spacing, height: t.axis-label-size * 1.8, align(center,
             text(size: t.axis-label-size, fill: t.text-color)[#labels.at(i)])))
 
       }
 
+      // Axes (drawn after bars so axis lines appear on top)
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
+
       // Axis titles
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t)
+      #let y-tw = measure-y-tick-width(y-min, y-max, t, digits: 0)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
     ]
 
     // Color key legend
@@ -204,4 +218,5 @@
       )
     }
   ]
+  })
 }

@@ -6,6 +6,7 @@
 #import "../util.typ": nonzero
 #import "../validate.typ": validate-bullet-data, validate-bullet-charts-data
 #import "../primitives/container.typ": chart-container
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a single bullet chart — a horizontal bar showing an actual value
 /// against a target marker, overlaid on qualitative range bands.
@@ -31,6 +32,8 @@
   show-target: true,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size, container: false)
   validate-bullet-data((value: value, target: target, ranges: ranges), "bullet-chart")
   let t = _resolve-ctx(theme)
   let bar-color = get-color(t, 0)
@@ -38,15 +41,16 @@
   let max-range = nonzero(ranges.last())
 
   // Qualitative range shades (darkest = poor, lightest = good)
-  let is-dark = t.background != none and t.background != white
+  let is-dark = t.background != none
   let range-fills = if is-dark {
-    (luma(100), luma(130), luma(160))
+    let bg = t.background
+    (bg.lighten(15%), bg.lighten(25%), bg.lighten(35%))
   } else {
-    (luma(200), luma(225), luma(245))
+    (t.text-color-light.transparentize(50%), t.text-color-light.transparentize(70%), t.text-color-light.transparentize(85%))
   }
 
   // Title column width
-  let title-width = if title != none { 90pt } else { 0pt }
+  let title-width = if title != none { calc.min(90pt, width * 0.35) } else { 0pt }
   let bar-width = width - title-width
 
   box(width: width, height: height)[
@@ -56,10 +60,10 @@
         left + top,
         dy: if label != none { 0pt } else { height / 2 - 7pt },
         box(width: title-width - 8pt)[
-          #text(size: 9pt, weight: "bold", fill: t.text-color)[#title]
+          #text(size: t.axis-title-size, weight: "bold", fill: t.text-color)[#title]
           #if label != none {
             linebreak()
-            text(size: 7pt, fill: t.text-color-light)[#label]
+            text(size: t.axis-label-size, fill: t.text-color-light)[#label]
           }
         ]
       )
@@ -114,22 +118,23 @@
 
     // X-axis tick labels along the bottom
     #{
-      let tick-count = 5
-      let tick-size = 5pt
+      let tick-count = t.tick-count
+      let tick-size = t.axis-label-size
       for ti in range(tick-count + 1) {
         let frac = ti / tick-count
         let tick-val = calc.round(frac * max-range, digits: 0)
         let tx = x0 + bar-width * frac
         place(left + top, dx: tx, dy: height,
-          line(start: (0pt, 0pt), end: (0pt, 3pt), stroke: 0.4pt + t.text-color-light))
+          line(start: (0pt, 0pt), end: (0pt, 3pt), stroke: 0.4pt + t.text-color))
         place(left + top,
           dx: tx - 10pt,
           dy: height + 3pt,
           box(width: 20pt, align(center,
-            text(size: tick-size, fill: t.text-color-light)[#int(tick-val)])))
+            text(size: tick-size, fill: t.text-color)[#int(tick-val)])))
       }
     }
   ]
+  })
 }
 
 /// Renders multiple bullet charts stacked vertically for KPI dashboards.
@@ -151,17 +156,20 @@
   title: none,
   theme: none,
 ) = context {
+  layout(size => {
+  let width = resolve-size(width, 0pt, size, container: false).width
   validate-bullet-charts-data(data, "bullet-charts")
   let t = _resolve-ctx(theme)
   let bullets = data.bullets
   let n = bullets.len()
 
   let bar-color = get-color(t, 0)
-  let is-dark = t.background != none and t.background != white
+  let is-dark = t.background != none
   let range-fills = if is-dark {
-    (luma(100), luma(130), luma(160))
+    let bg = t.background
+    (bg.lighten(15%), bg.lighten(25%), bg.lighten(35%))
   } else {
-    (luma(200), luma(225), luma(245))
+    (t.text-color-light.transparentize(50%), t.text-color-light.transparentize(70%), t.text-color-light.transparentize(85%))
   }
 
   // Extra space for tick labels + legend
@@ -171,7 +179,7 @@
 
   box(width: width, height: total-height)[
     #if title != none {
-      align(center, text(size: 11pt, weight: "bold", fill: t.text-color)[#title])
+      align(center, text(size: t.title-size, weight: t.title-weight, fill: t.text-color)[#title])
       v(8pt)
     }
 
@@ -198,23 +206,24 @@
     #align(center)[
       #box(baseline: 2pt, rect(width: 12pt, height: 6pt, fill: bar-color, stroke: none))
       #h(2pt)
-      #text(size: 6pt, fill: t.text-color)[Actual]
+      #text(size: t.axis-label-size, fill: t.text-color)[Actual]
       #h(8pt)
       #box(baseline: 2pt, rect(width: 2.5pt, height: 10pt, fill: t.text-color, stroke: none))
       #h(2pt)
-      #text(size: 6pt, fill: t.text-color)[Target]
+      #text(size: t.axis-label-size, fill: t.text-color)[Target]
       #h(8pt)
       #box(baseline: 2pt, rect(width: 10pt, height: 8pt, fill: range-fills.at(0), stroke: none))
       #h(2pt)
-      #text(size: 6pt, fill: t.text-color)[Poor]
+      #text(size: t.axis-label-size, fill: t.text-color)[Poor]
       #h(6pt)
       #box(baseline: 2pt, rect(width: 10pt, height: 8pt, fill: range-fills.at(1), stroke: none))
       #h(2pt)
-      #text(size: 6pt, fill: t.text-color)[Fair]
+      #text(size: t.axis-label-size, fill: t.text-color)[Fair]
       #h(6pt)
       #box(baseline: 2pt, rect(width: 10pt, height: 8pt, fill: range-fills.at(2), stroke: none))
       #h(2pt)
-      #text(size: 6pt, fill: t.text-color)[Good]
+      #text(size: t.axis-label-size, fill: t.text-color)[Good]
     ]
   ]
+  })
 }

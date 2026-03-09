@@ -11,15 +11,15 @@
 
 #page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   dual-axis-chart(sales.dual-axis,
-    width: W, height: H, title: "dual-axis (light)", theme: lt,
+    width: W, height: H, title: "dual-axis (light)", left-label: "Revenue ($K)", right-label: "Users (K)", x-label: "Month", theme: lt,
   ),
   dual-axis-chart(sales.dual-axis,
-    width: W, height: H, title: "dual-axis (dark)", theme: dk,
+    width: W, height: H, title: "dual-axis (dark)", left-label: "Revenue ($K)", right-label: "Users (K)", x-label: "Month", theme: dk,
   ),
   dual-axis-chart(sales.dual-axis,
-    width: W, height: H, title: "dual-axis (presentation)", theme: themes.presentation,
+    width: W, height: H, title: "dual-axis (presentation)", left-label: "Revenue ($K)", right-label: "Users (K)", x-label: "Month", theme: themes.presentation,
   ),
   dual-axis-chart(sales.dual-axis,
-    width: W, height: H, title: "dual-axis (minimal)", theme: themes.minimal,
+    width: W, height: H, title: "dual-axis (minimal)", left-label: "Revenue ($K)", right-label: "Users (K)", x-label: "Month", theme: themes.minimal,
   ),
 ))

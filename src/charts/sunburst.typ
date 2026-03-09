@@ -3,7 +3,7 @@
 #import "../validate.typ": validate-sunburst-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/polar.typ": annular-wedge-points, separator-stroke
-#import "../primitives/layout.typ": try-fit-label
+#import "../primitives/layout.typ": try-fit-label, resolve-size
 
 /// Computes the maximum depth of a hierarchical node tree.
 ///
@@ -87,6 +87,8 @@
   show-labels: true,
   theme: none,
 ) = context {
+  layout(avail => {
+  let size = resolve-size(size, size, avail).width
   validate-sunburst-data(data, "sunburst-chart")
   let t = _resolve-ctx(theme)
 
@@ -103,7 +105,7 @@
   // Collect all arc segments
   let segments = _collect-segments(data, 0, 360, 0, 0)
 
-  chart-container(chart-size, chart-size, title, t, extra-height: 40pt)[
+  align(center, chart-container(chart-size, chart-size, title, t, extra-height: 40pt)[
     #box(width: chart-size, height: chart-size)[
       #let cx = radius
       #let cy = radius
@@ -152,16 +154,19 @@
           if fit.fits {
             let lx = cx + mid-r * calc.cos(mid-angle * 1deg)
             let ly = cy + mid-r * calc.sin(mid-angle * 1deg)
-            let label-color = if seg.depth <= 2 { t.text-color-inverse } else { t.text-color }
-            // Size pill to text, not arc
-            let label-w = fit.size * 0.6 * lbl-len + 6pt
-            let pill-h = fit.size * 1.4
-            // Semi-transparent background pill for readability
-            let pill-fill = if seg.depth <= 2 {
-              seg-color.transparentize(30%)
-            } else {
-              if t.background != none { t.background.transparentize(30%) } else { white.transparentize(30%) }
-            }
+            // All labels sit on colored pill backgrounds — use inverse text for contrast
+            let label-color = t.text-color-inverse
+            // Measure actual text dimensions for tight-fitting pill
+            let label-content = text(
+              size: fit.size,
+              fill: label-color,
+              weight: if seg.depth == 1 { "bold" } else { "regular" },
+            )[#seg.name]
+            let text-size = measure(label-content)
+            let label-w = text-size.width + 4pt
+            let pill-h = text-size.height + 3pt
+            // Semi-transparent background pill matching segment color
+            let pill-fill = seg-color.transparentize(20%)
             place(
               left + top,
               dx: lx - label-w / 2,
@@ -169,15 +174,12 @@
               box(width: label-w, height: pill-h,
                 fill: pill-fill, radius: 2pt,
                 align(center + horizon,
-                  text(
-                    size: fit.size,
-                    fill: label-color,
-                    weight: if seg.depth == 1 { "bold" } else { "regular" },
-                  )[#seg.name]))
+                  label-content))
             )
           }
         }
       }
     ]
-  ]
+  ])
+  })
 }

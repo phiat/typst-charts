@@ -3,6 +3,7 @@
 #import "../util.typ": nonzero
 #import "../validate.typ": validate-slope-data
 #import "../primitives/container.typ": chart-container
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a slope chart showing changes between two time periods.
 ///
@@ -29,6 +30,8 @@
   show-values: true,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-slope-data(data, "slope-chart")
   let t = _resolve-ctx(theme)
 
@@ -53,9 +56,8 @@
   let bottom-pad = 10pt
 
   chart-container(width, height, title, t, extra-height: 20pt)[
-    #let chart-height = height - 10pt
-
-    #box(width: width, height: chart-height)[
+    #box(width: width, height: height)[
+      #let chart-height = height
       // Column headers — centered over each axis
       #place(left + top,
         dx: 0pt,
@@ -114,13 +116,13 @@
         place(left + top,
           dx: axis-x-left - dot-size,
           dy: y-start - dot-size,
-          circle(radius: dot-size, fill: color, stroke: white + 0.5pt)
+          circle(radius: dot-size, fill: color, stroke: t.marker-stroke)
         )
         // Right dot
         place(left + top,
           dx: axis-x-right - dot-size,
           dy: y-end - dot-size,
-          circle(radius: dot-size, fill: color, stroke: white + 0.5pt)
+          circle(radius: dot-size, fill: color, stroke: t.marker-stroke)
         )
 
         // Left label + value — right-aligned into label margin
@@ -154,4 +156,5 @@
       }
     ]
   ]
+  })
 }

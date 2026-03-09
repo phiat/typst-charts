@@ -11,15 +11,15 @@
 
 #page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   grouped-bar-chart(sales.quarterly,
-    width: W, height: H, title: "grouped-bar-chart (light)", theme: lt,
+    width: W, height: H, title: "grouped-bar-chart (light)", x-label: "Quarter", y-label: "Count", theme: lt,
   ),
   grouped-bar-chart(sales.quarterly,
-    width: W, height: H, title: "grouped-bar-chart (dark)", theme: dk,
+    width: W, height: H, title: "grouped-bar-chart (dark)", x-label: "Quarter", y-label: "Count", theme: dk,
   ),
   stacked-bar-chart(sales.quarterly,
-    width: W, height: H, title: "stacked-bar-chart (light)", theme: lt,
+    width: W, height: H, title: "stacked-bar-chart (light)", x-label: "Quarter", y-label: "Revenue", theme: lt,
   ),
   stacked-bar-chart(sales.quarterly,
-    width: W, height: H, title: "stacked-bar-chart (dark)", theme: dk,
+    width: W, height: H, title: "stacked-bar-chart (dark)", x-label: "Quarter", y-label: "Revenue", theme: dk,
   ),
 ))

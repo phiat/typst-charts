@@ -1,10 +1,11 @@
 // dumbbell.typ - Dumbbell chart (before/after or range comparison)
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": nonzero, nice-floor, nice-ceil
+#import "../util.typ": nonzero, nice-floor, nice-ceil, nice-ticks, format-number
 #import "../validate.typ": validate-dumbbell-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/legend.typ": draw-legend-auto
 #import "../primitives/axes.typ": draw-y-label
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a dumbbell chart showing range or before/after comparisons.
 ///
@@ -32,6 +33,8 @@
   show-values: false,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-dumbbell-data(data, "dumbbell-chart")
   let t = _resolve-ctx(theme)
 
@@ -42,17 +45,26 @@
   let end-label = if "end-label" in data { data.end-label } else { "End" }
   let n = labels.len()
 
-  // Compute global min/max across both value sets — use nice rounding for clean axes
+  // Compute nice step-aligned axis range
   let all-values = start-values + end-values
-  let min-val = nice-floor(calc.min(..all-values))
-  let max-val = nice-ceil(calc.max(..all-values))
+  let nt = nice-ticks(calc.min(..all-values), calc.max(..all-values), count: t.tick-count)
+  let min-val = nt.min
+  let max-val = nt.max
   let val-range = nonzero(max-val - min-val)
 
-  // Layout constants — scale with chart dimensions; label area grows with width
-  let label-margin = calc.min(100pt, calc.max(70pt, width * 0.25))
-  let right-pad = calc.max(10pt, width * 0.05)
-  let top-pad = calc.max(5pt, height * 0.06)
-  let bottom-pad = calc.max(15pt, height * 0.15)
+  // Measure actual label widths for the left margin
+  let label-margin = {
+    let max-w = 0pt
+    for lbl in labels {
+      let w = measure(text(size: t.axis-label-size)[#lbl]).width
+      if w > max-w { max-w = w }
+    }
+    max-w + t.axis-label-gap
+  }
+  let gap = t.axis-label-gap
+  let right-pad = calc.max(gap * 2, width * 0.05)
+  let top-pad = calc.max(gap, height * 0.04)
+  let bottom-pad = t.axis-padding-bottom
   let plot-left = label-margin + dot-size
   let plot-right = width - right-pad - dot-size
   let plot-width = plot-right - plot-left
@@ -60,7 +72,7 @@
   // Colors: start uses palette color 0, end uses palette color 1
   let start-color = get-color(t, 0)
   let end-color = get-color(t, 1)
-  let connector-color = luma(180)
+  let connector-color = t.text-color-light
 
   // Build legend entries
   let legend-entries = (
@@ -71,12 +83,11 @@
   let legend-content = draw-legend-auto(legend-entries, t, swatch-type: "circle")
 
   chart-container(width, height, title, t, extra-height: 30pt, legend: legend-content)[
-    #let chart-height = height - 10pt
-
-    #box(width: width, height: chart-height)[
-      // Usable vertical space for rows
+    #box(width: width, height: height)[
+      #let chart-height = height
+      // Usable vertical space for rows — extra slot keeps last row off the axis
       #let usable-height = chart-height - top-pad - bottom-pad
-      #let row-height = usable-height / n
+      #let row-height = usable-height / (n + 0.5)
 
       // Helper: map value to x position
       #let val-to-x(v) = {
@@ -90,7 +101,7 @@
           line(
             start: (plot-left, y),
             end: (plot-right, y),
-            stroke: 0.3pt + luma(220),
+            stroke: t.grid-stroke,
           )
         )
       }
@@ -104,26 +115,26 @@
         )
       )
 
-      // Draw a few tick marks on the value axis
-      #let tick-count = t.tick-count
-      #for ti in range(tick-count + 1) {
-        let frac = ti / tick-count
-        let val = min-val + frac * val-range
+      // Draw tick marks on the value axis using nice-ticks values
+      #let tick-len = t.axis-label-gap * 0.6
+      #let label-w = t.axis-label-size * 4
+      #for val in nt.ticks {
+        let frac = (val - min-val) / val-range
         let x = plot-left + frac * plot-width
         // Tick mark
         place(left + top,
           line(
             start: (x, chart-height - bottom-pad),
-            end: (x, chart-height - bottom-pad + 4pt),
+            end: (x, chart-height - bottom-pad + tick-len),
             stroke: t.axis-stroke,
           )
         )
         // Tick label — centered on tick position
-        let display-val = if val == calc.floor(val) { str(int(val)) } else { str(calc.round(val, digits: 1)) }
+        let display-val = format-number(val, digits: 1, mode: t.number-format)
         place(left + top,
-          dx: x - 1.5em,
-          dy: chart-height - bottom-pad + 6pt,
-          box(width: 3em, height: 1.5em,
+          dx: x - label-w / 2,
+          dy: chart-height - bottom-pad + tick-len + 2pt,
+          box(width: label-w, height: t.axis-label-size * 2,
             align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#display-val]))
         )
       }
@@ -152,34 +163,59 @@
         place(left + top,
           dx: x-start - dot-size,
           dy: y - dot-size,
-          circle(radius: dot-size, fill: start-color, stroke: white + 0.5pt)
+          circle(radius: dot-size, fill: start-color, stroke: t.marker-stroke)
         )
 
         // End dot
         place(left + top,
           dx: x-end - dot-size,
           dy: y - dot-size,
-          circle(radius: dot-size, fill: end-color, stroke: white + 0.5pt)
+          circle(radius: dot-size, fill: end-color, stroke: t.marker-stroke)
         )
 
-        // Optional value labels — clamp so they don't overlap y-axis labels
+        // Optional value labels — place on the outside of each dot
         if show-values {
-          // Value near start dot
-          let s-dx = if sv <= ev { calc.max(plot-left, x-start - 20pt) } else { x-start + dot-size + 3pt }
+          let label-gap = dot-size + gap / 2
+          let s-content = text(size: t.value-label-size, fill: start-color)[#sv]
+          let e-content = text(size: t.value-label-size, fill: end-color)[#ev]
+          let s-w = measure(s-content).width
+          let e-w = measure(e-content).width
+
+          // Place labels on the outer side of each dot:
+          // whichever dot is leftmost gets its label on the left,
+          // whichever is rightmost gets its label on the right
+          let s-dx = if sv <= ev {
+            x-start - s-w - label-gap
+          } else {
+            x-start + label-gap
+          }
+          let e-dx = if ev >= sv {
+            x-end + label-gap
+          } else {
+            x-end - e-w - label-gap
+          }
+
+          // Only offset vertically when values are equal (labels on same side)
+          let s-dy-adj = 0pt
+          let e-dy-adj = 0pt
+          if sv == ev {
+            s-dy-adj = -0.6em
+            e-dy-adj = 0.4em
+          }
+
           place(left + top,
             dx: s-dx,
             dy: y,
-            move(dy: -0.5em, text(size: t.value-label-size, fill: start-color)[#sv])
+            move(dy: -0.5em + s-dy-adj, s-content)
           )
-          // Value near end dot
-          let e-dx = if ev >= sv { x-end + dot-size + 3pt } else { calc.max(plot-left, x-end - 20pt) }
           place(left + top,
             dx: e-dx,
             dy: y,
-            move(dy: -0.5em, text(size: t.value-label-size, fill: end-color)[#ev])
+            move(dy: -0.5em + e-dy-adj, e-content)
           )
         }
       }
     ]
   ]
+  })
 }

@@ -9,7 +9,7 @@ A charting library for [Typst](https://github.com/typst/typst) built entirely wi
 
 ## Gallery
 
-All 50+ chart types across 7 pages — see [`examples/showcase.typ`](examples/showcase.typ) for the source:
+All 50+ chart types across 8 pages — see [`examples/showcase.typ`](examples/showcase.typ) for the source:
 
 ![Showcase Page 1](screenshots/showcase/showcase-1.png)
 ![Showcase Page 2](screenshots/showcase/showcase-2.png)
@@ -18,13 +18,14 @@ All 50+ chart types across 7 pages — see [`examples/showcase.typ`](examples/sh
 ![Showcase Page 5](screenshots/showcase/showcase-5.png)
 ![Showcase Page 6](screenshots/showcase/showcase-6.png)
 ![Showcase Page 7](screenshots/showcase/showcase-7.png)
+![Showcase Page 8](screenshots/showcase/showcase-8.png)
 
 ## Examples
 
 | File | Description |
 |---|---|
 | [`examples/demos/`](examples/demos/) | 19 per-chart demo files, each a 2×2 grid (light/dark + variations) |
-| [`examples/showcase.typ`](examples/showcase.typ) | Compact 7-page showcase of all chart types (dark theme) |
+| [`examples/showcase.typ`](examples/showcase.typ) | Compact 8-page showcase of all chart types (dark theme) |
 | [`examples/demo.typ`](examples/demo.typ) | Comprehensive demo with all features, themes, and data loading |
 
 Shared datasets in [`data/`](data/) used by both demo and showcase:
@@ -44,10 +45,12 @@ just demo       # Compile the comprehensive demo
 
 - **50+ chart types** for data visualization
 - **JSON data input** — load data directly from JSON files
-- **Theme system** — preset themes, custom overrides, and `with-theme()` for document-wide defaults
+- **Theme system** — golden-ratio proportional scaling from two seeds (`base-size`, `base-gap`), preset themes, custom overrides, and `with-theme()` for document-wide defaults
 - **Smart label placement** — automatic fit detection, font shrinking, and greedy deconfliction for overlapping labels
 - **Layout primitives** — shared utilities for label density, font scaling, and label placement
 - **Annotations** — overlay reference lines, bands, and labels on Cartesian charts
+- **Relative widths** — use `width: 100%` for responsive charts inside containers and grids
+- **Dashboard primitives** — `card`, `compact-table`, `alert`, `badge`, `separator`, and `dashboard-layout` for report layouts
 - **Customizable** — colors, sizes, labels, legends
 - **Pure Typst** — no packages or external tools needed
 
@@ -130,6 +133,12 @@ just demo       # Compile the comprehensive demo
 ### Dashboard
 - `metric-card` - KPI tile with value, delta, and sparkline
 - `metric-row` - Horizontal row of metric cards
+- `card` - Themed container with optional title and description
+- `compact-table` - Dense data table with header styling and highlight column
+- `alert` - Info/warning/error/success notification block with left border accent
+- `badge` - Inline colored pill (default/secondary/destructive/outline/success)
+- `separator` - Themed horizontal rule
+- `dashboard-layout` - Grid layout helper for multi-row dashboard pages
 - `word-cloud` - Weighted text layout sized by importance
 
 ### Annotations
@@ -142,13 +151,13 @@ Overlay reference lines, bands, and labels on bar, line, and scatter charts:
 ## Installation
 
 ```typst
-#import "@preview/primaviz:0.4.1": *
+#import "@preview/primaviz:0.5.0": *
 ```
 
 ## Usage
 
 ```typst
-#import "@preview/primaviz:0.4.1": *
+#import "@preview/primaviz:0.5.0": *
 
 // Load data from JSON
 #let data = json("mydata.json")
@@ -195,7 +204,7 @@ Every chart function accepts an optional `theme` parameter. Themes control color
 ### Using a preset theme
 
 ```typst
-#import "@preview/primaviz:0.4.1": *
+#import "@preview/primaviz:0.5.0": *
 
 #bar-chart(data, theme: themes.dark)
 ```
@@ -216,12 +225,68 @@ Use `with-theme()` to set a default theme for all charts in a block — no need 
 #show: with-theme.with(themes.dark)
 ```
 
+### Scaling with seeds
+
+All font sizes and spacing are derived from two seed values via golden-ratio (φ = 1.618) powers. Change the seeds to scale everything proportionally:
+
+```typst
+#bar-chart(data, theme: (base-size: 10pt, base-gap: 8pt))  // larger text and spacing
+#bar-chart(data, theme: (base-size: 5pt, base-gap: 3pt))   // compact
+```
+
 ### Custom overrides
 
-Pass a dictionary with only the keys you want to change. Unspecified keys fall back to the default theme:
+Pass a dictionary with only the keys you want to change. Unspecified keys fall back to the active theme (global or default). Partial overrides merge onto the global theme set by `with-theme()`, so `theme: (show-grid: true)` inside a `with-theme(themes.dark)` block gives you dark + grid:
 
 ```typst
 #bar-chart(data, theme: (show-grid: true, palette: (red, blue, green)))
+```
+
+### Theme from JSON
+
+Build a theme from a JSON tokens file (e.g., exported from a CSS design system):
+
+```typst
+#let tokens = json("tokens.json")
+#let my-theme = theme-from-json(tokens.light)
+#let my-dark = theme-from-json(tokens.dark)
+
+#show: with-theme.with(my-theme)
+```
+
+Expected JSON format: `palette` (array of hex strings), `text-color`, `text-color-light`, `text-color-inverse`, `background` (hex or null), `border-color`, `border-radius` (number in pt).
+
+### Extracting themes from CSS
+
+The repo includes two scripts for converting CSS design tokens into primaviz theme files (both `.typ` and `.json`). They parse CSS custom properties from `:root` and dark-mode blocks, convert colors (oklch, hsl, rgb, hex) to hex with alpha blending, and map `--chart-1`..N to a palette array and semantic properties (`--foreground`, `--background`, `--border`, `--radius`, etc.) to primaviz theme keys.
+
+**Python** (`scripts/extract-theme.py`) — the most sophisticated tool in the repo. Uses `uv run` for zero-install execution (dependencies are declared inline). Powered by `coloraide` for color space conversion:
+
+```bash
+just extract-theme src/index.css                          # default: outputs typst + json to ./typst/
+just extract-theme styles.css --name shadcn --format json  # json only, custom name
+just extract-theme globals.css --dark-selector '[data-theme="dark"]'
+```
+
+**TypeScript** (`scripts/extract-theme.ts`) — equivalent functionality using Bun and `culori`. Extracts additional semantic tokens (card, accent, destructive, etc.) in an `all` field:
+
+```bash
+just extract-theme-ts src/index.css
+just extract-theme-ts styles.css --name shadcn --format typst
+```
+
+Both scripts accept the same flags: `--out-dir`, `--format` (typst/json/both), `--name`, and `--dark-selector`. Run either with `--help` for full usage.
+
+### Custom theme keys
+
+Themes support passthrough of custom keys not in the default theme. This lets you extend the theme system for your own components:
+
+```typst
+#let my-theme = (
+  palette: (red, blue, green),
+  card-fill: rgb("#f5f5f5"),  // custom key — preserved and accessible
+)
+#show: with-theme.with(my-theme)
 ```
 
 ### Available presets
@@ -234,6 +299,7 @@ Pass a dictionary with only the keys you want to change. Unspecified keys fall b
 | `themes.presentation` | Larger font sizes across the board for slides and projectors |
 | `themes.print` | Grayscale palette with grid lines, optimized for black-and-white printing |
 | `themes.accessible` | Okabe-Ito colorblind-safe palette |
+| `themes.compact` | Smaller fonts, tighter padding for dense dashboard layouts |
 
 ## Data Formats
 
@@ -283,7 +349,7 @@ Pass a dictionary with only the keys you want to change. Unspecified keys fall b
 The default theme uses Tableau 10 colors. You can access colors from any theme via the `get-color` function:
 
 ```typst
-#import "@preview/primaviz:0.4.1": get-color, themes
+#import "@preview/primaviz:0.5.0": get-color, themes
 
 // Default palette
 #get-color(themes.default, 0)  // blue
@@ -332,6 +398,7 @@ primaviz/
       radial-bar.typ         # circular bars
       sunburst.typ           # multi-level hierarchical pie
       metric.typ             # metric-card, metric-row
+      dashboard.typ          # card, compact-table, alert, badge, separator, dashboard-layout
       violin.typ             # kernel density estimation
       timeline.typ           # vertical event timeline
       parliament.typ         # semicircle seat chart
@@ -339,7 +406,7 @@ primaviz/
       wordcloud.typ          # spiral-placement word cloud
     primitives/              # Low-level drawing helpers
       axes.typ               # axis lines, ticks, labels, grid, cartesian-layout
-      layout.typ             # density-skip, font-for-space, page-grid, label placement, deconfliction
+      layout.typ             # resolve-size, density-skip, font-for-space, page-grid, label placement, deconfliction
       annotations.typ        # reference lines, bands, labels
       container.typ          # chart container wrapper
       legend.typ             # horizontal, vertical, draw-legend-auto
@@ -365,13 +432,16 @@ primaviz/
       demo-dashboard.typ     # metric-row, word-cloud, sparklines, progress-bars
       demo-rings.typ         # ring-progress, treemap
       demo-bump.typ          # bump-chart, funnel-chart
-      demo-themes.typ        # theme comparison (all 6 presets + with-theme)
-    showcase.typ             # 7-page compact showcase (dark theme)
+      demo-themes.typ        # theme comparison (all 7 presets + with-theme)
+    showcase.typ             # 8-page compact showcase (dark theme)
     demo.typ                 # Comprehensive demo with JSON data loading
   data/                      # Sample JSON data files
   screenshots/
     demo/                    # Per-chart demo screenshots (demo-*.png)
     showcase/                # Showcase page screenshots (showcase-*.png)
+  scripts/
+    extract-theme.py         # CSS → primaviz theme extractor (uv script, zero-install, coloraide)
+    extract-theme.ts         # CSS → primaviz theme extractor (bun script, culori)
   justfile                   # Common dev commands
 ```
 
@@ -392,6 +462,8 @@ just open            # Compile and open the demo PDF
 just dev             # Watch with live-reload and open PDF
 just clean           # Clean generated artifacts
 just release         # Full release prep (check + screenshots)
+just extract-theme   # Extract CSS tokens → JSON theme via Python (e.g., just extract-theme src/index.css)
+just extract-theme-ts # Extract CSS tokens → JSON theme via Bun/TS (same options)
 just stats           # Show project stats
 ```
 

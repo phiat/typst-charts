@@ -5,6 +5,7 @@
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-x-even-labels
 #import "../primitives/legend.typ": draw-legend-auto
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a bump chart showing how items change ranking over time periods.
 ///
@@ -34,6 +35,8 @@
   show-legend: true,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-series-data(data, "bump-chart")
   let t = _resolve-ctx(theme)
   let labels = data.labels
@@ -52,7 +55,8 @@
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 50pt)[
+  let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "line")
+  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -100,7 +104,7 @@
             left + top,
             dx: pt.at(0) - dot-size / 2,
             dy: pt.at(1) - dot-size / 2,
-            circle(radius: dot-size / 2, fill: color, stroke: white + 1pt)
+            circle(radius: dot-size / 2, fill: color, stroke: t.marker-stroke)
           )
         }
 
@@ -118,13 +122,18 @@
 
           if n > 1 {
             let last-pt = points.at(n - 1)
-            place(
-              left + top,
-              dx: last-pt.at(0) + dot-size / 2 + 3pt,
-              dy: last-pt.at(1),
-              move(dy: -0.5em,
-                text(size: t.axis-label-size, fill: color, weight: "bold")[#s.name])
-            )
+            let label-x = last-pt.at(0) + dot-size / 2 + 3pt
+            let label-w = width - label-x
+            if label-w > 10pt {
+              place(
+                left + top,
+                dx: label-x,
+                dy: last-pt.at(1),
+                box(width: label-w, height: 0pt,
+                  move(dy: -0.5em,
+                    text(size: t.axis-label-size, fill: color, weight: "bold")[#s.name]))
+              )
+            }
           }
         }
       }
@@ -144,7 +153,6 @@
         }
       }
     ]
-
-    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "line")
   ]
+  })
 }

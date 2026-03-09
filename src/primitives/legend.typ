@@ -31,7 +31,7 @@
           box(width: 15pt, height: 2pt, fill: color, baseline: -2pt)
         } else if swatch-type == "circle" {
           box(width: swatch-size, height: swatch-size, baseline: 2pt,
-            circle(radius: swatch-size / 2, fill: color, stroke: white + 0.5pt))
+            circle(radius: swatch-size / 2, fill: color, stroke: theme.marker-stroke))
         } else {
           box(width: swatch-size, height: swatch-size, fill: color, baseline: 2pt, radius: 2pt)
         }
@@ -106,7 +106,7 @@
 #let draw-gradient-legend(min-val, max-val, palette, theme, bar-width: 15pt, bar-height: auto, steps: 30, reverse: false) = {
   let h = if bar-height == auto { 80pt } else { bar-height }
   let step-h = h / steps
-  box(width: bar-width + 35pt, height: h + 4pt)[
+  box(width: bar-width + 8pt, height: h + 4pt)[
     // Gradient bar
     #for i in array.range(steps) {
       let normalized = 1 - i / steps
@@ -116,12 +116,12 @@
         dy: (i / steps) * h,
         rect(width: bar-width, height: step-h + 0.5pt, fill: cell-color, stroke: none))
     }
-    // Max label (top)
-    #place(left + top, dx: bar-width + 4pt, dy: 0pt,
-      move(dy: -0.5em, text(size: theme.axis-label-size, fill: theme.text-color)[#calc.round(max-val, digits: 1)]))
-    // Min label (bottom)
-    #place(left + top, dx: bar-width + 4pt, dy: h,
-      move(dy: -0.5em, text(size: theme.axis-label-size, fill: theme.text-color)[#calc.round(min-val, digits: 1)]))
+    // Max label (above bar)
+    #place(left + top, dx: 0pt, dy: -1.2em,
+      box(width: bar-width, align(center, text(size: theme.axis-label-size, fill: theme.text-color)[#calc.round(max-val, digits: 1)])))
+    // Min label (below bar)
+    #place(left + top, dx: 0pt, dy: h + 2pt,
+      box(width: bar-width, align(center, text(size: theme.axis-label-size, fill: theme.text-color)[#calc.round(min-val, digits: 1)])))
   ]
 }
 

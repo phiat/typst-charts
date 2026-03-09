@@ -11,15 +11,15 @@
 
 #page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   histogram(league.goals-per-match,
-    width: W, height: H, title: "histogram", bins: 12, theme: lt,
+    width: W, height: H, title: "histogram", bins: 12, x-label: "Goals", y-label: "Frequency", theme: lt,
   ),
   box-plot(league.minutes-played,
-    width: W, height: H, title: "box-plot", show-grid: true, theme: dk,
+    width: W, height: H, title: "box-plot", show-grid: true, x-label: "Position", y-label: "Minutes", theme: dk,
   ),
   violin-plot(league.ratings,
     width: W, height: H, title: "violin-plot", y-label: "Rating", x-label: "Width = density", show-grid: true, theme: lt,
   ),
   waterfall-chart(sales.waterfall,
-    width: W, height: H, title: "waterfall-chart", theme: dk,
+    width: W, height: H, title: "waterfall-chart", x-label: "Stage", y-label: "Gold", theme: dk,
   ),
 ))

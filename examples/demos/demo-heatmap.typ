@@ -9,15 +9,15 @@
 
 #page-grid(cols: 2, rows: 2, col-gutter: 16pt, row-gutter: 24pt, (
   heatmap(sales.activity,
-    cell-size: 42pt, title: "heatmap (light)", palette: "viridis", theme: lt,
+    cell-size: 48pt, title: "heatmap (light)", palette: "viridis", theme: lt,
   ),
   heatmap(sales.activity,
-    cell-size: 42pt, title: "heatmap (dark)", palette: "viridis", theme: dk,
+    cell-size: 48pt, title: "heatmap (dark)", palette: "viridis", theme: dk,
   ),
   calendar-heatmap(sales.daily-deals,
     cell-size: 16pt, title: "calendar-heatmap", palette: "heat", theme: lt,
   ),
   correlation-matrix(codebase.correlation,
-    cell-size: 42pt, title: "correlation-matrix", theme: dk,
+    cell-size: 48pt, title: "correlation-matrix", theme: dk,
   ),
 ))

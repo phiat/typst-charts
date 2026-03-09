@@ -25,6 +25,9 @@
 == themes.accessible
 #bar-chart(simple-data, title: "accessible theme", theme: themes.accessible)
 
+== themes.compact
+#bar-chart(simple-data, title: "compact theme", theme: themes.compact)
+
 #pagebreak()
 
 = Theme Matrix
@@ -36,6 +39,7 @@
   ("presentation", themes.presentation),
   ("print", themes.print),
   ("accessible", themes.accessible),
+  ("compact", themes.compact),
 )
 
 #for (name, t) in theme-list {

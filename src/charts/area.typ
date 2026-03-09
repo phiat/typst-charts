@@ -3,8 +3,9 @@
 #import "../util.typ": normalize-data, nonzero, nice-ceil
 #import "../validate.typ": validate-simple-data, validate-series-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-even-labels
+#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-even-labels, measure-y-tick-width
 #import "../primitives/legend.typ": draw-legend-auto
+#import "../primitives/layout.typ": resolve-size
 
 /// Renders a single-series area chart with a filled region below the line.
 ///
@@ -16,6 +17,7 @@
 /// - show-points (bool): Draw data point markers
 /// - fill-opacity (ratio): Opacity of the filled area
 /// - line-width (length): Stroke width of the line
+/// - point-size (length): Radius of point markers
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
 /// - theme (none, dictionary): Theme overrides
@@ -29,10 +31,15 @@
   show-points: false,
   fill-opacity: 40%,
   line-width: 1.5pt,
+  point-size: 3pt,
   x-label: none,
   y-label: none,
+  show-ticks: false,
+  show-minor-grid: false,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-simple-data(data, "area-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
@@ -56,10 +63,10 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid)
 
       // Axes
-      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
+      #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t, show-ticks: show-ticks)
 
       // Y-axis ticks
       #draw-y-ticks(min-val, max-val, chart-height, pad-top, origin-x, t)
@@ -115,9 +122,9 @@
         for pt in points {
           place(
             left + top,
-            dx: pt.at(0) - 3pt,
-            dy: pt.at(1) - 3pt,
-            circle(radius: 3pt, fill: get-color(t, 0), stroke: white + 1pt)
+            dx: pt.at(0) - point-size,
+            dy: pt.at(1) - point-size,
+            circle(radius: point-size, fill: get-color(t, 0), stroke: t.marker-stroke)
           )
         }
       }
@@ -126,9 +133,11 @@
       #draw-x-even-labels(labels, n, origin-x, chart-width, origin-y, t)
 
       // Axis titles
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
+      #let y-tw = measure-y-tick-width(min-val, max-val, t)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
     ]
   ]
+  })
 }
 
 /// Renders a stacked area chart with multiple series layered cumulatively.
@@ -139,6 +148,7 @@
 /// - title (none, content): Optional chart title
 /// - show-lines (bool): Draw boundary lines between series
 /// - fill-opacity (ratio): Opacity of each filled area
+/// - line-width (length): Stroke width of boundary lines
 /// - show-legend (bool): Show series legend
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
@@ -151,11 +161,14 @@
   title: none,
   show-lines: true,
   fill-opacity: 70%,
+  line-width: 1pt,
   show-legend: true,
   x-label: none,
   y-label: none,
   theme: none,
 ) = context {
+  layout(size => {
+  let (width, height) = resolve-size(width, height, size)
   validate-series-data(data, "stacked-area-chart")
   let t = _resolve-ctx(theme)
   let labels = data.labels
@@ -179,7 +192,8 @@
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 50pt)[
+  let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
+  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -225,7 +239,7 @@
           left + top,
           polygon(
             fill: color.transparentize(100% - fill-opacity),
-            stroke: if show-lines { color + 1pt } else { none },
+            stroke: if show-lines { color + line-width } else { none },
             ..area-pts.map(p => (p.at(0), p.at(1)))
           )
         )
@@ -235,10 +249,9 @@
       #draw-x-even-labels(labels, n, origin-x, chart-width, origin-y, t)
 
       // Axis titles
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, origin-y / 2, t)
+      #let y-tw = measure-y-tick-width(0, max-val, t, digits: 0)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
     ]
-
-    // Legend
-    #draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
   ]
+  })
 }

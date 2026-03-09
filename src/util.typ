@@ -1,5 +1,19 @@
 // util.typ - Shared utilities for primaviz
 
+/// Returns white or black depending on the perceived luminance of a color.
+/// Uses the W3C relative luminance formula for good contrast.
+///
+/// - c (color): Input color
+/// -> color
+#let contrast-text(c) = {
+  let comps = rgb(c).components()
+  let r = comps.at(0) / 100%
+  let g = comps.at(1) / 100%
+  let b = comps.at(2) / 100%
+  let lum = 0.299 * r + 0.587 * g + 0.114 * b
+  if lum > 0.55 { black } else { white }
+}
+
 /// Normalizes data input to a `(labels: array, values: array)` dictionary.
 ///
 /// - data (dictionary, array): Dict with `labels`/`values` keys, or array of `(label, value)` tuples
@@ -234,7 +248,8 @@
 /// - val (int, float): Value to round down
 /// -> int, float
 #let nice-floor(val) = {
-  if val <= 0 { return 0 }
+  if val == 0 { return 0 }
+  if val < 0 { return -nice-ceil(calc.abs(val)) }
   let exp = calc.floor(calc.log(val, base: 10))
   let base = calc.pow(10, exp)
   let frac = val / base
@@ -248,6 +263,28 @@
     else if frac >= 1.5 { 1.5 }
     else { 1 }
   nice * base
+}
+
+/// Computes nice step-aligned tick values for an axis.
+/// Returns a dictionary with `min`, `max`, `step`, and `ticks` (array of values).
+///
+/// - data-min (number): Minimum data value
+/// - data-max (number): Maximum data value
+/// - count (int): Desired number of tick intervals (not tick count)
+/// -> dictionary
+#let nice-ticks(data-min, data-max, count: 5) = {
+  let raw-range = nonzero(data-max - data-min, fallback: 1.0)
+  let raw-step = raw-range / count
+  let step = nice-ceil(raw-step)
+  let tick-min = calc.floor(data-min / step) * step
+  let tick-max = calc.ceil(data-max / step) * step
+  let ticks = ()
+  let v = tick-min
+  while v <= tick-max + step * 0.01 {
+    ticks.push(if v == calc.floor(v) { int(v) } else { calc.round(v, digits: 2) })
+    v += step
+  }
+  (min: tick-min, max: tick-max, step: step, ticks: ticks)
 }
 
 /// Computes nice-rounded (min, max, range) for a numeric array.
