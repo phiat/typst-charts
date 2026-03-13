@@ -14,7 +14,7 @@
 /// - extra-left (length): Additional left padding beyond theme default
 /// - extra-right (length): Additional right padding beyond theme default
 /// -> dictionary
-#let cartesian-layout(width, height, theme, extra-left: 0pt, extra-right: 0pt) = {
+#let cartesian-layout(width, height, theme, extra-left: 0pt, extra-right: 10pt) = {
   let pad-left = theme.axis-padding-left + extra-left
   let pad-right = theme.axis-padding-right + extra-right
   let pad-top = theme.axis-padding-top
@@ -39,13 +39,9 @@
   let chart-width = x-end - origin-x
   let chart-height = origin-y - y-start
   // Y-axis: vertical from y-start down to origin-y at x=origin-x
-  place(left + top,
-    line(start: (origin-x, y-start), end: (origin-x, origin-y), stroke: theme.axis-stroke)
-  )
+  place(left + top, line(start: (origin-x, y-start), end: (origin-x, origin-y), stroke: theme.axis-stroke))
   // X-axis: horizontal from origin-x to x-end at y=origin-y
-  place(left + top,
-    line(start: (origin-x, origin-y), end: (x-end, origin-y), stroke: theme.axis-stroke)
-  )
+  place(left + top, line(start: (origin-x, origin-y), end: (x-end, origin-y), stroke: theme.axis-stroke))
   // Tick marks
   if show-ticks {
     let tick-count = theme.tick-count
@@ -54,12 +50,10 @@
       let fraction = if tick-count > 1 { i / (tick-count - 1) } else { 0 }
       // Y-axis ticks (left side)
       let y = y-start + chart-height - fraction * chart-height
-      place(left + top,
-        line(start: (origin-x - tick-len, y), end: (origin-x, y), stroke: theme.axis-stroke))
+      place(left + top, line(start: (origin-x - tick-len, y), end: (origin-x, y), stroke: theme.axis-stroke))
       // X-axis ticks (bottom)
       let x = origin-x + fraction * chart-width
-      place(left + top,
-        line(start: (x, origin-y), end: (x, origin-y + tick-len), stroke: theme.axis-stroke))
+      place(left + top, line(start: (x, origin-y), end: (x, origin-y + tick-len), stroke: theme.axis-stroke))
     }
   }
 }
@@ -79,13 +73,15 @@
     let label = format-number(value, digits: digits, mode: theme.number-format)
     let gap = theme.axis-label-gap
     if side == "right" {
-      place(left + top, dx: x-pos + gap, dy: y,
-        move(dy: -0.5em, text(size: theme.axis-label-size, fill: fill-color)[#label]))
+      place(left + top, dx: x-pos + gap, dy: y, box(height: 0pt, align(left + horizon, text(
+        size: theme.axis-label-size,
+        fill: fill-color,
+      )[#label])))
     } else {
-      place(left + top, dx: 0pt, dy: y,
-        box(width: x-pos - gap / 2, height: 0pt,
-          align(right, move(dy: -0.5em,
-            text(size: theme.axis-label-size, fill: fill-color)[#label]))))
+      place(left + top, dx: 0pt, dy: y, box(width: x-pos - gap / 2, height: 0pt, align(right + horizon, text(
+        size: theme.axis-label-size,
+        fill: fill-color,
+      )[#label])))
     }
   }
 }
@@ -101,16 +97,15 @@
     if calc.rem(i, skip) != 0 and i != n - 1 { continue }
     let x = x-start + i * spacing + center-offset
     if rotate-labels {
-      place(left + top, dx: x + spacing / 2, dy: y-pos,
-        rotate(-45deg, origin: top + right,
-          text(size: theme.axis-label-size, fill: theme.text-color)[#labels.at(i)]
-        )
-      )
+      place(left + top, dx: x, dy: y-pos, rotate(-45deg, origin: right, box(width: spacing/2, align(
+        right,
+        text(size: theme.axis-label-size, fill: theme.text-color)[#labels.at(i)],
+      ))))
     } else {
-      place(left + top, dx: x, dy: y-pos,
-        box(width: spacing, height: theme.axis-label-size * 2,
-          align(center + top, text(size: theme.axis-label-size, fill: theme.text-color)[#labels.at(i)]))
-      )
+      place(left + top, dx: x, dy: y-pos, box(width: spacing, height: theme.axis-label-size * 2, align(
+        center + top,
+        text(size: theme.axis-label-size, fill: theme.text-color)[#labels.at(i)],
+      )))
     }
   }
 }
@@ -125,10 +120,14 @@
     let value = min-val + val-range * fraction
     let x = x-offset + fraction * chart-width
     let label-w = theme.axis-label-size * 4
-    place(left + top, dx: x - label-w / 2, dy: y-pos,
-      box(width: label-w, height: theme.axis-label-size * 2,
-        align(center + top, text(size: theme.axis-label-size, fill: theme.text-color)[#format-number(value, digits: digits, mode: theme.number-format)]))
-    )
+    place(left + top, dx: x - label-w / 2, dy: y-pos, box(width: label-w, height: theme.axis-label-size * 2, align(
+      center + top,
+      text(size: theme.axis-label-size, fill: theme.text-color)[#format-number(
+        value,
+        digits: digits,
+        mode: theme.number-format,
+      )],
+    )))
   }
 }
 
@@ -137,19 +136,21 @@
   let x-spacing = if n > 1 { chart-width / (n - 1) } else { chart-width }
   for (i, lbl) in labels.enumerate() {
     let x = if n == 1 { origin-x } else { origin-x + (i / (n - 1)) * chart-width }
-    place(left + top, dx: x - x-spacing / 2, dy: origin-y + theme.axis-label-gap,
-      box(width: x-spacing, height: theme.axis-label-size * 2,
-        align(center + top, text(size: theme.axis-label-size, fill: theme.text-color)[#lbl])))
+    place(left + top, dx: x - x-spacing / 2, dy: origin-y + theme.axis-label-gap, box(
+      width: x-spacing,
+      height: theme.axis-label-size * 2,
+      align(center + top, text(size: theme.axis-label-size, fill: theme.text-color)[#lbl]),
+    ))
   }
 }
 
 // Draw a single right-aligned y-axis category label in the left margin.
 // Used by horizontal charts (horizontal-bar, horizontal-lollipop, dumbbell, diverging).
 #let draw-y-label(label, y, margin-width, theme) = {
-  place(left + top, dx: 0pt, dy: y,
-    box(width: margin-width - theme.axis-label-gap, height: 0pt,
-      align(right, move(dy: -0.5em,
-        text(size: theme.axis-label-size, fill: theme.text-color)[#label]))))
+  place(left + top, dx: 0pt, dy: y, box(width: margin-width - theme.axis-label-gap, height: 0pt, align(right, move(
+    dy: -0.5em,
+    text(size: theme.axis-label-size, fill: theme.text-color)[#label],
+  ))))
 }
 
 // Draw grid lines behind chart area.
@@ -166,12 +167,10 @@
         let fraction = (i + j / minor-count) / (tick-count - 1)
         // Horizontal minor
         let y = y-start + chart-height - fraction * chart-height
-        place(left + top,
-          line(start: (x-start, y), end: (x-start + chart-width, y), stroke: minor-stroke))
+        place(left + top, line(start: (x-start, y), end: (x-start + chart-width, y), stroke: minor-stroke))
         // Vertical minor
         let x = x-start + fraction * chart-width
-        place(left + top,
-          line(start: (x, y-start), end: (x, y-start + chart-height), stroke: minor-stroke))
+        place(left + top, line(start: (x, y-start), end: (x, y-start + chart-height), stroke: minor-stroke))
       }
     }
   }
@@ -180,16 +179,12 @@
   for i in array.range(tick-count) {
     let fraction = if tick-count > 1 { i / (tick-count - 1) } else { 0 }
     let y = y-start + chart-height - fraction * chart-height
-    place(left + top,
-      line(start: (x-start, y), end: (x-start + chart-width, y), stroke: theme.grid-stroke)
-    )
+    place(left + top, line(start: (x-start, y), end: (x-start + chart-width, y), stroke: theme.grid-stroke))
   }
   for i in array.range(tick-count) {
     let fraction = if tick-count > 1 { i / (tick-count - 1) } else { 0 }
     let x = x-start + fraction * chart-width
-    place(left + top,
-      line(start: (x, y-start), end: (x, y-start + chart-height), stroke: theme.grid-stroke)
-    )
+    place(left + top, line(start: (x, y-start), end: (x, y-start + chart-height), stroke: theme.grid-stroke))
   }
 }
 
@@ -222,8 +217,17 @@
 //
 // y-tick-width: measured width of the widest y-tick label (from measure-y-tick-width)
 // x-tick-height: measured height of x-tick labels (defaults to axis-label-size * 2)
-#let draw-axis-titles(x-label, y-label, x-center, y-center, theme,
-  origin-x: none, origin-y: none, y-tick-width: 0pt, x-tick-height: none) = {
+#let draw-axis-titles(
+  x-label,
+  y-label,
+  x-center,
+  y-center,
+  theme,
+  origin-x: none,
+  origin-y: none,
+  y-tick-width: 0pt,
+  x-tick-height: none,
+) = {
   let ax-origin-y = if origin-y != none { origin-y } else { y-center * 2 }
   let ax-origin-x = if origin-x != none { origin-x } else { theme.axis-padding-left }
   let gap = theme.axis-label-gap
@@ -237,9 +241,7 @@
       measure(text(size: theme.axis-label-size)[0]).height * 1.4
     }
     let x-title-dy = ax-origin-y + gap + tick-h + gap / 2
-    place(left + top, dx: x-center, dy: x-title-dy,
-      move(dx: -box-w / 2, box(width: box-w, align(center, lbl-content)))
-    )
+    place(left + top, dx: x-center, dy: x-title-dy, move(dx: -box-w / 2, box(width: box-w, align(center, lbl-content))))
   }
   if y-label != none {
     let lbl-content = text(size: theme.axis-title-size, fill: theme.text-color)[#y-label]
@@ -249,8 +251,6 @@
     // Tight offset (gap/6) keeps title close without overlapping
     let y-title-dx = ax-origin-x - gap / 6 - y-tick-width - rot-size.width
 
-    place(left + top, dx: y-title-dx, dy: y-center - rot-size.height / 2,
-      rotated
-    )
+    place(left + top, dx: y-title-dx, dy: y-center - rot-size.height / 2, rotated)
   }
 }
