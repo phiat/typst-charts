@@ -3,7 +3,7 @@
 #import "../util.typ": normalize-data, format-number, nonzero, nice-ceil
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-category-labels, measure-y-tick-width
+#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-category-labels, measure-y-tick-width, measure-x-tick-height
 #import "../primitives/legend.typ": draw-legend
 #import "../primitives/layout.typ": resolve-size
 
@@ -22,6 +22,7 @@
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let waterfall-chart(
   data,
@@ -38,6 +39,7 @@
   x-label: none,
   y-label: none,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-simple-data(data, "waterfall-chart")
@@ -113,7 +115,16 @@
   // Category labels + axis title fit within axis-padding-bottom
   let extra-h = if show-legend { t.legend-size + t.legend-gap + t.legend-swatch-size } else { 0pt }
 
-  chart-container(width, height, title, t, extra-height: extra-h)[
+  // Color key legend
+  let legend = none
+  if show-legend {
+     legend = draw-legend(
+      ((name: "Increase", color: pos-color), (name: "Decrease", color: neg-color), (name: "Total", color: tot-color)),
+      t,
+    )
+  }
+
+  chart-container(width, height, title, t, extra-height: extra-h, legend: legend, extra-legend-separation: extra-legend-separation)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -207,16 +218,11 @@
 
       // Axis titles
       #let y-tw = measure-y-tick-width(y-min, y-max, t, digits: 0)
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
+      #let x-th = measure-x-tick-height(labels, t, rotated: n>t.rotated-threshold)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
     ]
 
-    // Color key legend
-    #if show-legend {
-      draw-legend(
-        ((name: "Increase", color: pos-color), (name: "Decrease", color: neg-color), (name: "Total", color: tot-color)),
-        t,
-      )
-    }
+
   ]
   })
 }

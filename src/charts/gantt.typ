@@ -21,6 +21,7 @@
 /// - show-grid (bool): Whether to draw vertical grid lines
 /// - today (none, int): Optional time index to draw a "today" marker line
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let gantt-chart(
   data,
@@ -34,6 +35,7 @@
   show-legend: false,
   today: none,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-gantt-data(data, "gantt-chart")
@@ -68,7 +70,16 @@
   let timeline-width = width - label-area - 10pt
   let col-width = timeline-width / time-count
 
-  chart-container(width, chart-height, title, t, extra-height: 30pt)[
+  // Group legend
+  let legend = none
+  if show-legend and has-groups {
+      legend = draw-legend(
+        group-names.enumerate().map(((i, g)) => (name: g, color: get-color(t, i))),
+        t,
+      )
+    }
+
+  chart-container(width, chart-height, title, t, extra-height: 30pt, legend: legend, extra-legend-separation: extra-legend-separation)[
     #let body-height = chart-height
 
     #box(width: width, height: body-height)[
@@ -91,7 +102,7 @@
 
       // Time labels along the bottom — below the axis line
       #let label-font = font-for-space(col-width, t.axis-label-size)
-      #let rotate-labels = time-count > 8
+      #let rotate-labels = time-count > t.rotated-threshold
       #let skip-n = density-skip(time-count, timeline-width, min-spacing: if rotate-labels { 18pt } else { 12pt })
       #let axis-y = body-height - 20pt
       #let label-y = axis-y + 4pt  // below the axis line
@@ -192,13 +203,6 @@
       }
     ]
 
-    // Group legend
-    #if show-legend and has-groups {
-      draw-legend(
-        group-names.enumerate().map(((i, g)) => (name: g, color: get-color(t, i))),
-        t,
-      )
-    }
   ]
   })
 }

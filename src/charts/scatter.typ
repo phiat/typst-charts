@@ -4,7 +4,7 @@
 #import "../primitives/layout.typ": label-fits-inside, place-cartesian-label, try-fit-label, greedy-deconflict, resolve-size
 #import "../validate.typ": validate-scatter-data, validate-multi-scatter-data, validate-bubble-data, validate-multi-bubble-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks, measure-y-tick-width
+#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks, measure-y-tick-width, measure-x-tick-height
 #import "../primitives/legend.typ": draw-legend-auto, draw-size-legend
 #import "../primitives/annotations.typ": draw-annotations
 
@@ -101,7 +101,8 @@
 
       // Axis titles
       #let y-tw = measure-y-tick-width(y-min, y-max, t)
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
+      #let x-th = measure-x-tick-height(([#x-max],), t)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
 
       // Annotations
       #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, x-min, x-max, y-min, y-max, t)
@@ -122,6 +123,7 @@
 /// - show-grid (auto, bool): Draw background grid lines; `auto` uses theme default
 /// - show-legend (bool): Show series legend
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let multi-scatter-plot(
   data,
@@ -133,6 +135,7 @@
   point-size: 5pt,
   show-grid: auto,
   show-legend: true,
+  extra-legend-separation: 0pt,
   theme: none,
 ) = context {
   layout(size => {
@@ -160,7 +163,7 @@
   let cl = cartesian-layout(width, height, t, extra-left: 10pt)
 
   let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "circle")
-  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
+  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content, extra-legend-separation: extra-legend-separation)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -200,7 +203,8 @@
       }
 
       #let y-tw = measure-y-tick-width(y-min, y-max, t)
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
+      #let x-th = measure-x-tick-height(([#x-max],), t)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
     ]
   ]
   })
@@ -405,7 +409,8 @@
 
       // Axis titles
       #let y-tw = measure-y-tick-width(y-min, y-max, t)
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
+      #let x-th = measure-x-tick-height(([#x-max],), t)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
     ]
 
     // Size legend below chart

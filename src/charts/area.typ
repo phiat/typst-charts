@@ -3,7 +3,7 @@
 #import "../util.typ": normalize-data, nonzero, nice-ceil
 #import "../validate.typ": validate-simple-data, validate-series-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-even-labels, measure-y-tick-width
+#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-even-labels, measure-y-tick-width, measure-x-tick-height
 #import "../primitives/legend.typ": draw-legend-auto
 #import "../primitives/layout.typ": resolve-size
 
@@ -21,6 +21,7 @@
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let area-chart(
   data,
@@ -37,6 +38,7 @@
   show-ticks: false,
   show-minor-grid: false,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-simple-data(data, "area-chart")
@@ -54,7 +56,7 @@
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: 30pt)[
+  chart-container(width, height, title, t, extra-height: 30pt, extra-legend-separation: extra-legend-separation)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -134,7 +136,8 @@
 
       // Axis titles
       #let y-tw = measure-y-tick-width(min-val, max-val, t)
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
+      #let x-th = measure-x-tick-height(labels, t, rotated: n>t.rotated-threshold)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
     ]
   ]
   })
@@ -153,6 +156,7 @@
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let stacked-area-chart(
   data,
@@ -166,6 +170,7 @@
   x-label: none,
   y-label: none,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-series-data(data, "stacked-area-chart")
@@ -193,7 +198,7 @@
   let cl = cartesian-layout(width, height, t)
 
   let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
-  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
+  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content, extra-legend-separation: extra-legend-separation)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -250,7 +255,8 @@
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, max-val, t, digits: 0)
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
+      #let x-th = measure-x-tick-height(labels, t, rotated: n>t.rotated-threshold)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
     ]
   ]
   })

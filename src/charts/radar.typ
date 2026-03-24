@@ -15,6 +15,7 @@
 /// - show-value-labels (bool): Display scale values and data point labels
 /// - fill-opacity (ratio): Opacity of the filled data area
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let radar-chart(
   data,
@@ -25,6 +26,7 @@
   show-value-labels: true,
   fill-opacity: 15%,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(avail => {
   validate-series-data(data, "radar-chart")
@@ -74,7 +76,7 @@
     d
   } else { t }
 
-  align(center, chart-container(size, size, title, t-with-legend, extra-height: 40pt, legend: legend-content, legend-width: legend-width)[
+  align(center, chart-container(size, size, title, t-with-legend, extra-height: 40pt, legend: legend-content, legend-width: legend-width, extra-legend-separation: extra-legend-separation)[
     #box(width: size, height: size)[
         // Draw grid polygons with value labels
         #for level in array.range(1, 5) {

@@ -97,6 +97,7 @@
     background: none,
     border: none,
     border-radius: base-gap,
+    rotated-threshold: 8,  // number of x-axis labels before auto-rotating to save space
   )
 }
 
