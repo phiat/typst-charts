@@ -14,7 +14,7 @@
 /// - extra-left (length): Additional left padding beyond theme default
 /// - extra-right (length): Additional right padding beyond theme default
 /// -> dictionary
-#let cartesian-layout(width, height, theme, extra-left: 0pt, extra-right: 10pt) = {
+#let cartesian-layout(width, height, theme, extra-left: 0pt, extra-right: 0pt) = {
   let pad-left = theme.axis-padding-left + extra-left
   let pad-right = theme.axis-padding-right + extra-right
   let pad-top = theme.axis-padding-top
@@ -263,14 +263,16 @@
   let ax-origin-x = if origin-x != none { origin-x } else { theme.axis-padding-left }
   let gap = theme.axis-label-gap
 
+  let title-gap = theme.at("axis-title-gap", default: gap)
+
   if x-label != none {
     let lbl-content = text(size: theme.axis-title-size, fill: theme.text-color)[#x-label]
     let lbl-size = measure(lbl-content)
-    // Position below x-tick labels: measure actual tick label height + small gap
-    let tick-h = if x-tick-height != none { x-tick-height * 1.4 } else {
-      measure(text(size: theme.axis-label-size)[0]).height * 1.4
+    // Position below x-tick labels: axis → label-gap → tick labels → title-gap → title
+    let tick-h = if x-tick-height != 0pt { x-tick-height } else {
+      measure(text(size: theme.axis-label-size)[0]).height
     }
-    let x-title-dy = ax-origin-y + gap * .75 + tick-h
+    let x-title-dy = ax-origin-y + gap + tick-h + title-gap
     place(left + top, dx: x-center - lbl-size.width / 2, dy: x-title-dy,
       lbl-content
     )
@@ -279,8 +281,8 @@
     let lbl-content = text(size: theme.axis-title-size, fill: theme.text-color)[#y-label]
     let rotated = rotate(-90deg, lbl-content)
     let rot-size = measure(rotated)
-    // Align with tick label layout: ticks right-edge is at origin-x - gap/2
-    let y-title-dx = ax-origin-x - gap / 4 - y-tick-width - rot-size.width
+    // Ticks right-edge is at origin-x - gap/2; place title left with title-gap clearance
+    let y-title-dx = ax-origin-x - gap / 2 - y-tick-width - title-gap - rot-size.width
 
     place(left + top, dx: y-title-dx, dy: y-center - rot-size.height / 2, rotated)
   }

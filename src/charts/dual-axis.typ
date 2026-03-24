@@ -2,7 +2,7 @@
 #import "../theme.typ": _resolve-ctx, get-color
 #import "../validate.typ": validate-dual-axis-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/axes.typ": cartesian-layout, draw-grid, draw-axis-titles, draw-x-even-labels, draw-y-ticks
+#import "../primitives/axes.typ": cartesian-layout, draw-grid, draw-axis-titles, draw-x-even-labels, draw-y-ticks, measure-y-tick-width
 #import "../primitives/legend.typ": draw-legend-auto
 #import "../util.typ": nonzero, nice-ceil
 #import "../primitives/layout.typ": resolve-size
@@ -49,7 +49,8 @@
   let r-max = nice-ceil(calc.max(..right-series.values))
   let r-range = nonzero(r-max - r-min)
 
-  let cl = cartesian-layout(width, height, t, extra-left: 10pt, extra-right: 10pt)
+  // Both sides need room for ticks + rotated title
+  let cl = cartesian-layout(width, height, t, extra-left: 10pt, extra-right: t.axis-padding-left - t.axis-padding-right)
   let legend-content = draw-legend-auto(
       ((name: left-series.name, color: l-color), (name: right-series.name, color: r-color)),
       t, swatch-type: "line",
@@ -148,21 +149,24 @@
 
       // Axis labels
       #let y-center = pad-top + chart-height / 2
+      #let title-gap = t.at("axis-title-gap", default: t.axis-label-gap)
       #if left-label != none {
         let lbl = text(size: t.axis-title-size, fill: l-color)[#left-label]
         let rotated = rotate(-90deg, lbl)
         let rot-size = measure(rotated)
-        place(left + top, dx: t.axis-label-gap / 2, dy: y-center - rot-size.height / 2,
-          rotated
-        )
+        let l-tw = measure-y-tick-width(l-min, l-max, t)
+        // Left ticks right-edge is at origin-x - gap/2; title snug against ticks
+        let dx = origin-x - t.axis-label-gap / 2 - l-tw - rot-size.width
+        place(left + top, dx: dx, dy: y-center - rot-size.height / 2, rotated)
       }
       #if right-label != none {
         let lbl = text(size: t.axis-title-size, fill: r-color)[#right-label]
         let rotated = rotate(-90deg, lbl)
         let rot-size = measure(rotated)
-        place(left + top, dx: width - rot-size.width - t.axis-label-gap / 2, dy: y-center - rot-size.height / 2,
-          rotated
-        )
+        let r-tw = measure-y-tick-width(r-min, r-max, t)
+        // Right ticks right-edge is at origin-x + chart-width + gap + r-tw; title snug against ticks
+        let dx = origin-x + chart-width + t.axis-label-gap / 2 + r-tw
+        place(left + top, dx: dx, dy: y-center - rot-size.height / 2, rotated)
       }
       #if x-label != none {
         let lbl = text(size: t.axis-title-size, fill: t.text-color)[#x-label]
