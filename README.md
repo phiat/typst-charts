@@ -1,9 +1,9 @@
 # Primaviz
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Typst](https://img.shields.io/badge/typst-%3E%3D0.12.0-239dad)](https://github.com/typst/typst)
-[![Charts](https://img.shields.io/badge/chart_types-50%2B-orange)](screenshots/)
-[![Pure Typst](https://img.shields.io/badge/dependencies-zero-brightgreen)]()
+[![Typst version 0.12.0 or higher](https://img.shields.io/badge/typst-%3E%3D0.12.0-239dad)](https://github.com/typst/typst)
+[![50+ chart types](https://img.shields.io/badge/chart_types-50%2B-orange)](screenshots/)
+[![Pure Typst](https://img.shields.io/badge/dependencies-zero-brightgreen)](https://github.com/phiat/primaviz)
 
 A charting library for [Typst](https://github.com/typst/typst) built entirely with native primitives (`rect`, `circle`, `line`, `polygon`, `place`). No external dependencies required.
 
@@ -152,13 +152,13 @@ Overlay reference lines, bands, and labels on bar, line, and scatter charts:
 ## Installation
 
 ```typst
-#import "@preview/primaviz:0.5.2": *
+#import "@preview/primaviz:0.5.3": *
 ```
 
 ## Usage
 
 ```typst
-#import "@preview/primaviz:0.5.2": *
+#import "@preview/primaviz:0.5.3": *
 
 // Load data from JSON
 #let data = json("mydata.json")
@@ -205,7 +205,7 @@ Every chart function accepts an optional `theme` parameter. Themes control color
 ### Using a preset theme
 
 ```typst
-#import "@preview/primaviz:0.5.2": *
+#import "@preview/primaviz:0.5.3": *
 
 #bar-chart(data, theme: themes.dark)
 ```
@@ -350,7 +350,7 @@ Themes support passthrough of custom keys not in the default theme. This lets yo
 The default theme uses Tableau 10 colors. You can access colors from any theme via the `get-color` function:
 
 ```typst
-#import "@preview/primaviz:0.5.2": get-color, themes
+#import "@preview/primaviz:0.5.3": get-color, themes
 
 // Default palette
 #get-color(themes.default, 0)  // blue

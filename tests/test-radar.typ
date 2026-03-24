@@ -8,3 +8,5 @@
 = Radar Chart
 
 #radar-chart(radar-data, title: "radar-chart")
+
+#radar-chart(radar-data, title: "radar-chart (scale-0-to-10)", axis-max-value: 10)
