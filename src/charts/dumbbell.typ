@@ -22,6 +22,7 @@
 /// - line-width (length): Stroke width of connecting lines
 /// - show-values (bool): Display numeric values next to dots
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let dumbbell-chart(
   data,
@@ -32,6 +33,7 @@
   line-width: 1.5pt,
   show-values: false,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-dumbbell-data(data, "dumbbell-chart")
@@ -82,7 +84,7 @@
 
   let legend-content = draw-legend-auto(legend-entries, t, swatch-type: "circle")
 
-  chart-container(width, height, title, t, extra-height: 30pt, legend: legend-content)[
+  chart-container(width, height, title, t, extra-height: 30pt, legend: legend-content, extra-legend-separation: extra-legend-separation)[
     #box(width: width, height: height)[
       #let chart-height = height
       // Usable vertical space for rows — extra slot keeps last row off the axis

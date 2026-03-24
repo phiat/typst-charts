@@ -3,7 +3,7 @@
 #import "../util.typ": normalize-data, nonzero, nice-ceil
 #import "../validate.typ": validate-simple-data, validate-series-data, validate-grouped-stacked-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks, draw-x-category-labels, draw-y-label, measure-y-tick-width
+#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks, draw-x-category-labels, draw-y-label, measure-y-tick-width, measure-x-tick-height
 #import "../primitives/legend.typ": draw-legend-auto
 #import "../primitives/annotations.typ": draw-annotations
 #import "../primitives/polar.typ": separator-stroke
@@ -20,6 +20,7 @@
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let horizontal-bar-chart(
   data,
@@ -31,6 +32,7 @@
   x-label: none,
   y-label: none,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-simple-data(data, "horizontal-bar-chart")
@@ -45,7 +47,7 @@
 
   let cl = cartesian-layout(width, height, t, extra-left: t.axis-padding-left)
 
-  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom)[
+  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom, extra-legend-separation: extra-legend-separation)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -98,7 +100,9 @@
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, max-val, t)
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
+      #let x-th = measure-x-tick-height(labels, t)
+
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
     ]
   ]
   })
@@ -116,6 +120,7 @@
 /// - y-label (none, content): Y-axis title
 /// - annotations (none, array): Optional annotation descriptors
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let bar-chart(
   data,
@@ -132,6 +137,7 @@
   subtitle: none,
   radius: 0pt,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-simple-data(data, "bar-chart")
@@ -146,7 +152,7 @@
 
   let cl = cartesian-layout(width, height, t)
 
-  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom, subtitle: subtitle, radius: radius)[
+  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom, subtitle: subtitle, radius: radius, extra-legend-separation: extra-legend-separation)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -198,7 +204,9 @@
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, max-val, t)
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
+      #let x-th = measure-x-tick-height(labels, t, rotated: n>t.rotated-threshold)
+
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
 
       // Annotations
       #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, -0.5, n - 0.5, 0, max-val, t)
@@ -217,6 +225,7 @@
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let grouped-bar-chart(
   data,
@@ -224,9 +233,10 @@
   height: auto,
   title: none,
   show-legend: true,
-  x-label: none,
+  x-label: "none",
   y-label: none,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-series-data(data, "grouped-bar-chart")
@@ -243,7 +253,7 @@
   let cl = cartesian-layout(width, height, t)
 
   let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
-  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom + t.legend-gap, legend: legend-content)[
+  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom + t.legend-gap, legend: legend-content, extra-legend-separation: extra-legend-separation)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -288,7 +298,8 @@
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, max-val, t)
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
+      #let x-th = measure-x-tick-height(labels, t, rotated: labels.len()>t.rotated-threshold)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
     ]
   ]
   })
@@ -304,6 +315,7 @@
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let stacked-bar-chart(
   data,
@@ -314,6 +326,7 @@
   x-label: none,
   y-label: none,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-series-data(data, "stacked-bar-chart")
@@ -333,7 +346,7 @@
   let cl = cartesian-layout(width, height, t)
 
   let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend)
-  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom + t.legend-gap, legend: legend-content)[
+  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom + t.legend-gap, legend: legend-content, extra-legend-separation: extra-legend-separation)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -382,7 +395,8 @@
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, max-val, t)
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
+      #let x-th = measure-x-tick-height(labels, t, rotated: labels.len()>t.rotated-threshold)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
     ]
   ]
   })
@@ -402,6 +416,7 @@
 /// - y-label (none, content): Y-axis title
 /// - annotations (none, array): Optional annotation descriptors
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let grouped-stacked-bar-chart(
   data,
@@ -413,6 +428,7 @@
   y-label: none,
   annotations: none,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-grouped-stacked-data(data, "grouped-stacked-bar-chart")
@@ -456,7 +472,7 @@
 
   // Legend shows segment names (consistent colors across groups)
   let legend-content = draw-legend-auto(segment-names, t, show-legend: show-legend)
-  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom + t.legend-gap, legend: legend-content)[
+  chart-container(width, height, title, t, extra-height: t.axis-padding-bottom + t.legend-gap, legend: legend-content, extra-legend-separation: extra-legend-separation)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -514,7 +530,8 @@
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, max-val, t)
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
+      #let x-th = measure-x-tick-height(labels, t, rotated: n-labels>t.rotated-threshold)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
 
       // Annotations
       #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, -0.5, n-labels - 0.5, 0, max-val, t)

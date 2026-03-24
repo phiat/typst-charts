@@ -22,6 +22,7 @@
   x-label: none,
   show-grid: auto,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-dual-axis-data(data, "dual-axis-chart")
@@ -49,8 +50,12 @@
   let r-range = nonzero(r-max - r-min)
 
   let cl = cartesian-layout(width, height, t, extra-left: 10pt, extra-right: 10pt)
+  let legend-content = draw-legend-auto(
+      ((name: left-series.name, color: l-color), (name: right-series.name, color: r-color)),
+      t, swatch-type: "line",
+    )
 
-  chart-container(width, height, title, t, extra-height: 50pt)[
+  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content, extra-legend-separation: extra-legend-separation)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width
@@ -168,11 +173,7 @@
       }
     ]
 
-    // Legend
-    #draw-legend-auto(
-      ((name: left-series.name, color: l-color), (name: right-series.name, color: r-color)),
-      t, swatch-type: "line",
-    )
+    
   ]
   })
 }

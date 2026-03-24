@@ -23,6 +23,7 @@
 /// - show-legend (bool): Display legend with category names and colors
 /// - show-values (bool): Display percentage labels in the legend
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let waffle-chart(
   data,
@@ -35,6 +36,7 @@
   show-legend: true,
   show-values: true,
   theme: none,
+  extra-legend-separation: 0pt,
 ) = context {
   layout(avail => {
   validate-simple-data(data, "waffle-chart")
@@ -110,7 +112,7 @@
   let wt = (..t, legend-position: "right")
   let legend-content = draw-legend-auto(legend-entries, wt, show-legend: show-legend)
 
-  align(center, chart-container(size, grid-height, title, wt, legend: legend-content)[
+  align(center, chart-container(size, grid-height, title, wt, legend: legend-content, extra-legend-separation: extra-legend-separation)[
     // Draw grid bottom-to-top, left-to-right
     #box(width: size, height: grid-height)[
       #align(center + top)[

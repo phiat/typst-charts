@@ -23,6 +23,7 @@
 /// - show-labels (bool): Show series name labels at start and end of lines
 /// - show-legend (bool): Show series legend below the chart
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let bump-chart(
   data,
@@ -34,6 +35,7 @@
   show-labels: true,
   show-legend: true,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-series-data(data, "bump-chart")
@@ -56,7 +58,7 @@
   let cl = cartesian-layout(width, height, t)
 
   let legend-content = draw-legend-auto(series.map(s => s.name), t, show-legend: show-legend, swatch-type: "line")
-  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content)[
+  chart-container(width, height, title, t, extra-height: 50pt, legend: legend-content, extra-legend-separation: extra-legend-separation)[
     #let pad-top = cl.pad-top
     #let chart-height = cl.chart-height
     #let chart-width = cl.chart-width

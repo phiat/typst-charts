@@ -90,14 +90,14 @@
 // Labels are centered under their position using the spacing width.
 #let draw-x-category-labels(labels, x-start, spacing, y-pos, theme, center-offset: 0pt) = {
   let n = labels.len()
-  let rotate-labels = n > 8
+  let rotate-labels = n > theme.rotated-threshold
   let skip = density-skip(n, spacing * n)
 
   for i in array.range(n) {
     if calc.rem(i, skip) != 0 and i != n - 1 { continue }
     let x = x-start + i * spacing + center-offset
     if rotate-labels {
-      place(left + top, dx: x, dy: y-pos, rotate(-45deg, origin: right, box(width: spacing/2, align(
+      place(left + top, dx: x, dy: y-pos, rotate(-45deg, origin: right, box(width: spacing / 2, align(
         right,
         text(size: theme.axis-label-size, fill: theme.text-color)[#labels.at(i)],
       ))))
@@ -134,13 +134,24 @@
 // Draw evenly-spaced x-axis labels (for line/area/bump charts where points are spread uniformly).
 #let draw-x-even-labels(labels, n, origin-x, chart-width, origin-y, theme) = {
   let x-spacing = if n > 1 { chart-width / (n - 1) } else { chart-width }
+  let rotate-labels = n > theme.rotated-threshold
   for (i, lbl) in labels.enumerate() {
     let x = if n == 1 { origin-x } else { origin-x + (i / (n - 1)) * chart-width }
-    place(left + top, dx: x - x-spacing / 2, dy: origin-y + theme.axis-label-gap, box(
-      width: x-spacing,
-      height: theme.axis-label-size * 2,
-      align(center + top, text(size: theme.axis-label-size, fill: theme.text-color)[#lbl]),
-    ))
+    if rotate-labels {
+      place(left + top, dx: x - x-spacing / 2, dy: origin-y + theme.axis-label-gap, rotate(-45deg, origin: right, box(
+        width: x-spacing / 2,
+        align(
+          right,
+          text(size: theme.axis-label-size, fill: theme.text-color)[#lbl],
+        ),
+      )))
+    } else {
+      place(left + top, dx: x - x-spacing / 2, dy: origin-y + theme.axis-label-gap, box(
+        width: x-spacing,
+        height: theme.axis-label-size * 2,
+        align(center + top, text(size: theme.axis-label-size, fill: theme.text-color)[#lbl]),
+      ))
+    }
   }
 }
 
@@ -209,6 +220,24 @@
   max-w
 }
 
+#let measure-x-tick-height(values, theme, digits: 1, rotated: false) = {
+  let max-h = 0pt
+  if not rotated {
+    max-h = measure(text(size: theme.axis-label-size)[0]).height
+  } else {
+    for value in values {
+      if type(value) == float {
+        value = format-number(value, digits: digits, mode: theme.number-format)
+      }
+      let w = measure(text(size: theme.axis-label-size)[#value]).width
+      // When rotated, it is assumed that it is rotated by 45 degrees, so the effective height is the diagonal of the label box
+      let h = w * calc.sqrt(2) / 2
+      if h > max-h { max-h = h }
+    }
+  }
+  max-h
+}
+
 // Draw axis title labels (x below axis, y rotated on left).
 //
 // Layout is measurement-based:
@@ -226,7 +255,7 @@
   origin-x: none,
   origin-y: none,
   y-tick-width: 0pt,
-  x-tick-height: none,
+  x-tick-height: 0pt,
 ) = {
   let ax-origin-y = if origin-y != none { origin-y } else { y-center * 2 }
   let ax-origin-x = if origin-x != none { origin-x } else { theme.axis-padding-left }
@@ -237,10 +266,7 @@
     let lbl-size = measure(lbl-content)
     let box-w = lbl-size.width + theme.axis-title-size
     // Position below x-tick labels: measure actual tick label height + small gap
-    let tick-h = if x-tick-height != none { x-tick-height } else {
-      measure(text(size: theme.axis-label-size)[0]).height * 1.4
-    }
-    let x-title-dy = ax-origin-y + gap + tick-h + gap / 2
+    let x-title-dy = ax-origin-y + gap  + gap / 2 + x-tick-height * 1.4
     place(left + top, dx: x-center, dy: x-title-dy, move(dx: -box-w / 2, box(width: box-w, align(center, lbl-content))))
   }
   if y-label != none {

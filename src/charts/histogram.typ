@@ -3,7 +3,7 @@
 #import "../util.typ": nonzero, nice-ceil
 #import "../validate.typ": validate-histogram-data
 #import "../primitives/container.typ": chart-container
-#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-y-ticks, draw-x-ticks, draw-axis-titles, measure-y-tick-width
+#import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-y-ticks, draw-x-ticks, draw-axis-titles, measure-y-tick-width, measure-x-tick-height
 #import "../primitives/layout.typ": resolve-size
 
 /// Renders a histogram showing the frequency distribution of numeric data.
@@ -150,7 +150,8 @@
 
       // Axis titles
       #let y-tw = measure-y-tick-width(0, y-max, t, digits: if density { 3 } else { 1 })
-      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
+      #let x-th = measure-x-tick-height(([#data-max],), t)
+      #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
     ]
   ]
   })

@@ -23,6 +23,7 @@
 /// - show-values (bool): Display value labels at bar ends
 /// - bar-height (auto, float): Bar thickness as fraction of slot (0 to 1), auto = 0.6
 /// - theme (none, dictionary): Theme overrides
+/// - extra-legend-separation (length): Extra space between legend and chart
 /// -> content
 #let diverging-bar-chart(
   data,
@@ -33,6 +34,7 @@
   bar-height: auto,
   x-label: none,
   theme: none,
+  extra-legend-separation: 0pt
 ) = context {
   layout(size => {
   validate-diverging-data(data, "diverging-bar-chart")
@@ -67,7 +69,7 @@
     ((name: left-label, color: get-color(t, 0)), (name: right-label, color: get-color(t, 1))),
     t, show-legend: show-legend,
   )
-  chart-container(width, height, title, t, extra-height: extra-h, legend: legend-content)[
+  chart-container(width, height, title, t, extra-height: extra-h, legend: legend-content, extra-legend-separation: extra-legend-separation)[
     #let chart-height = height - t.axis-padding-top - t.axis-padding-bottom - tick-area
     #let spacing = chart-height / n
     #let actual-bar-h = spacing * bar-frac

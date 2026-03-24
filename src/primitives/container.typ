@@ -9,7 +9,7 @@
 
 // Wraps chart body in a box with optional background/border and title.
 // Adds inset padding so light and dark themes render at the same outer size.
-#let chart-container(width, height, title, theme, extra-height: 0pt, legend: none, legend-width: 120pt, subtitle: none, radius: 0pt, body) = {
+#let chart-container(width, height, title, theme, extra-height: 0pt, legend: none, legend-width: 120pt, extra-legend-separation: 0pt, subtitle: none, radius: 0pt, body) = {
   let has-bg = theme.background != none
   let pad = theme.at("container-inset", default: container-inset)
   let has-subtitle = subtitle != none
@@ -29,6 +29,7 @@
     #draw-title(title, theme, subtitle: subtitle)
     #if lp == "top" and legend != none {
       legend
+      v(extra-legend-separation)
     }
     #if lp == "right" and legend != none {
       context {
@@ -40,7 +41,7 @@
         let base-dy = if legend-dy < 0pt { -legend-dy } else { 0pt }
         box(width: width + legend-gap + legend-width, height: content-h)[
           #place(left + top, dy: base-dy, box(width: width, height: height, body))
-          #place(left + top, dx: width + legend-gap, dy: base-dy + legend-dy,
+          #place(left + top, dx: width + legend-gap + extra-legend-separation, dy: base-dy + legend-dy,
             box(width: legend-width, legend))
         ]
       }
@@ -50,8 +51,8 @@
         let legend-dy = (height - legend-h) / 2
         let content-h = calc.max(height, legend-h)
         let base-dy = if legend-dy < 0pt { -legend-dy } else { 0pt }
-        box(width: width + legend-gap + legend-width, height: content-h)[
-          #place(left + top, dy: base-dy + legend-dy,
+        box(width: width + legend-gap + legend-width, height: content-h,)[
+          #place(left + top, dy: base-dy + legend-dy, dx: -extra-legend-separation,
             box(width: legend-width, legend))
           #place(left + top, dx: legend-width + legend-gap, dy: base-dy,
             box(width: width, height: height, body))
@@ -60,6 +61,7 @@
     } else {
       body
       if legend != none and lp == "bottom" {
+        v(extra-legend-separation)
         legend
       }
     }
