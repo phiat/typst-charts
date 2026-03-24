@@ -233,7 +233,7 @@
   height: auto,
   title: none,
   show-legend: true,
-  x-label: "none",
+  x-label: none,
   y-label: none,
   theme: none,
   extra-legend-separation: 0pt

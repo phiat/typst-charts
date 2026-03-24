@@ -21,7 +21,7 @@
 /// Spacing scale (base-gap × φ^power):
 ///   φ^-1   = 0.62×  bar-gap, cell-gap
 ///   φ^-0.5 = 0.79×  tick-length, label-offset
-///   φ^0    = 1.00×  axis-label-gap, element-size
+///   φ^0    = 1.00×  axis-label-gap, axis-title-gap, element-size
 ///   φ^0.5  = 1.27×  title-gap, container-inset
 ///   φ^1    = 1.62×  legend-gap
 ///   φ^1.5  = 2.06×  legend-swatch-size
@@ -66,7 +66,8 @@
     cell-size: base-gap * phi3,                 // heatmap cell size (≈25pt @ 6pt)
     tick-length: base-gap * inv-sqrt-phi,       // axis tick mark length
     label-offset: base-gap * inv-sqrt-phi,      // label-to-element spacing
-    axis-label-gap: base-gap,
+    axis-label-gap: base-gap,                   // gap between axis and tick labels
+    axis-title-gap: base-gap,                   // gap between tick labels and axis title
     element-size: base-gap,                     // base dot/marker size
     container-inset: base-gap * _sqrt-phi,      // chart container padding
     title-gap: base-gap * _sqrt-phi,
@@ -107,7 +108,7 @@
 // Keys whose values are derived from seeds — used to detect explicit overrides
 #let _seed-derived-keys = (
   "axis-label-size", "axis-title-size", "value-label-size", "legend-size", "title-size",
-  "axis-label-gap", "title-gap", "legend-gap", "legend-swatch-size",
+  "axis-label-gap", "axis-title-gap", "title-gap", "legend-gap", "legend-swatch-size",
   "axis-padding-top", "axis-padding-right", "axis-padding-bottom", "axis-padding-left",
   "bar-gap", "cell-gap", "cell-size", "tick-length", "label-offset", "element-size", "container-inset",
   "stroke-thin", "stroke-mid", "stroke-thick", "stroke-heavy",
