@@ -1,6 +1,6 @@
 // line.typ - Line charts (single and multi-series)
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": normalize-data, nonzero, nice-ticks
+#import "../util.typ": normalize-data, nonzero, nice-ticks, normalize-errors
 #import "../validate.typ": validate-simple-data, validate-series-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-category-labels, draw-x-even-labels, measure-y-tick-width, measure-x-tick-height
@@ -37,6 +37,9 @@
   fill-area: false,
   x-label: none,
   y-label: none,
+  errors: none,
+  error-color: auto,
+  error-cap-width: 6pt,
   annotations: none,
   show-ticks: false,
   show-minor-grid: false,
@@ -51,14 +54,21 @@
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values
-  let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
+  let n = values.len()
+  let (width, height) = resolve-size(width, height, size, n: n, theme: t)
+  let errs = normalize-errors(errors, n)
 
-  let nt = nice-ticks(calc.min(..values), calc.max(..values), count: t.tick-count)
+  // Extend axis to cover error extremes
+  let data-min = if errs != none {
+    calc.min(..values.enumerate().map(((i, v)) => v - errs.at(i).low))
+  } else { calc.min(..values) }
+  let data-max = if errs != none {
+    calc.max(..values.enumerate().map(((i, v)) => v + errs.at(i).high))
+  } else { calc.max(..values) }
+  let nt = nice-ticks(data-min, data-max, count: t.tick-count)
   let max-val = nt.max
   let min-val = nt.min
   let val-range = nonzero(max-val - min-val)
-
-  let n = values.len()
 
   let cl = cartesian-layout(width, height, t)
 
@@ -99,6 +109,28 @@
             stroke: line-width + get-color(t, 0),
           )
         )
+      }
+
+      // Error bars (drawn under points so the marker sits on top)
+      #if errs != none {
+        let err-color-resolved = if error-color != auto { error-color } else { get-color(t, 0) }
+        let err-stroke = t.stroke-thin + err-color-resolved
+        for (i, pt) in points.enumerate() {
+          let err = errs.at(i)
+          let val = values.at(i)
+          let y-low = pad-top + chart-height - ((val - err.low - min-val) / val-range) * chart-height
+          let y-high = pad-top + chart-height - ((val + err.high - min-val) / val-range) * chart-height
+          let x-c = pt.at(0)
+          place(left + top,
+            line(start: (x-c, y-low), end: (x-c, y-high), stroke: err-stroke)
+          )
+          place(left + top,
+            line(start: (x-c - error-cap-width / 2, y-low), end: (x-c + error-cap-width / 2, y-low), stroke: err-stroke)
+          )
+          place(left + top,
+            line(start: (x-c - error-cap-width / 2, y-high), end: (x-c + error-cap-width / 2, y-high), stroke: err-stroke)
+          )
+        }
       }
 
       // Draw points and value labels
@@ -161,6 +193,7 @@
   point-size: 3pt,
   x-label: none,
   y-label: none,
+  annotations: none,
   theme: none,
   extra-legend-separation: 0pt
 ) = context {
@@ -241,8 +274,11 @@
       // Axis titles
       #let y-tw = measure-y-tick-width(min-val, max-val, t)
       #let x-th = measure-x-tick-height(labels, t, rotated: n>t.rotated-threshold)
-      
+
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
+
+      // Annotations — x is point index [0, n-1], y is [min-val, max-val]
+      #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, 0, calc.max(n - 1, 1), min-val, max-val, t)
     ]
   ]
   })

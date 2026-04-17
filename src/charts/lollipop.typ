@@ -153,6 +153,7 @@
   show-values: true,
   x-label: none,
   y-label: none,
+  annotations: none,
   theme: none,
 ) = context {
   layout(size => {
@@ -235,6 +236,9 @@
       #let y-tw = measure-y-tick-width(0, max-val, t)
       #let x-th = measure-x-tick-height(([#max-val],), t, rotated: n > t.rotated-threshold)
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
+
+      // Annotations — x is data value [0, max-val], y is category index [-0.5, n-0.5]
+      #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, 0, max-val, -0.5, n - 0.5, t)
     ]
   ]
   })

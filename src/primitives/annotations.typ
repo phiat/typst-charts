@@ -91,6 +91,89 @@
       place(left + top, dx: px - 2pt, dy: py - 2pt,
         circle(radius: 2pt, fill: ann-color)
       )
+    } else if ann-type == "content" {
+      // Place arbitrary Typst content at data coordinates (x, y).
+      // Anchor defaults to center; supported: top-left, top, top-right,
+      // left, center, right, bottom-left, bottom, bottom-right.
+      // The anchor names the content's own anchor point that lands on (x, y).
+      let (px, py) = to-px(ann.x, ann.y)
+      let body = ann.at("body", default: [])
+      let anchor = ann.at("anchor", default: "center")
+      let dx-off = ann.at("dx", default: 0pt)
+      let dy-off = ann.at("dy", default: 0pt)
+      let sz = measure(body)
+      // Shift the content so its named anchor point lands at (px, py).
+      let adjust-x = if anchor.ends-with("right") { -sz.width }
+        else if anchor == "top" or anchor == "center" or anchor == "bottom" { -sz.width / 2 }
+        else { 0pt }
+      let adjust-y = if anchor.starts-with("bottom") { -sz.height }
+        else if anchor == "left" or anchor == "center" or anchor == "right" { -sz.height / 2 }
+        else { 0pt }
+      place(left + top, dx: px + dx-off + adjust-x, dy: py + dy-off + adjust-y, body)
+    } else if ann-type == "point" {
+      // Circle marker at data coordinates — useful for outliers, highlights.
+      let (px, py) = to-px(ann.x, ann.y)
+      let radius = ann.at("radius", default: 3pt)
+      let fill-color = ann.at("fill", default: ann-color)
+      let stroke-val = ann.at("stroke", default: none)
+      place(left + top, dx: px - radius, dy: py - radius,
+        circle(radius: radius, fill: fill-color, stroke: stroke-val)
+      )
+      if ann-label != none {
+        place(left + top, dx: px + radius + 2pt, dy: py - 6pt,
+          text(size: theme.axis-label-size * 0.85, fill: ann-color)[#ann-label]
+        )
+      }
+    } else if ann-type == "errorbar" {
+      // Error bar at anchor with cap lines at each end.
+      // Vertical (default): anchor `x` in data space, `low`/`high` in y data space.
+      // Horizontal (orientation: "h"): anchor `y`, `low`/`high` in x data space.
+      let orientation = ann.at("orientation", default: "v")
+      let cap-w = ann.at("cap-width", default: 6pt)
+      if orientation == "h" {
+        let (px-lo, py) = to-px(ann.low, ann.y)
+        let (px-hi, _) = to-px(ann.high, ann.y)
+        place(left + top,
+          line(start: (px-lo, py), end: (px-hi, py), stroke: stroke-style)
+        )
+        place(left + top,
+          line(start: (px-lo, py - cap-w / 2), end: (px-lo, py + cap-w / 2), stroke: stroke-style)
+        )
+        place(left + top,
+          line(start: (px-hi, py - cap-w / 2), end: (px-hi, py + cap-w / 2), stroke: stroke-style)
+        )
+      } else {
+        let (px, py-lo) = to-px(ann.x, ann.low)
+        let (_, py-hi) = to-px(ann.x, ann.high)
+        place(left + top,
+          line(start: (px, py-lo), end: (px, py-hi), stroke: stroke-style)
+        )
+        place(left + top,
+          line(start: (px - cap-w / 2, py-lo), end: (px + cap-w / 2, py-lo), stroke: stroke-style)
+        )
+        place(left + top,
+          line(start: (px - cap-w / 2, py-hi), end: (px + cap-w / 2, py-hi), stroke: stroke-style)
+        )
+      }
+    } else if ann-type == "rect" {
+      // Rectangle in data coordinates from (x1, y1) to (x2, y2).
+      let (px1, py1) = to-px(ann.x1, ann.y1)
+      let (px2, py2) = to-px(ann.x2, ann.y2)
+      let rx = calc.min(px1, px2)
+      let ry = calc.min(py1, py2)
+      let rw = calc.abs(px2 - px1)
+      let rh = calc.abs(py2 - py1)
+      let opacity = ann.at("opacity", default: 20%)
+      let fill-color = ann.at("fill", default: ann-color.transparentize(100% - opacity))
+      let stroke-val = ann.at("stroke", default: none)
+      place(left + top, dx: rx, dy: ry,
+        rect(width: rw, height: rh, fill: fill-color, stroke: stroke-val)
+      )
+      if ann-label != none {
+        place(left + top, dx: rx + 3pt, dy: ry + 2pt,
+          text(size: theme.axis-label-size * 0.85, fill: ann-color)[#ann-label]
+        )
+      }
     }
   }
 }

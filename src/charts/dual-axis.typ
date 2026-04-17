@@ -4,6 +4,7 @@
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-grid, draw-axis-titles, draw-x-even-labels, draw-y-ticks, measure-y-tick-width
 #import "../primitives/legend.typ": draw-legend-auto
+#import "../primitives/annotations.typ": draw-annotations
 #import "../util.typ": nonzero, nice-ticks
 #import "../primitives/layout.typ": resolve-size
 
@@ -21,6 +22,7 @@
   right-label: none,
   x-label: none,
   show-grid: auto,
+  annotations: none,
   theme: none,
   extra-legend-separation: 0pt
 ) = context {
@@ -177,9 +179,10 @@
           lbl
         )
       }
-    ]
 
-    
+      // Annotations — x is point index [0, n-1], y defaults to left-axis range
+      #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, 0, calc.max(n - 1, 1), l-min, l-max, t)
+    ]
   ]
   })
 }

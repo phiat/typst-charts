@@ -1,6 +1,6 @@
 // bar.typ - Bar charts (simple, horizontal, grouped, stacked, grouped-stacked)
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": normalize-data, nonzero, nice-ticks
+#import "../util.typ": normalize-data, nonzero, nice-ticks, normalize-errors
 #import "../validate.typ": validate-simple-data, validate-series-data, validate-grouped-stacked-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks, draw-x-category-labels, draw-y-label, measure-y-tick-width, measure-x-tick-height
@@ -31,6 +31,7 @@
   show-values: true,
   x-label: none,
   y-label: none,
+  annotations: none,
   theme: none,
   extra-legend-separation: 0pt
 ) = context {
@@ -104,6 +105,9 @@
       #let x-th = measure-x-tick-height(labels, t)
 
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
+
+      // Annotations — x is data value [0, max-val], y is category index [-0.5, n-0.5]
+      #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, 0, max-val, -0.5, n - 0.5, t)
     ]
   ]
   })
@@ -132,6 +136,9 @@
   show-values: true,
   x-label: none,
   y-label: none,
+  errors: none,
+  error-color: auto,
+  error-cap-width: auto,
   annotations: none,
   show-ticks: false,
   show-minor-grid: false,
@@ -146,11 +153,16 @@
   let norm = normalize-data(data)
   let labels = norm.labels
   let values = norm.values
-  let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
-
-  let nt = nice-ticks(0, nonzero(calc.max(..values)), count: t.tick-count)
-  let max-val = nt.max
   let n = values.len()
+  let (width, height) = resolve-size(width, height, size, n: n, theme: t)
+  let errs = normalize-errors(errors, n)
+
+  // Extend axis max to cover highest error bar
+  let data-max = if errs != none {
+    calc.max(..values.enumerate().map(((i, v)) => v + errs.at(i).high))
+  } else { calc.max(..values) }
+  let nt = nice-ticks(0, nonzero(data-max), count: t.tick-count)
+  let max-val = nt.max
 
   let cl = cartesian-layout(width, height, t)
 
@@ -170,6 +182,7 @@
 
       #let spacing = chart-width / n
 
+      #let err-stroke-color = if error-color != auto { error-color } else { t.text-color }
       #for (i, val) in values.enumerate() {
         let bar-h = (val / max-val) * chart-height
         let actual-bar-width = spacing * bar-width
@@ -187,11 +200,35 @@
           )
         )
 
+        // Error bar (if provided) — vertical line with caps centered on bar
+        if errs != none {
+          let err = errs.at(i)
+          let y-low = origin-y - ((val - err.low) / max-val) * chart-height
+          let y-high = origin-y - ((val + err.high) / max-val) * chart-height
+          let x-center = x-pos + actual-bar-width / 2
+          let cap-w = if error-cap-width != auto { error-cap-width } else { actual-bar-width * 0.4 }
+          let err-stroke = t.stroke-thin + err-stroke-color
+          place(left + top,
+            line(start: (x-center, y-low), end: (x-center, y-high), stroke: err-stroke)
+          )
+          place(left + top,
+            line(start: (x-center - cap-w / 2, y-low), end: (x-center + cap-w / 2, y-low), stroke: err-stroke)
+          )
+          place(left + top,
+            line(start: (x-center - cap-w / 2, y-high), end: (x-center + cap-w / 2, y-high), stroke: err-stroke)
+          )
+        }
+
         if show-values {
+          // Push value label above error bar if present
+          let label-y-offset = if errs != none {
+            let err = errs.at(i)
+            -((err.high / max-val) * chart-height) - 1.2em
+          } else { -1.2em }
           place(
             left + top,
             dx: x-pos,
-            dy: origin-y - bar-h - 1.2em,
+            dy: origin-y - bar-h + label-y-offset,
             box(width: actual-bar-width,
               align(center, text(size: t.value-label-size, fill: t.text-color)[#val]))
           )
@@ -237,6 +274,7 @@
   show-legend: true,
   x-label: none,
   y-label: none,
+  annotations: none,
   theme: none,
   extra-legend-separation: 0pt
 ) = context {
@@ -304,6 +342,9 @@
       #let y-tw = measure-y-tick-width(0, max-val, t)
       #let x-th = measure-x-tick-height(labels, t, rotated: labels.len()>t.rotated-threshold)
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
+
+      // Annotations — x is group index [-0.5, n-groups-0.5], y is [0, max-val]
+      #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, -0.5, n-groups - 0.5, 0, max-val, t)
     ]
   ]
   })
@@ -329,6 +370,7 @@
   show-legend: true,
   x-label: none,
   y-label: none,
+  annotations: none,
   theme: none,
   extra-legend-separation: 0pt
 ) = context {
@@ -402,6 +444,9 @@
       #let y-tw = measure-y-tick-width(0, max-val, t)
       #let x-th = measure-x-tick-height(labels, t, rotated: labels.len()>t.rotated-threshold)
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
+
+      // Annotations — x is category index [-0.5, n-0.5], y is [0, max-val]
+      #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, -0.5, n - 0.5, 0, max-val, t)
     ]
   ]
   })
