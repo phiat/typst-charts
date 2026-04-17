@@ -1,6 +1,6 @@
 [package]
 name = "primaviz"
-version = "0.5.3"
+version = "0.6.0"
 entrypoint = "src/lib.typ"
 authors = ["phiat"]
 license = "MIT"
