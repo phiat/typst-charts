@@ -1,6 +1,6 @@
 // scatter.typ - Scatter plot and bubble chart
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": nonzero, clamp, nice-ceil, nice-floor, numeric-range
+#import "../util.typ": nonzero, clamp, nice-ticks
 #import "../primitives/layout.typ": label-fits-inside, place-cartesian-label, try-fit-label, greedy-deconflict, resolve-size
 #import "../validate.typ": validate-scatter-data, validate-multi-scatter-data, validate-bubble-data, validate-multi-bubble-data
 #import "../primitives/container.typ": chart-container
@@ -54,10 +54,10 @@
   let x-vals = points.map(p => p.at(0))
   let y-vals = points.map(p => p.at(1))
 
-  let xr = numeric-range(x-vals)
-  let yr = numeric-range(y-vals)
-  let (x-min, x-max, x-range) = (xr.min, xr.max, xr.range)
-  let (y-min, y-max, y-range) = (yr.min, yr.max, yr.range)
+  let xnt = nice-ticks(calc.min(..x-vals), calc.max(..x-vals), count: t.tick-count)
+  let ynt = nice-ticks(calc.min(..y-vals), calc.max(..y-vals), count: t.tick-count)
+  let (x-min, x-max, x-range) = (xnt.min, xnt.max, nonzero(xnt.max - xnt.min))
+  let (y-min, y-max, y-range) = (ynt.min, ynt.max, nonzero(ynt.max - ynt.min))
 
   let point-color = if color != none { color } else { get-color(t, 0) }
 
@@ -72,7 +72,7 @@
 
     #box(width: width, height: height)[
       // Grid lines
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid, num-ticks: ynt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t, show-ticks: show-ticks)
@@ -155,10 +155,10 @@
     }
   }
 
-  let xr = numeric-range(x-vals)
-  let yr = numeric-range(y-vals)
-  let (x-min, x-max, x-range) = (xr.min, xr.max, xr.range)
-  let (y-min, y-max, y-range) = (yr.min, yr.max, yr.range)
+  let xnt = nice-ticks(calc.min(..x-vals), calc.max(..x-vals), count: t.tick-count)
+  let ynt = nice-ticks(calc.min(..y-vals), calc.max(..y-vals), count: t.tick-count)
+  let (x-min, x-max, x-range) = (xnt.min, xnt.max, nonzero(xnt.max - xnt.min))
+  let (y-min, y-max, y-range) = (ynt.min, ynt.max, nonzero(ynt.max - ynt.min))
 
   let cl = cartesian-layout(width, height, t, extra-left: 10pt)
 
@@ -172,7 +172,7 @@
 
     #box(width: width, height: height)[
       // Grid lines
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: ynt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
@@ -259,10 +259,10 @@
   let y-vals = points.map(p => p.at(1))
   let size-vals = points.map(p => p.at(2))
 
-  let xr = numeric-range(x-vals)
-  let yr = numeric-range(y-vals)
-  let (x-min, x-max, x-range) = (xr.min, xr.max, xr.range)
-  let (y-min, y-max, y-range) = (yr.min, yr.max, yr.range)
+  let xnt = nice-ticks(calc.min(..x-vals), calc.max(..x-vals), count: t.tick-count)
+  let ynt = nice-ticks(calc.min(..y-vals), calc.max(..y-vals), count: t.tick-count)
+  let (x-min, x-max, x-range) = (xnt.min, xnt.max, nonzero(xnt.max - xnt.min))
+  let (y-min, y-max, y-range) = (ynt.min, ynt.max, nonzero(ynt.max - ynt.min))
   let size-min = calc.min(..size-vals)
   let size-max = calc.max(..size-vals)
   let size-range = nonzero(size-max - size-min)
@@ -280,7 +280,7 @@
 
     #box(width: width, height: height)[
       // Grid lines
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: ynt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
@@ -475,10 +475,10 @@
     }
   }
 
-  let xr = numeric-range(x-vals)
-  let yr = numeric-range(y-vals)
-  let (x-min, x-max, x-range) = (xr.min, xr.max, xr.range)
-  let (y-min, y-max, y-range) = (yr.min, yr.max, yr.range)
+  let xnt = nice-ticks(calc.min(..x-vals), calc.max(..x-vals), count: t.tick-count)
+  let ynt = nice-ticks(calc.min(..y-vals), calc.max(..y-vals), count: t.tick-count)
+  let (x-min, x-max, x-range) = (xnt.min, xnt.max, nonzero(xnt.max - xnt.min))
+  let (y-min, y-max, y-range) = (ynt.min, ynt.max, nonzero(ynt.max - ynt.min))
   let size-min = calc.min(..size-vals)
   let size-max = calc.max(..size-vals)
   let size-range = nonzero(size-max - size-min)
@@ -495,7 +495,7 @@
 
     #box(width: width, height: height)[
       // Grid lines
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: ynt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)

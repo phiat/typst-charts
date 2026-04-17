@@ -1,6 +1,6 @@
 // bar.typ - Bar charts (simple, horizontal, grouped, stacked, grouped-stacked)
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": normalize-data, nonzero, nice-ceil
+#import "../util.typ": normalize-data, nonzero, nice-ticks
 #import "../validate.typ": validate-simple-data, validate-series-data, validate-grouped-stacked-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks, draw-x-category-labels, draw-y-label, measure-y-tick-width, measure-x-tick-height
@@ -42,7 +42,8 @@
   let values = norm.values
   let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
-  let max-val = nice-ceil(nonzero(calc.max(..values)))
+  let nt = nice-ticks(0, nonzero(calc.max(..values)), count: t.tick-count)
+  let max-val = nt.max
   let n = values.len()
 
   let cl = cartesian-layout(width, height, t, extra-left: t.axis-padding-left)
@@ -56,10 +57,10 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: nt.ticks.len())
 
       // X-axis ticks (numeric values along bottom)
-      #draw-x-ticks(0, max-val, chart-width, origin-x, origin-y + t.label-offset, t, digits: 0)
+      #draw-x-ticks(0, max-val, chart-width, origin-x, origin-y + t.label-offset, t)
 
       #let spacing = chart-height / n
       #let actual-bar-height = spacing * bar-height
@@ -147,7 +148,8 @@
   let values = norm.values
   let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
-  let max-val = nice-ceil(nonzero(calc.max(..values)))
+  let nt = nice-ticks(0, nonzero(calc.max(..values)), count: t.tick-count)
+  let max-val = nt.max
   let n = values.len()
 
   let cl = cartesian-layout(width, height, t)
@@ -161,7 +163,7 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid, num-ticks: nt.ticks.len())
 
       // Y-axis ticks
       #draw-y-ticks(0, max-val, chart-height, pad-top, origin-x, t)
@@ -249,7 +251,8 @@
   let (width, height) = resolve-size(width, height, size, n: n-groups * n-series, theme: t)
 
   let all-values = series.map(s => s.values).flatten()
-  let max-val = nice-ceil(nonzero(calc.max(..all-values)))
+  let nt = nice-ticks(0, nonzero(calc.max(..all-values)), count: t.tick-count)
+  let max-val = nt.max
 
   let cl = cartesian-layout(width, height, t)
 
@@ -263,7 +266,7 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: nt.ticks.len())
 
       // Y-axis ticks
       #draw-y-ticks(0, max-val, chart-height, pad-top, origin-x, t)
@@ -342,7 +345,8 @@
     let total = series.map(s => s.values.at(i)).sum()
     totals.push(total)
   }
-  let max-val = nice-ceil(nonzero(calc.max(..totals)))
+  let nt = nice-ticks(0, nonzero(calc.max(..totals)), count: t.tick-count)
+  let max-val = nt.max
 
   let cl = cartesian-layout(width, height, t)
 
@@ -356,7 +360,7 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: nt.ticks.len())
 
       // Y-axis ticks
       #draw-y-ticks(0, max-val, chart-height, pad-top, origin-x, t)
@@ -467,7 +471,8 @@
       if total > max-val { max-val = total }
     }
   }
-  let max-val = nice-ceil(nonzero(max-val))
+  let nt = nice-ticks(0, nonzero(max-val), count: t.tick-count)
+  let max-val = nt.max
 
   let cl = cartesian-layout(width, height, t)
 
@@ -482,7 +487,7 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: nt.ticks.len())
 
       // Y-axis ticks
       #draw-y-ticks(0, max-val, chart-height, pad-top, origin-x, t)

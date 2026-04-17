@@ -86,6 +86,7 @@
 
     // Non-scaled properties
     tick-count: 5,
+    tick-digits: auto,  // auto-detect from step size, or set to int for explicit control
     number-format: "auto",
     axis-stroke: 0.5pt + black,
     grid-stroke: 0.5pt + luma(230),

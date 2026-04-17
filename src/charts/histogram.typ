@@ -1,6 +1,6 @@
 // histogram.typ - Histogram chart (frequency distribution of numeric data)
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": nonzero, nice-ceil
+#import "../util.typ": nonzero, nice-ticks
 #import "../validate.typ": validate-histogram-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-y-ticks, draw-x-ticks, draw-axis-titles, measure-y-tick-width, measure-x-tick-height
@@ -89,7 +89,8 @@
     counts.map(c => float(c))
   }
 
-  let y-max = nice-ceil(nonzero(calc.max(..y-values)))
+  let ynt = nice-ticks(0, nonzero(calc.max(..y-values)), count: t.tick-count)
+  let y-max = ynt.max
 
   // Render
   let cl = cartesian-layout(width, height, t)
@@ -103,7 +104,7 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid, num-ticks: ynt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t, show-ticks: show-ticks)
@@ -143,13 +144,13 @@
       }
 
       // Y-axis ticks
-      #draw-y-ticks(0, y-max, chart-height, pad-top, origin-x, t, digits: if density { 3 } else { 1 })
+      #draw-y-ticks(0, y-max, chart-height, pad-top, origin-x, t)
 
       // X-axis ticks (numeric)
-      #draw-x-ticks(data-min, data-max, chart-width, origin-x, origin-y + t.label-offset, t, digits: 1)
+      #draw-x-ticks(data-min, data-max, chart-width, origin-x, origin-y + t.label-offset, t)
 
       // Axis titles
-      #let y-tw = measure-y-tick-width(0, y-max, t, digits: if density { 3 } else { 1 })
+      #let y-tw = measure-y-tick-width(0, y-max, t)
       #let x-th = measure-x-tick-height(([#data-max],), t)
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
     ]

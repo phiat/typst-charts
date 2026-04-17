@@ -1,6 +1,6 @@
 // lollipop.typ - Lollipop charts (vertical and horizontal)
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": normalize-data, nonzero, nice-ceil
+#import "../util.typ": normalize-data, nonzero, nice-ticks
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-ticks, draw-x-category-labels, draw-y-label, measure-y-tick-width, measure-x-tick-height
@@ -46,7 +46,8 @@
   let values = norm.values
   let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
-  let max-val = nice-ceil(nonzero(if values.len() > 0 { calc.max(..values) } else { 0 }))
+  let nt = nice-ticks(0, nonzero(if values.len() > 0 { calc.max(..values) } else { 0 }), count: t.tick-count)
+  let max-val = nt.max
   let n = values.len()
   if n == 0 { return }
 
@@ -61,7 +62,7 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: nt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
@@ -162,7 +163,8 @@
   let values = norm.values
   let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
-  let max-val = nice-ceil(nonzero(if values.len() > 0 { calc.max(..values) } else { 0 }))
+  let nt = nice-ticks(0, nonzero(if values.len() > 0 { calc.max(..values) } else { 0 }), count: t.tick-count)
+  let max-val = nt.max
   let n = values.len()
   if n == 0 { return }
 
@@ -177,13 +179,13 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: nt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // X-axis ticks (numeric values along bottom)
-      #draw-x-ticks(0, max-val, chart-width, origin-x, origin-y + t.label-offset, t, digits: 0)
+      #draw-x-ticks(0, max-val, chart-width, origin-x, origin-y + t.label-offset, t)
 
       #let spacing = chart-height / n
 

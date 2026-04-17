@@ -265,26 +265,47 @@
   nice * base
 }
 
-/// Computes nice step-aligned tick values for an axis.
-/// Returns a dictionary with `min`, `max`, `step`, and `ticks` (array of values).
+/// Computes nice step-aligned tick values for an axis using D3-style step selection.
+/// Steps are restricted to 1, 2, 5, or 10 × 10^n for clean tick labels.
+/// Returns a dictionary with `min`, `max`, `step`, `ticks` (array of values),
+/// and `digits` (auto-detected decimal places for formatting).
 ///
 /// - data-min (number): Minimum data value
 /// - data-max (number): Maximum data value
-/// - count (int): Desired number of tick intervals (not tick count)
+/// - count (int): Target number of ticks (actual count may vary slightly)
 /// -> dictionary
 #let nice-ticks(data-min, data-max, count: 5) = {
   let raw-range = nonzero(data-max - data-min, fallback: 1.0)
-  let raw-step = raw-range / count
-  let step = nice-ceil(raw-step)
+  // Target intervals = count - 1
+  let raw-step = raw-range / calc.max(1, count - 1)
+
+  // Round step to a nice number: 1, 2, 5, or 10 × 10^n (D3 algorithm)
+  let exp = calc.floor(calc.log(raw-step, base: 10))
+  let base = calc.pow(10, exp)
+  let error = raw-step / base
+  // D3 thresholds: sqrt(50), sqrt(10), sqrt(2) partition [1, 10) into step tiers
+  let step = if error >= calc.sqrt(50) { base * 10 }
+    else if error >= calc.sqrt(10) { base * 5 }
+    else if error >= calc.sqrt(2) { base * 2 }
+    else { base }
+
+  // Snap min/max to step boundaries
   let tick-min = calc.floor(data-min / step) * step
   let tick-max = calc.ceil(data-max / step) * step
+
+  // Generate ticks
   let ticks = ()
   let v = tick-min
-  while v <= tick-max + step * 0.01 {
-    ticks.push(if v == calc.floor(v) { int(v) } else { calc.round(v, digits: 2) })
+  while v <= tick-max + step * 0.001 {
+    let rv = calc.round(v, digits: 10)
+    ticks.push(if rv == calc.floor(rv) { int(rv) } else { rv })
     v += step
   }
-  (min: tick-min, max: tick-max, step: step, ticks: ticks)
+
+  // Auto-detect digits from step size (Heckbert's TickmarkPrecision formula)
+  let digits = int(calc.max(-calc.floor(calc.log(step, base: 10)), 0))
+
+  (min: tick-min, max: tick-max, step: step, ticks: ticks, digits: digits)
 }
 
 /// Computes nice-rounded (min, max, range) for a numeric array.

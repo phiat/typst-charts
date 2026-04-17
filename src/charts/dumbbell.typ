@@ -132,7 +132,9 @@
           )
         )
         // Tick label — centered on tick position
-        let display-val = format-number(val, digits: 1, mode: t.number-format)
+        let td = t.at("tick-digits", default: auto)
+        let digs = if td != auto { td } else { nt.digits }
+        let display-val = format-number(val, digits: digs, mode: t.number-format)
         place(left + top,
           dx: x - label-w / 2,
           dy: chart-height - bottom-pad + tick-len + 2pt,

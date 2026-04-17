@@ -1,6 +1,6 @@
 // line.typ - Line charts (single and multi-series)
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": normalize-data, nonzero, nice-ceil, nice-floor
+#import "../util.typ": normalize-data, nonzero, nice-ticks
 #import "../validate.typ": validate-simple-data, validate-series-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-category-labels, draw-x-even-labels, measure-y-tick-width, measure-x-tick-height
@@ -53,8 +53,9 @@
   let values = norm.values
   let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
-  let max-val = nice-ceil(calc.max(..values))
-  let min-val = nice-floor(calc.min(..values))
+  let nt = nice-ticks(calc.min(..values), calc.max(..values), count: t.tick-count)
+  let max-val = nt.max
+  let min-val = nt.min
   let val-range = nonzero(max-val - min-val)
 
   let n = values.len()
@@ -70,7 +71,7 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid, num-ticks: nt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t, show-ticks: show-ticks)
@@ -171,8 +172,9 @@
   let series = data.series
 
   let all-values = series.map(s => s.values).flatten()
-  let max-val = nice-ceil(calc.max(..all-values))
-  let min-val = nice-floor(calc.min(..all-values))
+  let nt = nice-ticks(calc.min(..all-values), calc.max(..all-values), count: t.tick-count)
+  let max-val = nt.max
+  let min-val = nt.min
   let val-range = nonzero(max-val - min-val)
 
   let n = labels.len()
@@ -189,7 +191,7 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: nt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)

@@ -4,7 +4,7 @@
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-grid, draw-axis-titles, draw-x-even-labels, draw-y-ticks, measure-y-tick-width
 #import "../primitives/legend.typ": draw-legend-auto
-#import "../util.typ": nonzero, nice-ceil
+#import "../util.typ": nonzero, nice-ticks
 #import "../primitives/layout.typ": resolve-size
 
 #let dual-axis-chart(
@@ -40,13 +40,15 @@
   let r-color = if right-color != none { right-color } else { get-color(t, 1) }
 
   // Compute left axis range
-  let l-min = calc.min(..left-series.values)
-  let l-max = nice-ceil(calc.max(..left-series.values))
+  let l-nt = nice-ticks(calc.min(..left-series.values), calc.max(..left-series.values), count: t.tick-count)
+  let l-min = l-nt.min
+  let l-max = l-nt.max
   let l-range = nonzero(l-max - l-min)
 
   // Compute right axis range
-  let r-min = calc.min(..right-series.values)
-  let r-max = nice-ceil(calc.max(..right-series.values))
+  let r-nt = nice-ticks(calc.min(..right-series.values), calc.max(..right-series.values), count: t.tick-count)
+  let r-min = r-nt.min
+  let r-max = r-nt.max
   let r-range = nonzero(r-max - r-min)
 
   // Both sides need room for ticks + rotated title
@@ -65,7 +67,7 @@
 
     #box(width: width, height: height)[
       // Grid lines (based on left axis scale)
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: l-nt.ticks.len())
 
       // Left Y-axis line
       #place(left + top, line(start: (origin-x, pad-top), end: (origin-x, origin-y), stroke: t.axis-stroke))

@@ -1,6 +1,6 @@
 // violin.typ - Violin plot (distribution shape visualization)
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": nonzero, nice-ceil
+#import "../util.typ": nonzero, nice-ticks
 #import "../validate.typ": validate-violin-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-y-ticks, draw-x-category-labels, draw-grid, draw-axis-titles, measure-y-tick-width
@@ -102,8 +102,9 @@
   // Extend y-range slightly to contain KDE tails (10% padding)
   let data-span = nonzero(global-max - global-min, fallback: 1.0)
   let y-pad = data-span * 0.1
-  let y-min = calc.min(0, global-min - y-pad)
-  let y-max = nice-ceil(global-max + y-pad)
+  let v-nt = nice-ticks(calc.min(0, global-min - y-pad), global-max + y-pad, count: t.tick-count)
+  let y-min = v-nt.min
+  let y-max = v-nt.max
 
   // ── Compute KDE for each dataset ──────────────────────────────────────
   // Returns array of (value, density) pairs, plus the max density.
@@ -168,20 +169,20 @@
 
     #box(width: width, height: height)[
       // Grid lines
-      #draw-grid(origin-x, y-start, chart-width, chart-height, t)
+      #draw-grid(origin-x, y-start, chart-width, chart-height, t, num-ticks: v-nt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, y-start, t)
 
       // Y-axis ticks
-      #draw-y-ticks(y-min, y-max, chart-height, y-start, origin-x, t, digits: 1)
+      #draw-y-ticks(y-min, y-max, chart-height, y-start, origin-x, t)
 
       // X-axis category labels
       #let spacing = chart-width / n
       #draw-x-category-labels(labels, origin-x, spacing, origin-y + t.label-offset, t)
 
       // Axis titles
-      #let y-tw = measure-y-tick-width(y-min, y-max, t, digits: 1)
+      #let y-tw = measure-y-tick-width(y-min, y-max, t)
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw)
 
       // Helper: map data value to y-coordinate, clamped to chart bounds
