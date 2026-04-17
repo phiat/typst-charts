@@ -1,6 +1,7 @@
 // boxplot.typ - Box-and-whisker plot
 #import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": nonzero, nice-ticks
+#import "../primitives/annotations.typ": draw-annotations
 #import "../validate.typ": validate-boxplot-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-y-ticks, draw-x-category-labels, draw-grid, draw-axis-titles, measure-y-tick-width, measure-x-tick-height
@@ -8,7 +9,8 @@
 
 /// Renders a box-and-whisker plot for comparing distributions.
 ///
-/// - data (dictionary): Dict with `labels` and `boxes` (each with `min`, `q1`, `median`, `q3`, `max`)
+/// - data (dictionary): Dict with `labels` and `boxes` (each with `min`, `q1`, `median`, `q3`, `max`,
+///   and optional `outliers` array of values outside the whiskers)
 /// - width (length): Chart width
 /// - height (length): Chart height
 /// - title (none, content): Optional chart title
@@ -16,8 +18,10 @@
 /// - show-values (bool): Display five-number summary labels beside each box
 /// - show-grid (auto, bool): Draw background grid lines; `auto` uses theme default
 /// - stroke-width (length): Stroke width for box outlines and whiskers
+/// - outlier-radius (length): Radius of outlier marker dots
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
+/// - annotations (none, array): Optional annotation descriptors (see annotations.typ)
 /// - theme (none, dictionary): Theme overrides
 /// -> content
 #let box-plot(
@@ -29,8 +33,10 @@
   show-values: false,
   show-grid: auto,
   stroke-width: 1pt,
+  outlier-radius: 2pt,
   x-label: none,
   y-label: none,
+  annotations: none,
   theme: none,
 ) = context {
   layout(size => {
@@ -44,13 +50,19 @@
   let n = labels.len()
 
   // Find global min/max across all boxes for Y-axis scaling
+  // Include outliers so they fit within the chart area
   let global-min = boxes.at(0).min
   let global-max = boxes.at(0).max
   for b in boxes {
     if b.min < global-min { global-min = b.min }
     if b.max > global-max { global-max = b.max }
+    if "outliers" in b {
+      for o in b.outliers {
+        if o < global-min { global-min = o }
+        if o > global-max { global-max = o }
+      }
+    }
   }
-  // Add padding to range
   let nt = nice-ticks(calc.min(0, global-min), global-max, count: t.tick-count)
   let y-min = nt.min
   let y-max = nt.max
@@ -153,6 +165,18 @@
           )
         )
 
+        // Outliers: dots at values outside the whiskers
+        if "outliers" in b {
+          for o in b.outliers {
+            let y-pos = map-y(o)
+            place(left + top,
+              dx: center-x - outlier-radius,
+              dy: y-pos - outlier-radius,
+              circle(radius: outlier-radius, fill: color, stroke: none)
+            )
+          }
+        }
+
         // Optional value labels
         if show-values {
           let label-dx = center-x + half-box + 3pt
@@ -163,6 +187,9 @@
           }
         }
       }
+
+      // Annotations — x-axis is category index [-0.5, n-0.5]
+      #draw-annotations(annotations, origin-x, y-start, chart-width, chart-height, -0.5, n - 0.5, y-min, y-max, t)
     ]
   ]
   })

@@ -5,6 +5,7 @@
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-category-labels, measure-y-tick-width, measure-x-tick-height
 #import "../primitives/legend.typ": draw-legend
+#import "../primitives/annotations.typ": draw-annotations
 #import "../primitives/layout.typ": resolve-size
 
 /// Renders a waterfall (bridge) chart showing cumulative effect of positive and negative values.
@@ -38,6 +39,7 @@
   show-legend: false,
   x-label: none,
   y-label: none,
+  annotations: none,
   theme: none,
   extra-legend-separation: 0pt
 ) = context {
@@ -221,9 +223,10 @@
       #let y-tw = measure-y-tick-width(y-min, y-max, t)
       #let x-th = measure-x-tick-height(labels, t, rotated: n>t.rotated-threshold)
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
+
+      // Annotations — x is bar index [-0.5, n-0.5], y is [y-min, y-max]
+      #draw-annotations(annotations, origin-x, pad-top, chart-width, chart-height, -0.5, n - 0.5, y-min, y-max, t)
     ]
-
-
   ]
   })
 }

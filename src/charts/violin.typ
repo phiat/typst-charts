@@ -4,6 +4,7 @@
 #import "../validate.typ": validate-violin-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-y-ticks, draw-x-category-labels, draw-grid, draw-axis-titles, measure-y-tick-width
+#import "../primitives/annotations.typ": draw-annotations
 #import "../primitives/layout.typ": resolve-size
 
 /// Renders a violin plot showing the full density shape of distributions.
@@ -38,6 +39,7 @@
   stroke-width: 1.2pt,
   x-label: none,
   y-label: none,
+  annotations: none,
   theme: none,
 ) = context {
   layout(size => {
@@ -270,6 +272,9 @@
           )
         }
       }
+
+      // Annotations — x is category index [-0.5, n-0.5], y is [y-min, y-max]
+      #draw-annotations(annotations, origin-x, y-start, chart-width, chart-height, -0.5, n - 0.5, y-min, y-max, t)
     ]
   ]
   })

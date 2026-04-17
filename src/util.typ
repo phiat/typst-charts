@@ -265,6 +265,28 @@
   nice * base
 }
 
+/// Normalizes an `errors` parameter for bar/line/scatter charts into a uniform
+/// list of `(low, high)` dicts. Accepts either symmetric (single number per
+/// point) or asymmetric (two-tuple per point) specifications.
+///
+/// - errors (none, array): Symmetric `(e1, e2, ...)` or asymmetric `((lo1, hi1), ...)`
+/// - n (int): Expected number of entries
+/// -> none, array
+#let normalize-errors(errors, n) = {
+  if errors == none { return none }
+  assert(errors.len() == n,
+    message: "errors length (" + str(errors.len()) + ") must match data length (" + str(n) + ")")
+  let result = ()
+  for e in errors {
+    if type(e) == array {
+      result.push((low: e.at(0), high: e.at(1)))
+    } else {
+      result.push((low: e, high: e))
+    }
+  }
+  result
+}
+
 /// Computes nice step-aligned tick values for an axis using D3-style step selection.
 /// Steps are restricted to 1, 2, 5, or 10 × 10^n for clean tick labels.
 /// Returns a dictionary with `min`, `max`, `step`, `ticks` (array of values),

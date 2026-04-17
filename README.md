@@ -25,7 +25,7 @@ All 50+ chart types across 8 pages — see [`examples/showcase.typ`](examples/sh
 
 | File | Description |
 |---|---|
-| [`examples/demos/`](examples/demos/) | 19 per-chart demo files, each a 2×2 grid (light/dark + variations) |
+| [`examples/demos/`](examples/demos/) | 21 per-chart demo files, each a 2×2 grid (light/dark + variations) |
 | [`examples/showcase.typ`](examples/showcase.typ) | Compact 8-page showcase of all chart types (dark theme) |
 | [`examples/demo.typ`](examples/demo.typ) | Comprehensive demo with all features, themes, and data loading |
 
@@ -50,7 +50,9 @@ just demo       # Compile the comprehensive demo
 - **Nice ticks** — D3-style axis tick algorithm produces round, evenly-spaced values; auto-detects decimal precision from step size
 - **Smart label placement** — automatic fit detection, font shrinking, and greedy deconfliction for overlapping labels
 - **Layout primitives** — shared utilities for label density, font scaling, and label placement
-- **Annotations** — overlay reference lines, bands, and labels on Cartesian charts
+- **Annotations** — overlay reference lines, bands, labels, content, points, error bars, and rectangles on any Cartesian chart
+- **Error bars** — native `errors:` parameter on bar and line charts (symmetric or asymmetric)
+- **Outliers** — native `outliers:` field on box-plot boxes
 - **Relative widths** — use `width: 100%` for responsive charts inside containers and grids
 - **Dashboard primitives** — `card`, `compact-table`, `alert`, `badge`, `separator`, and `dashboard-layout` for report layouts
 - **Customizable** — colors, sizes, labels, legends
@@ -144,11 +146,47 @@ just demo       # Compile the comprehensive demo
 - `word-cloud` - Weighted text layout sized by importance
 
 ### Annotations
-Overlay reference lines, bands, and labels on bar, line, and scatter charts:
-- `h-line` - Horizontal reference line (target, average, threshold)
-- `v-line` - Vertical reference line
-- `h-band` - Horizontal shaded region (goal zone, range)
-- `label` - Text label at a data point
+Overlay extra elements on any cartesian chart (bar, line, area, scatter, bubble, box-plot, histogram, violin, waterfall, dual-axis, ...) via the `annotations:` parameter. All coordinates are in data space.
+
+- `h-line` — horizontal reference line (target, average, threshold)
+- `v-line` — vertical reference line
+- `h-band` — horizontal shaded region (goal zone, range)
+- `label` — text label at a data point
+- `content` — place arbitrary Typst content at (x, y); `anchor:` controls positioning (`top-left`, `top`, `center`, `bottom-right`, etc.)
+- `point` — circle marker at (x, y) with configurable `radius`, `fill`, `stroke`
+- `errorbar` — vertical (default) or horizontal (`orientation: "h"`) error bar with caps
+- `rect` — rectangle in data coordinates with `fill`, `stroke`, `opacity`
+
+```typst
+#bar-chart(data, annotations: (
+  (type: "h-line", value: 160, dash: "dashed", label: "target"),
+  (type: "content", x: 2, y: 165, body: [★ best], anchor: "bottom"),
+  (type: "errorbar", x: 0, low: 115, high: 125),
+))
+```
+
+### Error bars (native)
+
+Bar and line charts accept an `errors:` parameter. Axis range auto-extends to cover the error extremes.
+
+```typst
+#bar-chart(data, errors: (10, 12, 8, 15))                       // symmetric
+#line-chart(data, errors: ((0.5, 0.7), (0.3, 0.4), (1, 2)))     // asymmetric (low, high)
+```
+
+### Box-plot outliers
+
+Each box can carry an optional `outliers:` array. Outlier values are drawn as small dots and extend the y-axis range.
+
+```typst
+#box-plot((
+  labels: ("A", "B"),
+  boxes: (
+    (min: 20, q1: 35, median: 50, q3: 65, max: 80, outliers: (95, 5)),
+    (min: 15, q1: 30, median: 45, q3: 60, max: 75),
+  ),
+))
+```
 
 ## Installation
 
@@ -416,7 +454,7 @@ primaviz/
       polar.typ              # shared polar/radial helpers (arcs, slices, labels)
       title.typ              # title rendering
   examples/
-    demos/                   # Per-chart demo files (19 files, 2×2 grids)
+    demos/                   # Per-chart demo files (21 files, 2×2 grids)
       demo-bar.typ           # bar-chart, horizontal-bar-chart
       demo-bar-multi.typ     # grouped-bar, stacked-bar
       demo-bar-advanced.typ  # grouped-stacked, diverging
@@ -436,6 +474,8 @@ primaviz/
       demo-rings.typ         # ring-progress, treemap
       demo-bump.typ          # bump-chart, funnel-chart
       demo-themes.typ        # theme comparison (all 7 presets + with-theme)
+      demo-scaling.typ       # φ-scaling from base-size/base-gap seeds
+      demo-annotations.typ   # content, point, errorbar, rect overlays; native errors + outliers
     showcase.typ             # 8-page compact showcase (dark theme)
     demo.typ                 # Comprehensive demo with JSON data loading
   data/                      # Sample JSON data files
