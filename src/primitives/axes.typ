@@ -1,7 +1,7 @@
 // axes.typ - Axis drawing primitives
 
 #import "../theme.typ": *
-#import "../util.typ": format-number, nice-ceil, nice-floor
+#import "../util.typ": format-number, nice-ceil, nice-floor, nice-ticks
 #import "layout.typ": density-skip
 
 /// Computes the standard Cartesian layout dimensions from theme padding.
@@ -35,7 +35,8 @@
 
 // Draw Y-axis (vertical) and X-axis (horizontal) lines.
 // When show-ticks is true, draws small tick marks at each grid position on both axes.
-#let draw-axis-lines(origin-x, origin-y, x-end, y-start, theme, show-ticks: false) = {
+// Optional num-ticks overrides theme.tick-count (use when nice-ticks produces a different count).
+#let draw-axis-lines(origin-x, origin-y, x-end, y-start, theme, show-ticks: false, num-ticks: auto) = {
   let chart-width = x-end - origin-x
   let chart-height = origin-y - y-start
   // Y-axis: vertical from y-start down to origin-y at x=origin-x
@@ -44,7 +45,7 @@
   place(left + top, line(start: (origin-x, origin-y), end: (x-end, origin-y), stroke: theme.axis-stroke))
   // Tick marks
   if show-ticks {
-    let tick-count = theme.tick-count
+    let tick-count = if num-ticks != auto { num-ticks } else { theme.tick-count }
     let tick-len = theme.at("tick-length", default: 4pt)
     for i in array.range(tick-count) {
       let fraction = if tick-count > 1 { i / (tick-count - 1) } else { 0 }
@@ -58,20 +59,22 @@
   }
 }
 
-// Draw tick labels along the Y axis.
+// Draw tick labels along the Y axis using nice-ticks for round values.
 // Labels are right-aligned into the padding area left of x-pos, vertically centered on the tick.
 // Optional `color` overrides theme.text-color (useful for dual-axis charts).
 // Optional `side` ("left" or "right") controls label placement; "right" places labels after x-pos.
-#let draw-y-ticks(min-val, max-val, chart-height, y-offset, x-pos, theme, digits: 1, color: auto, side: "left") = {
-  let tick-count = theme.tick-count
+#let draw-y-ticks(min-val, max-val, chart-height, y-offset, x-pos, theme, color: auto, side: "left") = {
+  let nt = nice-ticks(min-val, max-val, count: theme.tick-count)
+  let td = theme.at("tick-digits", default: auto)
+  let digits = if td != auto { td } else { nt.digits }
   let val-range = max-val - min-val
   let fill-color = if color != auto { color } else { theme.text-color }
-  for i in array.range(tick-count) {
-    let fraction = if tick-count > 1 { i / (tick-count - 1) } else { 0 }
-    let value = min-val + val-range * fraction
+  let gap = theme.axis-label-gap
+  for value in nt.ticks {
+    let fraction = if val-range > 0 { (value - min-val) / val-range } else { 0 }
+    if fraction < -0.001 or fraction > 1.001 { continue }
     let y = y-offset + chart-height - fraction * chart-height
     let label = format-number(value, digits: digits, mode: theme.number-format)
-    let gap = theme.axis-label-gap
     if side == "right" {
       place(left + top, dx: x-pos + gap, dy: y, box(height: 0pt, align(left + horizon, text(
         size: theme.axis-label-size,
@@ -113,14 +116,16 @@
   }
 }
 
-// Draw numeric tick labels along the X axis.
+// Draw numeric tick labels along the X axis using nice-ticks for round values.
 // Labels are centered on their tick position.
-#let draw-x-ticks(min-val, max-val, chart-width, x-offset, y-pos, theme, digits: 1) = {
-  let tick-count = theme.tick-count
+#let draw-x-ticks(min-val, max-val, chart-width, x-offset, y-pos, theme) = {
+  let nt = nice-ticks(min-val, max-val, count: theme.tick-count)
+  let td = theme.at("tick-digits", default: auto)
+  let digits = if td != auto { td } else { nt.digits }
   let val-range = max-val - min-val
-  for i in array.range(tick-count) {
-    let fraction = if tick-count > 1 { i / (tick-count - 1) } else { 0 }
-    let value = min-val + val-range * fraction
+  for value in nt.ticks {
+    let fraction = if val-range > 0 { (value - min-val) / val-range } else { 0 }
+    if fraction < -0.001 or fraction > 1.001 { continue }
     let x = x-offset + fraction * chart-width
     let label-w = theme.axis-label-size * 4
     place(left + top, dx: x - label-w / 2, dy: y-pos, box(width: label-w, height: theme.axis-label-size * 2, align(
@@ -169,9 +174,10 @@
 
 // Draw grid lines behind chart area.
 // When show-minor-grid is true, draws lighter lines between major grid lines.
-#let draw-grid(x-start, y-start, chart-width, chart-height, theme, show-minor-grid: false, minor-count: 4) = {
+// Optional num-ticks overrides theme.tick-count (use when nice-ticks produces a different count).
+#let draw-grid(x-start, y-start, chart-width, chart-height, theme, show-minor-grid: false, minor-count: 4, num-ticks: auto) = {
   if theme.show-grid == false { return }
-  let tick-count = theme.tick-count
+  let tick-count = if num-ticks != auto { num-ticks } else { theme.tick-count }
 
   // Minor grid lines (drawn first, behind major)
   if show-minor-grid and tick-count > 1 {
@@ -203,19 +209,18 @@
 }
 
 /// Measures the width of the widest y-axis tick label for layout calculations.
+/// Uses nice-ticks internally for consistent formatting with draw-y-ticks.
 ///
 /// - min-val (number): Minimum axis value
 /// - max-val (number): Maximum axis value
 /// - theme (dictionary): Resolved theme
-/// - digits (int): Decimal places for formatting
 /// -> length
-#let measure-y-tick-width(min-val, max-val, theme, digits: 1) = {
-  let tick-count = theme.tick-count
-  let val-range = max-val - min-val
+#let measure-y-tick-width(min-val, max-val, theme) = {
+  let nt = nice-ticks(min-val, max-val, count: theme.tick-count)
+  let td = theme.at("tick-digits", default: auto)
+  let digits = if td != auto { td } else { nt.digits }
   let max-w = 0pt
-  for i in array.range(tick-count) {
-    let fraction = if tick-count > 1 { i / (tick-count - 1) } else { 0 }
-    let value = min-val + val-range * fraction
+  for value in nt.ticks {
     let label = format-number(value, digits: digits, mode: theme.number-format)
     let w = measure(text(size: theme.axis-label-size)[#label]).width
     if w > max-w { max-w = w }
@@ -223,14 +228,14 @@
   max-w
 }
 
-#let measure-x-tick-height(values, theme, digits: 1, rotated: false) = {
+#let measure-x-tick-height(values, theme, rotated: false) = {
   let max-h = 0pt
   if not rotated {
     max-h = measure(text(size: theme.axis-label-size)[0]).height
   } else {
     for value in values {
-      if type(value) == float {
-        value = format-number(value, digits: digits, mode: theme.number-format)
+      if type(value) == float or type(value) == int {
+        value = str(value)
       }
       let w = measure(text(size: theme.axis-label-size)[#value]).width
       // When rotated, it is assumed that it is rotated by 45 degrees, so the effective height is the diagonal of the label box

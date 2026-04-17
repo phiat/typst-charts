@@ -1,6 +1,6 @@
 // area.typ - Area charts (single and stacked)
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": normalize-data, nonzero, nice-ceil
+#import "../util.typ": normalize-data, nonzero, nice-ticks
 #import "../validate.typ": validate-simple-data, validate-series-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-even-labels, measure-y-tick-width, measure-x-tick-height
@@ -48,8 +48,9 @@
   let values = norm.values
   let (width, height) = resolve-size(width, height, size, n: values.len(), theme: t)
 
-  let max-val = nice-ceil(calc.max(..values))
-  let min-val = calc.min(0, ..values)  // Include 0 for area charts
+  let nt = nice-ticks(calc.min(0, ..values), calc.max(..values), count: t.tick-count)
+  let max-val = nt.max
+  let min-val = nt.min
   let val-range = nonzero(max-val - min-val)
 
   let n = values.len()
@@ -65,7 +66,7 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, show-minor-grid: show-minor-grid, num-ticks: nt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t, show-ticks: show-ticks)
@@ -193,7 +194,8 @@
     cumulative.push(cum)
   }
 
-  let max-val = nice-ceil(nonzero(calc.max(..cumulative.map(c => c.at(n-series - 1)))))
+  let nt = nice-ticks(0, nonzero(calc.max(..cumulative.map(c => c.at(n-series - 1)))), count: t.tick-count)
+  let max-val = nt.max
 
   let cl = cartesian-layout(width, height, t)
 
@@ -207,13 +209,13 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: nt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // Y-axis ticks
-      #draw-y-ticks(0, max-val, chart-height, pad-top, origin-x, t, digits: 0)
+      #draw-y-ticks(0, max-val, chart-height, pad-top, origin-x, t)
 
       // Draw areas from top to bottom (reverse order so bottom series is on top visually)
       #for si in array.range(n-series - 1, -1, step: -1) {
@@ -254,7 +256,7 @@
       #draw-x-even-labels(labels, n, origin-x, chart-width, origin-y, t)
 
       // Axis titles
-      #let y-tw = measure-y-tick-width(0, max-val, t, digits: 0)
+      #let y-tw = measure-y-tick-width(0, max-val, t)
       #let x-th = measure-x-tick-height(labels, t, rotated: n>t.rotated-threshold)
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
     ]

@@ -1,6 +1,6 @@
 // waterfall.typ - Waterfall chart (bridge chart)
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": normalize-data, format-number, nonzero, nice-ceil
+#import "../util.typ": normalize-data, format-number, nonzero, nice-ticks
 #import "../validate.typ": validate-simple-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-category-labels, measure-y-tick-width, measure-x-tick-height
@@ -105,8 +105,9 @@
   let min-val = calc.min(..all-points)
   let max-val = calc.max(..all-points)
 
-  let y-min = calc.min(0, min-val)
-  let y-max = nice-ceil(max-val)
+  let nt = nice-ticks(calc.min(0, min-val), max-val, count: t.tick-count)
+  let y-min = nt.min
+  let y-max = nt.max
   let y-range = y-max - y-min
 
   let cl = cartesian-layout(width, height, t)
@@ -133,10 +134,10 @@
 
     #box(width: width, height: height)[
       // Grid
-      #draw-grid(origin-x, pad-top, chart-width, chart-height, t)
+      #draw-grid(origin-x, pad-top, chart-width, chart-height, t, num-ticks: nt.ticks.len())
 
       // Y-axis ticks
-      #draw-y-ticks(y-min, y-max, chart-height, pad-top, origin-x, t, digits: 0)
+      #draw-y-ticks(y-min, y-max, chart-height, pad-top, origin-x, t)
 
       // Spacing per bar
       #let spacing = chart-width / n
@@ -180,7 +181,7 @@
           let label-y = bar-top-px - t.value-label-size * 1.5
           place(left + top, dx: x-pos, dy: label-y,
             box(width: actual-bw, align(center,
-              text(size: t.value-label-size, fill: t.text-color)[#format-number(val, digits: 0, mode: t.number-format)])))
+              text(size: t.value-label-size, fill: t.text-color)[#format-number(val, digits: nt.digits, mode: t.number-format)])))
 
         }
 
@@ -217,7 +218,7 @@
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, pad-top, t)
 
       // Axis titles
-      #let y-tw = measure-y-tick-width(y-min, y-max, t, digits: 0)
+      #let y-tw = measure-y-tick-width(y-min, y-max, t)
       #let x-th = measure-x-tick-height(labels, t, rotated: n>t.rotated-threshold)
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
     ]

@@ -47,6 +47,7 @@ just demo       # Compile the comprehensive demo
 - **50+ chart types** for data visualization
 - **JSON data input** — load data directly from JSON files
 - **Theme system** — golden-ratio proportional scaling from two seeds (`base-size`, `base-gap`), preset themes, custom overrides, and `with-theme()` for document-wide defaults
+- **Nice ticks** — D3-style axis tick algorithm produces round, evenly-spaced values; auto-detects decimal precision from step size
 - **Smart label placement** — automatic fit detection, font shrinking, and greedy deconfliction for overlapping labels
 - **Layout primitives** — shared utilities for label density, font scaling, and label placement
 - **Annotations** — overlay reference lines, bands, and labels on Cartesian charts
@@ -241,6 +242,7 @@ Pass a dictionary with only the keys you want to change. Unspecified keys fall b
 
 ```typst
 #bar-chart(data, theme: (show-grid: true, palette: (red, blue, green)))
+#bar-chart(data, theme: (tick-digits: 2))  // force 2 decimal places on axis ticks
 ```
 
 ### Theme from JSON

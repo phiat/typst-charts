@@ -1,6 +1,6 @@
 // diverging.typ - Diverging bar chart (bars extend left/right from center axis)
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": nonzero
+#import "../util.typ": nonzero, nice-ticks, format-number
 #import "../validate.typ": validate-diverging-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/legend.typ": draw-legend-auto
@@ -150,9 +150,10 @@
       }
 
       // X-axis tick labels (symmetric around center) — below the bar area
-      #for i in array.range(t.tick-count) {
-        let fraction = if t.tick-count > 1 { i / (t.tick-count - 1) } else { 0 }
-        let tick-val = calc.round(max-val * fraction, digits: 0)
+      #let div-nt = nice-ticks(0, max-val, count: t.tick-count)
+      #for value in div-nt.ticks {
+        let fraction = if max-val > 0 { value / max-val } else { 0 }
+        let tick-label = format-number(value, digits: div-nt.digits, mode: t.number-format)
 
         // Right side ticks
         let rx = center-x + fraction * half-width
@@ -161,7 +162,7 @@
           dx: rx - 1.5em,
           dy: chart-height + 2pt,
           box(width: 3em, height: 1.5em,
-            align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#tick-val]))
+            align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#tick-label]))
         )
 
         // Left side ticks (mirror, skip zero to avoid double-drawing)
@@ -172,7 +173,7 @@
             dx: lx - 1.5em,
             dy: chart-height + 2pt,
             box(width: 3em, height: 1.5em,
-              align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#tick-val]))
+              align(center + top, text(size: t.axis-label-size, fill: t.text-color)[#tick-label]))
           )
         }
       }

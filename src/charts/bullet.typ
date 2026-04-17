@@ -3,7 +3,7 @@
 // with qualitative ranges (poor/satisfactory/good).
 
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": nonzero
+#import "../util.typ": nonzero, nice-ticks, format-number
 #import "../validate.typ": validate-bullet-data, validate-bullet-charts-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/layout.typ": resolve-size
@@ -118,11 +118,11 @@
 
     // X-axis tick labels along the bottom
     #{
-      let tick-count = t.tick-count
+      let b-nt = nice-ticks(0, max-range, count: t.tick-count)
       let tick-size = t.axis-label-size
-      for ti in range(tick-count + 1) {
-        let frac = ti / tick-count
-        let tick-val = calc.round(frac * max-range, digits: 0)
+      for tick-val in b-nt.ticks {
+        let frac = if max-range > 0 { tick-val / max-range } else { 0 }
+        if frac < -0.001 or frac > 1.001 { continue }
         let tx = x0 + bar-width * frac
         place(left + top, dx: tx, dy: height,
           line(start: (0pt, 0pt), end: (0pt, 3pt), stroke: 0.4pt + t.text-color))
@@ -130,7 +130,7 @@
           dx: tx - 10pt,
           dy: height + 3pt,
           box(width: 20pt, align(center,
-            text(size: tick-size, fill: t.text-color)[#int(tick-val)])))
+            text(size: tick-size, fill: t.text-color)[#format-number(tick-val, digits: b-nt.digits, mode: t.number-format)])))
       }
     }
   ]

@@ -1,6 +1,6 @@
 // boxplot.typ - Box-and-whisker plot
 #import "../theme.typ": _resolve-ctx, get-color
-#import "../util.typ": nonzero, nice-ceil
+#import "../util.typ": nonzero, nice-ticks
 #import "../validate.typ": validate-boxplot-data
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-y-ticks, draw-x-category-labels, draw-grid, draw-axis-titles, measure-y-tick-width, measure-x-tick-height
@@ -51,8 +51,9 @@
     if b.max > global-max { global-max = b.max }
   }
   // Add padding to range
-  let y-min = calc.min(0, global-min)
-  let y-max = nice-ceil(global-max)
+  let nt = nice-ticks(calc.min(0, global-min), global-max, count: t.tick-count)
+  let y-min = nt.min
+  let y-max = nt.max
 
   let cl = cartesian-layout(width, height, t)
 
@@ -66,20 +67,20 @@
 
     #box(width: width, height: height)[
       // Grid lines behind everything
-      #draw-grid(origin-x, y-start, chart-width, chart-height, t)
+      #draw-grid(origin-x, y-start, chart-width, chart-height, t, num-ticks: nt.ticks.len())
 
       // Axes
       #draw-axis-lines(origin-x, origin-y, origin-x + chart-width, y-start, t)
 
       // Y-axis ticks
-      #draw-y-ticks(y-min, y-max, chart-height, y-start, origin-x, t, digits: 0)
+      #draw-y-ticks(y-min, y-max, chart-height, y-start, origin-x, t)
 
       // X-axis category labels
       #let spacing = chart-width / n
       #draw-x-category-labels(labels, origin-x, spacing, origin-y + t.label-offset, t)
 
       // Axis titles
-      #let y-tw = measure-y-tick-width(y-min, y-max, t, digits: 0)
+      #let y-tw = measure-y-tick-width(y-min, y-max, t)
       #let x-th = measure-x-tick-height(labels, t, rotated: n > t.rotated-threshold)
       #draw-axis-titles(x-label, y-label, origin-x + chart-width / 2, pad-top + chart-height / 2, t, origin-x: origin-x, origin-y: origin-y, y-tick-width: y-tw, x-tick-height: x-th)
 
