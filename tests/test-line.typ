@@ -9,7 +9,15 @@
 
 #line-chart(simple-data, title: "line-chart")
 
+#line-chart(simple-data, title: "line-chart smooth", line-interpolation: "smooth")
+
+#line-chart(simple-data, title: "line-chart catmull-rom", line-interpolation: "catmull-rom")
+
 #multi-line-chart(multi-data, title: "multi-line-chart")
+
+#multi-line-chart(multi-data, title: "multi-line-chart smooth", line-interpolation: "smooth")
+
+#multi-line-chart(multi-data, title: "multi-line-chart catmull-rom", line-interpolation: "catmull-rom")
 
 #let dual-data = (
   labels: ("Q1", "Q2", "Q3", "Q4"),

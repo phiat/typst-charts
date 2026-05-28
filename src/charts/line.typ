@@ -1,12 +1,79 @@
 // line.typ - Line charts (single and multi-series)
 #import "../theme.typ": _resolve-ctx, get-color
 #import "../util.typ": normalize-data, nonzero, nice-ticks, normalize-errors
-#import "../validate.typ": validate-simple-data, validate-series-data
+#import "../validate.typ": validate-simple-data, validate-series-data, validate-line-style
 #import "../primitives/container.typ": chart-container
 #import "../primitives/axes.typ": cartesian-layout, draw-axis-lines, draw-grid, draw-axis-titles, draw-y-ticks, draw-x-category-labels, draw-x-even-labels, measure-y-tick-width, measure-x-tick-height
 #import "../primitives/legend.typ": draw-legend-auto
 #import "../primitives/annotations.typ": draw-annotations
 #import "../primitives/layout.typ": resolve-size
+
+#let _smooth-points(points, smooth-radius) = {
+  let smoothed = ()
+  for i in array.range(points.len()) {
+    let pt = points.at(i)
+    let lo = calc.max(i - smooth-radius, 0)
+    let hi = calc.min(i + smooth-radius, points.len() - 1)
+    let total-y = 0pt
+    let count = 0
+    for j in array.range(lo, hi + 1) {
+      total-y += points.at(j).at(1)
+      count += 1
+    }
+    smoothed.push((pt.at(0), total-y / count))
+  }
+  smoothed
+}
+
+#let _line-curve-components(points, line-interpolation) = {
+  let comps = (curve.move(points.first()),)
+  for i in array.range(points.len() - 1) {
+    let p1 = points.at(i)
+    let p2 = points.at(i + 1)
+    if line-interpolation == "smooth" {
+      let mid-x = (p1.at(0) + p2.at(0)) / 2
+      comps.push(curve.cubic((mid-x, p1.at(1)), (mid-x, p2.at(1)), p2))
+    } else if line-interpolation == "catmull-rom" {
+      let p0 = points.at(calc.max(i - 1, 0))
+      let p3 = points.at(calc.min(i + 2, points.len() - 1))
+      let c1 = (p1.at(0) + (p2.at(0) - p0.at(0)) / 6, p1.at(1) + (p2.at(1) - p0.at(1)) / 6)
+      let c2 = (p2.at(0) - (p3.at(0) - p1.at(0)) / 6, p2.at(1) - (p3.at(1) - p1.at(1)) / 6)
+      comps.push(curve.cubic(c1, c2, p2))
+    }
+  }
+  comps
+}
+
+#let draw-line-series(points, stroke, line-interpolation, smooth-radius) = {
+  if points.len() <= 1 {
+    return
+  }
+
+  if line-interpolation == "linear" {
+    for i in array.range(points.len() - 1) {
+      let p1 = points.at(i)
+      let p2 = points.at(i + 1)
+      place(
+        left + top,
+        line(
+          start: (p1.at(0), p1.at(1)),
+          end: (p2.at(0), p2.at(1)),
+          stroke: stroke,
+        )
+      )
+    }
+  } else {
+    let curve-points = if line-interpolation == "smooth" {
+      _smooth-points(points, smooth-radius)
+    } else {
+      points
+    }
+    place(
+      left + top,
+      curve(stroke: stroke, fill: none, .._line-curve-components(curve-points, line-interpolation))
+    )
+  }
+}
 
 /// Renders a single-series line chart.
 ///
@@ -17,6 +84,8 @@
 /// - show-points (bool): Draw data point markers
 /// - show-values (bool): Display value labels at data points
 /// - line-width (length): Stroke width of the line
+/// - line-interpolation (str): "linear", "smooth", or "catmull-rom"
+/// - smooth-radius (int): Moving average radius for smooth lines, 1 to 5
 /// - point-size (length): Diameter of point markers
 /// - fill-area (bool): Fill the area under the line
 /// - x-label (none, content): X-axis title
@@ -33,6 +102,8 @@
   show-points: true,
   show-values: false,
   line-width: 1.5pt,
+  line-interpolation: "linear",
+  smooth-radius: 1,
   point-size: 4pt,
   fill-area: false,
   x-label: none,
@@ -50,6 +121,7 @@
 ) = context {
   layout(size => {
   validate-simple-data(data, "line-chart")
+  validate-line-style(line-interpolation, smooth-radius, "line-chart")
   let t = _resolve-ctx(theme)
   let norm = normalize-data(data)
   let labels = norm.labels
@@ -97,19 +169,8 @@
         points.push((x, y))
       }
 
-      // Draw lines between points
-      #for i in array.range(calc.max(n - 1, 0)) {
-        let p1 = points.at(i)
-        let p2 = points.at(i + 1)
-        place(
-          left + top,
-          line(
-            start: (p1.at(0), p1.at(1)),
-            end: (p2.at(0), p2.at(1)),
-            stroke: line-width + get-color(t, 0),
-          )
-        )
-      }
+      // Draw line between points
+      #draw-line-series(points, line-width + get-color(t, 0), line-interpolation, smooth-radius)
 
       // Error bars (drawn under points so the marker sits on top)
       #if errs != none {
@@ -177,6 +238,8 @@
 /// - title (none, content): Optional chart title
 /// - show-points (bool): Draw data point markers
 /// - show-legend (bool): Show series legend
+/// - line-interpolation (str): "linear", "smooth", or "catmull-rom"
+/// - smooth-radius (int): Moving average radius for smooth lines, 1 to 5
 /// - x-label (none, content): X-axis title
 /// - y-label (none, content): Y-axis title
 /// - theme (none, dictionary): Theme overrides
@@ -190,6 +253,8 @@
   show-points: true,
   show-legend: true,
   line-width: 1.5pt,
+  line-interpolation: "linear",
+  smooth-radius: 1,
   point-size: 3pt,
   x-label: none,
   y-label: none,
@@ -199,6 +264,7 @@
 ) = context {
   layout(size => {
   validate-series-data(data, "multi-line-chart")
+  validate-line-style(line-interpolation, smooth-radius, "multi-line-chart")
   let t = _resolve-ctx(theme)
   let (width, height) = resolve-size(width, height, size, n: data.labels.len(), theme: t)
   let labels = data.labels
@@ -243,18 +309,7 @@
           points.push((x, y))
         }
 
-        for i in array.range(calc.max(n - 1, 0)) {
-          let p1 = points.at(i)
-          let p2 = points.at(i + 1)
-          place(
-            left + top,
-            line(
-              start: (p1.at(0), p1.at(1)),
-              end: (p2.at(0), p2.at(1)),
-              stroke: line-width + color,
-            )
-          )
-        }
+        draw-line-series(points, line-width + color, line-interpolation, smooth-radius)
 
         if show-points {
           for pt in points {

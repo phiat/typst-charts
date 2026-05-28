@@ -404,3 +404,14 @@
       message: chart-name + ": tasks[" + str(i) + "] start (" + str(task.start) + ") must be less than end (" + str(task.end) + ")")
   }
 }
+
+#let validate-line-style(line-interpolation, smooth-radius, chart-name) = {
+  assert(
+    line-interpolation in ("linear", "smooth", "catmull-rom"),
+    message: chart-name + ": line-interpolation must be 'linear', 'smooth', or 'catmull-rom'"
+  )
+  assert(
+    type(smooth-radius) == int and smooth-radius >= 1 and smooth-radius <= 5,
+    message: chart-name + ": smooth-radius must be an integer from 1 to 5"
+  )
+}

@@ -1,12 +1,15 @@
 // data.typ — Shared test data for all test modules
 
-#let simple-data = (labels: ("A", "B", "C"), values: (10, 20, 15))
+#let simple-data = (
+  labels: ("Q1", "Q2", "Q3", "Q4", "Q5"),
+  values: (12, 26, 15, 34, 22),
+)
 
 #let multi-data = (
-  labels: ("A", "B"),
+  labels: ("Q1", "Q2", "Q3", "Q4", "Q5"),
   series: (
-    (name: "X", values: (10, 20)),
-    (name: "Y", values: (15, 25)),
+    (name: "North", values: (12, 26, 15, 34, 22)),
+    (name: "South", values: (20, 14, 28, 18, 31)),
   ),
 )
 
